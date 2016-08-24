@@ -1,6 +1,7 @@
 # aurelia-collection
 
 An opinionated collection of models abstraction for aurelia framework.
+This is a work in progress, not ready to use yet.
 
 ## Building The Code
 
