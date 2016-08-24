@@ -48,12 +48,12 @@ export let Service = class Service {
     this.get(model[this.modelid], { force: true });
   }
 
-  _setHttpClient(httpClient) {
-    this._httpClient = httpClient;
+  refKeys() {
+    return [];
   }
 
-  _refKeys(model) {
-    return {};
+  _setHttpClient(httpClient) {
+    this._httpClient = httpClient;
   }
 
   _syncFrom(model, data) {

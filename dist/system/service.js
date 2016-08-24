@@ -70,12 +70,12 @@ System.register(['lodash', './config'], function (_export, _context) {
           this.get(model[this.modelid], { force: true });
         };
 
-        Service.prototype._setHttpClient = function _setHttpClient(httpClient) {
-          this._httpClient = httpClient;
+        Service.prototype.refKeys = function refKeys() {
+          return [];
         };
 
-        Service.prototype._refKeys = function _refKeys(model) {
-          return {};
+        Service.prototype._setHttpClient = function _setHttpClient(httpClient) {
+          this._httpClient = httpClient;
         };
 
         Service.prototype._syncFrom = function _syncFrom(model, data) {
