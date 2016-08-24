@@ -174,7 +174,7 @@ define(['exports', 'lodash', './config'], function (exports, _lodash, _config) {
         }
         childOpt._child = true;
 
-        return Promise.all(_lodash2.default.map(_this3._refKeys(model), function (item) {
+        return Promise.all(_lodash2.default.map(_this3.refKeys(model), function (item) {
           var itemData = model[item.backendKey];
           return _this3.container[item.service].get(itemData, childOpt).then(function (childrenItems) {
             if (!_lodash2.default.isNil(childrenItems) && !isNullArray(childrenItems)) {

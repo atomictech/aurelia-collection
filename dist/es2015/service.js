@@ -137,7 +137,7 @@ export let Service = class Service {
       }
       childOpt._child = true;
 
-      return Promise.all(_.map(this._refKeys(model), item => {
+      return Promise.all(_.map(this.refKeys(model), item => {
         let itemData = model[item.backendKey];
         return this.container[item.service].get(itemData, childOpt).then(childrenItems => {
           if (!_.isNil(childrenItems) && !isNullArray(childrenItems)) {

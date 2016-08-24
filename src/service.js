@@ -147,7 +147,7 @@ export class Service {
 
         // each reference attribute (described by the model class) is replaced by the matching model instance if we ask for population
         return Promise.all(
-            _.map(this._refKeys(model), item => {
+            _.map(this.refKeys(model), item => {
               let itemData = model[item.backendKey];
               return this.container[item.service].get(itemData, childOpt)
                 .then(childrenItems => {
