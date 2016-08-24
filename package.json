@@ -54,7 +54,7 @@
     "yargs": "^4.8.1"
   },
   "jspm": {
-    "registry": "github",
+    "registry": "npm",
     "main": "aurelia-collection",
     "format": "amd",
     "directories": {
