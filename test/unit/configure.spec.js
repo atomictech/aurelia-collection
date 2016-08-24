@@ -1,4 +1,4 @@
-import {configure} from '../../src/index';
+import {configure} from '../../src/aurelia-collection';
 
 class ConfigStub {
   globalResources(...resources) {
@@ -15,7 +15,7 @@ describe('the Aurelia configuration', () => {
   });
 
   it('should register a global resource', () => {
-    expect(mockedConfiguration.resources).toContain('./collection');
+    expect(mockedConfiguration.resources).toContain('./config');
   });
 
 });

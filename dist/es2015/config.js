@@ -1,19 +1,17 @@
+var _dec, _class;
+
 import { inject } from 'aurelia-framework';
 import { HttpClient } from 'aurelia-fetch-client';
 import { Service } from './service';
 
-/**
- * Config class. Configures and stores collections services
- */
-@inject(HttpClient)
-export class Config {
+export let Config = (_dec = inject(HttpClient), _dec(_class = class Config {
 
   constructor(httpClient) {
+    this.collections = {};
+    this.defaultCollection = null;
+
     this.httpClient = httpClient;
   }
-
-  collections = {};
-  defaultCollection = null;
 
   registerCollection(key, defaultRoute, modelClass = Object, modelid = '_id', ServiceClass = Service) {
 
@@ -40,4 +38,4 @@ export class Config {
 
     return this;
   }
-}
+}) || _class);
