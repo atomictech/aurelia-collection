@@ -139,7 +139,7 @@ export let Service = class Service {
 
       return Promise.all(_.map(this.refKeys(model), item => {
         let itemData = model[item.backendKey];
-        return this.container[item.service].get(itemData, childOpt).then(childrenItems => {
+        return this.container.collections[item.collection].get(itemData, childOpt).then(childrenItems => {
           if (!_.isNil(childrenItems) && !isNullArray(childrenItems)) {
             delete model[item.backendKey];
             return model[item.frontendKey] = childrenItems;

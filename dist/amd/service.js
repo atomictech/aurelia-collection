@@ -176,7 +176,7 @@ define(['exports', 'lodash', './config'], function (exports, _lodash, _config) {
 
         return Promise.all(_lodash2.default.map(_this3.refKeys(model), function (item) {
           var itemData = model[item.backendKey];
-          return _this3.container[item.service].get(itemData, childOpt).then(function (childrenItems) {
+          return _this3.container.collections[item.collection].get(itemData, childOpt).then(function (childrenItems) {
             if (!_lodash2.default.isNil(childrenItems) && !isNullArray(childrenItems)) {
               delete model[item.backendKey];
               return model[item.frontendKey] = childrenItems;

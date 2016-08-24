@@ -177,7 +177,7 @@ System.register(['lodash', './config'], function (_export, _context) {
 
             return Promise.all(_.map(_this3.refKeys(model), function (item) {
               var itemData = model[item.backendKey];
-              return _this3.container[item.service].get(itemData, childOpt).then(function (childrenItems) {
+              return _this3.container.collections[item.collection].get(itemData, childOpt).then(function (childrenItems) {
                 if (!_.isNil(childrenItems) && !isNullArray(childrenItems)) {
                   delete model[item.backendKey];
                   return model[item.frontendKey] = childrenItems;
