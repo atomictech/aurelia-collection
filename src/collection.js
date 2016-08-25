@@ -1,4 +1,4 @@
-import { Container, resolver } from 'aurelia-dependency-injection';
+import { resolver } from 'aurelia-dependency-injection';
 import { Config } from './config';
 
 @resolver()
@@ -13,7 +13,7 @@ export class Collection {
   }
 
   static of(key) {
-    return new Collection(key)
+    return new Collection(key);
   }
 
 }
