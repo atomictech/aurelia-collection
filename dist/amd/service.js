@@ -1,4 +1,4 @@
-define(['exports', 'lodash', './config'], function (exports, _lodash, _config) {
+define(['exports', 'lodash', 'aurelia-fetch-client'], function (exports, _lodash, _aureliaFetchClient) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -114,7 +114,7 @@ define(['exports', 'lodash', './config'], function (exports, _lodash, _config) {
 
       return this._httpClient.fetch(this.defaultRoute.slice(0, -1), {
         method: 'post',
-        body: json(jsonModel)
+        body: (0, _aureliaFetchClient.json)(jsonModel)
       }).then(function (response) {
         return response.json();
       }).then(function (data) {

@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-import { Config } from './config';
+import { json } from 'aurelia-fetch-client';
 
 export let Service = class Service {
 

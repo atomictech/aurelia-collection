@@ -9,7 +9,7 @@ var _lodash = require('lodash');
 
 var _lodash2 = _interopRequireDefault(_lodash);
 
-var _config = require('./config');
+var _aureliaFetchClient = require('aurelia-fetch-client');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -109,7 +109,7 @@ var Service = exports.Service = function () {
 
     return this._httpClient.fetch(this.defaultRoute.slice(0, -1), {
       method: 'post',
-      body: json(jsonModel)
+      body: (0, _aureliaFetchClient.json)(jsonModel)
     }).then(function (response) {
       return response.json();
     }).then(function (data) {

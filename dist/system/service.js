@@ -1,9 +1,9 @@
 'use strict';
 
-System.register(['lodash', './config'], function (_export, _context) {
+System.register(['lodash', 'aurelia-fetch-client'], function (_export, _context) {
   "use strict";
 
-  var _, Config, Service;
+  var _, json, Service;
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -17,8 +17,8 @@ System.register(['lodash', './config'], function (_export, _context) {
   return {
     setters: [function (_lodash) {
       _ = _lodash.default;
-    }, function (_config) {
-      Config = _config.Config;
+    }, function (_aureliaFetchClient) {
+      json = _aureliaFetchClient.json;
     }],
     execute: function () {
       _export('Service', Service = function () {
