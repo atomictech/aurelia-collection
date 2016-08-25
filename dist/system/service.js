@@ -103,7 +103,7 @@ System.register(['lodash', 'aurelia-fetch-client'], function (_export, _context)
             return this._httpClient.fetch(this.defaultRoute + id).then(function (response) {
               return response.json();
             }).then(function (data) {
-              return _this.fromJSON(data);
+              return _this.fromJSON(data, { force: force });
             });
           }
 
@@ -113,7 +113,13 @@ System.register(['lodash', 'aurelia-fetch-client'], function (_export, _context)
         Service.prototype.create = function create(jsonModel) {
           var _this2 = this;
 
-          return this._httpClient.fetch(this.defaultRoute.slice(0, -1), {
+          var apiRoute = this.defaultRoute.slice(0, -1);
+
+          if (!_.isNil(route)) {
+            apiRoute += '/' + route;
+          }
+
+          return this._httpClient.fetch(apiRoute, {
             method: 'post',
             body: json(jsonModel)
           }).then(function (response) {
@@ -123,9 +129,15 @@ System.register(['lodash', 'aurelia-fetch-client'], function (_export, _context)
           });
         };
 
-        Service.prototype.destroy = function destroy(id) {
+        Service.prototype.destroy = function destroy(id, route) {
+          var apiRoute = this.defaultRoute;
+
+          if (!_.isNil(route)) {
+            apiRoute += route;
+          }
+
           this._removeFromCollection(id);
-          return this.http.fetch(this.defaultRoute + id, {
+          return this._httpClient.fetch(apiRoute, {
             method: 'delete'
           }).then(function (response) {
             return response.json();

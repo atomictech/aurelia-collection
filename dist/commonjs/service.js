@@ -97,7 +97,7 @@ var Service = exports.Service = function () {
       return this._httpClient.fetch(this.defaultRoute + id).then(function (response) {
         return response.json();
       }).then(function (data) {
-        return _this.fromJSON(data);
+        return _this.fromJSON(data, { force: force });
       });
     }
 
@@ -107,7 +107,13 @@ var Service = exports.Service = function () {
   Service.prototype.create = function create(jsonModel) {
     var _this2 = this;
 
-    return this._httpClient.fetch(this.defaultRoute.slice(0, -1), {
+    var apiRoute = this.defaultRoute.slice(0, -1);
+
+    if (!_lodash2.default.isNil(route)) {
+      apiRoute += '/' + route;
+    }
+
+    return this._httpClient.fetch(apiRoute, {
       method: 'post',
       body: (0, _aureliaFetchClient.json)(jsonModel)
     }).then(function (response) {
@@ -117,9 +123,15 @@ var Service = exports.Service = function () {
     });
   };
 
-  Service.prototype.destroy = function destroy(id) {
+  Service.prototype.destroy = function destroy(id, route) {
+    var apiRoute = this.defaultRoute;
+
+    if (!_lodash2.default.isNil(route)) {
+      apiRoute += route;
+    }
+
     this._removeFromCollection(id);
-    return this.http.fetch(this.defaultRoute + id, {
+    return this._httpClient.fetch(apiRoute, {
       method: 'delete'
     }).then(function (response) {
       return response.json();

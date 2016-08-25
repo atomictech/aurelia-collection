@@ -77,7 +77,7 @@ export let Service = class Service {
 
     if (_.isUndefined(model) || !this.isComplete(model) || force) {
       return this._httpClient.fetch(this.defaultRoute + id).then(response => response.json()).then(data => {
-        return this.fromJSON(data);
+        return this.fromJSON(data, { force: force });
       });
     }
 
@@ -85,15 +85,27 @@ export let Service = class Service {
   }
 
   create(jsonModel) {
-    return this._httpClient.fetch(this.defaultRoute.slice(0, -1), {
+    let apiRoute = this.defaultRoute.slice(0, -1);
+
+    if (!_.isNil(route)) {
+      apiRoute += '/' + route;
+    }
+
+    return this._httpClient.fetch(apiRoute, {
       method: 'post',
       body: json(jsonModel)
     }).then(response => response.json()).then(data => this.get(data));
   }
 
-  destroy(id) {
+  destroy(id, route) {
+    let apiRoute = this.defaultRoute;
+
+    if (!_.isNil(route)) {
+      apiRoute += route;
+    }
+
     this._removeFromCollection(id);
-    return this.http.fetch(this.defaultRoute + id, {
+    return this._httpClient.fetch(apiRoute, {
       method: 'delete'
     }).then(response => response.json());
   }
