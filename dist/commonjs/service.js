@@ -104,7 +104,7 @@ var Service = exports.Service = function () {
     return Promise.resolve(model);
   };
 
-  Service.prototype.create = function create(jsonModel) {
+  Service.prototype.create = function create(jsonModel, route) {
     var _this2 = this;
 
     var apiRoute = this.defaultRoute.slice(0, -1);

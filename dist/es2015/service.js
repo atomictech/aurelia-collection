@@ -84,7 +84,7 @@ export let Service = class Service {
     return Promise.resolve(model);
   }
 
-  create(jsonModel) {
+  create(jsonModel, route) {
     let apiRoute = this.defaultRoute.slice(0, -1);
 
     if (!_.isNil(route)) {
