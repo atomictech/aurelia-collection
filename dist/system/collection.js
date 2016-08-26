@@ -3,7 +3,7 @@
 System.register(['aurelia-dependency-injection', './config'], function (_export, _context) {
   "use strict";
 
-  var Container, resolver, Config, _dec, _class, Collection;
+  var resolver, Config, _dec, _class, Collection;
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -13,7 +13,6 @@ System.register(['aurelia-dependency-injection', './config'], function (_export,
 
   return {
     setters: [function (_aureliaDependencyInjection) {
-      Container = _aureliaDependencyInjection.Container;
       resolver = _aureliaDependencyInjection.resolver;
     }, function (_config) {
       Config = _config.Config;

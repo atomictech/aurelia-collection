@@ -1,6 +1,6 @@
 var _dec, _class;
 
-import { Container, resolver } from 'aurelia-dependency-injection';
+import { resolver } from 'aurelia-dependency-injection';
 import { Config } from './config';
 
 export let Collection = (_dec = resolver(), _dec(_class = class Collection {

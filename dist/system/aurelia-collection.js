@@ -1,9 +1,9 @@
 'use strict';
 
-System.register(['aurelia-framework', './collection', './service', './config'], function (_export, _context) {
+System.register(['fetch', './collection', './service', './config'], function (_export, _context) {
   "use strict";
 
-  var Aurelia, Collection, Service, Config;
+  var Collection, Service, Config;
   function configure(aurelia, configCallback) {
     var config = aurelia.container.get(Config);
 
@@ -15,9 +15,7 @@ System.register(['aurelia-framework', './collection', './service', './config'], 
   _export('configure', configure);
 
   return {
-    setters: [function (_aureliaFramework) {
-      Aurelia = _aureliaFramework.Aurelia;
-    }, function (_collection) {
+    setters: [function (_fetch) {}, function (_collection) {
       Collection = _collection.Collection;
     }, function (_service) {
       Service = _service.Service;

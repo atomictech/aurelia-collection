@@ -1,4 +1,4 @@
-define(['exports', 'aurelia-framework', './collection', './service', './config'], function (exports, _aureliaFramework, _collection, _service, _config) {
+define(['exports', './collection', './service', './config', 'fetch'], function (exports, _collection, _service, _config) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {

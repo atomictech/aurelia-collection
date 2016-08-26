@@ -1,4 +1,4 @@
-import { Aurelia } from 'aurelia-framework';
+import 'fetch';
 import { Collection } from './collection';
 import { Service } from './service';
 import { Config } from './config';

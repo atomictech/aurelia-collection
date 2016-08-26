@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", {
 exports.Config = exports.Service = exports.Collection = undefined;
 exports.configure = configure;
 
-var _aureliaFramework = require('aurelia-framework');
+require('fetch');
 
 var _collection = require('./collection');
 
