@@ -11,8 +11,8 @@ System.register(['lodash', 'aurelia-fetch-client'], function (_export, _context)
     }
   }
 
-  function isNullArray(arr) {
-    return _.every(arr, _.isNil);
+  function isNotNullArray(arr) {
+    return _.some(arr, _.negate(_.isNil));
   }
   return {
     setters: [function (_lodash) {
@@ -190,7 +190,7 @@ System.register(['lodash', 'aurelia-fetch-client'], function (_export, _context)
             return Promise.all(_.map(_this3.refKeys(model), function (item) {
               var itemData = model[item.backendKey];
               return _this3.container.collections[item.collection].get(itemData, childOpt).then(function (childrenItems) {
-                if (!_.isNil(childrenItems) && !isNullArray(childrenItems)) {
+                if (item.backendKey !== item.frontendKey && !_.isNil(childrenItems) && isNotNullArray(childrenItems)) {
                   delete model[item.backendKey];
                   return model[item.frontendKey] = childrenItems;
                 }

@@ -189,7 +189,7 @@ define(['exports', 'lodash', 'aurelia-fetch-client'], function (exports, _lodash
         return Promise.all(_lodash2.default.map(_this3.refKeys(model), function (item) {
           var itemData = model[item.backendKey];
           return _this3.container.collections[item.collection].get(itemData, childOpt).then(function (childrenItems) {
-            if (!_lodash2.default.isNil(childrenItems) && !isNullArray(childrenItems)) {
+            if (item.backendKey !== item.frontendKey && !_lodash2.default.isNil(childrenItems) && isNotNullArray(childrenItems)) {
               delete model[item.backendKey];
               return model[item.frontendKey] = childrenItems;
             }
@@ -203,7 +203,7 @@ define(['exports', 'lodash', 'aurelia-fetch-client'], function (exports, _lodash
     return Service;
   }();
 
-  function isNullArray(arr) {
-    return _lodash2.default.every(arr, _lodash2.default.isNil);
+  function isNotNullArray(arr) {
+    return _lodash2.default.some(arr, _lodash2.default.negate(_lodash2.default.isNil));
   }
 });

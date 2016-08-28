@@ -48,6 +48,11 @@ export class Service {
     this.get(model[this.modelid], { force: true });
   }
 
+  // Should be an array of objects
+  // The objects should be made of 3 keys:
+  // a backendKey, the `old` key in the data
+  // a frontendKey, the `new` key in the model
+  // and a collection, the collection from which the items will be 'got'.
   refKeys() {
     return [];
   }
@@ -163,7 +168,8 @@ export class Service {
               let itemData = model[item.backendKey];
               return this.container.collections[item.collection].get(itemData, childOpt)
                 .then(childrenItems => {
-                  if (!_.isNil(childrenItems) && !isNullArray(childrenItems)) {
+                  // Replace the model key if necessary.
+                  if ((item.backendKey !== item.frontendKey) && !_.isNil(childrenItems) && isNotNullArray(childrenItems)) {
                     delete model[item.backendKey];
                     return model[item.frontendKey] = childrenItems;
                   }
@@ -174,6 +180,6 @@ export class Service {
   }
 }
 
-function isNullArray(arr) {
-  return _.every(arr, _.isNil);
+function isNotNullArray(arr) {
+  return _.some(arr, _.negate(_.isNil));
 }

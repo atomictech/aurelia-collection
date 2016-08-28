@@ -152,7 +152,7 @@ export let Service = class Service {
       return Promise.all(_.map(this.refKeys(model), item => {
         let itemData = model[item.backendKey];
         return this.container.collections[item.collection].get(itemData, childOpt).then(childrenItems => {
-          if (!_.isNil(childrenItems) && !isNullArray(childrenItems)) {
+          if (item.backendKey !== item.frontendKey && !_.isNil(childrenItems) && isNotNullArray(childrenItems)) {
             delete model[item.backendKey];
             return model[item.frontendKey] = childrenItems;
           }
@@ -162,6 +162,6 @@ export let Service = class Service {
   }
 };
 
-function isNullArray(arr) {
-  return _.every(arr, _.isNil);
+function isNotNullArray(arr) {
+  return _.some(arr, _.negate(_.isNil));
 }
