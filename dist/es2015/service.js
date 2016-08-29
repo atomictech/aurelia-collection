@@ -121,7 +121,7 @@ export let Service = class Service {
     let modelPromise = null;
 
     if (_.isEmpty(data)) {
-      return Promise.resolve(null);
+      return Promise.resolve(data);
     } else if (_.isArray(data)) {
       return modelPromise = Promise.all(_.map(data, item => this.get(item, options)));
     } else if (_.isObject(data)) {
@@ -182,5 +182,5 @@ export let Service = class Service {
 };
 
 function isNotNullArray(arr) {
-  return _.some(arr, _.negate(_.isNil));
+  return !_.isArray(arr) || _.isEmpty(arr) || _.some(arr, _.negate(_.isNil));
 }

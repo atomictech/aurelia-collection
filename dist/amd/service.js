@@ -156,7 +156,7 @@ define(['exports', 'lodash', 'aurelia-fetch-client'], function (exports, _lodash
       var modelPromise = null;
 
       if (_lodash2.default.isEmpty(data)) {
-        return Promise.resolve(null);
+        return Promise.resolve(data);
       } else if (_lodash2.default.isArray(data)) {
         return modelPromise = Promise.all(_lodash2.default.map(data, function (item) {
           return _this3.get(item, options);
@@ -223,6 +223,6 @@ define(['exports', 'lodash', 'aurelia-fetch-client'], function (exports, _lodash
   }();
 
   function isNotNullArray(arr) {
-    return _lodash2.default.some(arr, _lodash2.default.negate(_lodash2.default.isNil));
+    return !_lodash2.default.isArray(arr) || _lodash2.default.isEmpty(arr) || _lodash2.default.some(arr, _lodash2.default.negate(_lodash2.default.isNil));
   }
 });

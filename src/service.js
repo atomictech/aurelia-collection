@@ -131,7 +131,7 @@ export class Service {
     let modelPromise = null;
 
     if (_.isEmpty(data)) { // you cannot get nothing
-      return Promise.resolve(null);
+      return Promise.resolve(data);
     } else if (_.isArray(data)) { // you iterate on the array, and go one level deeper (for ID or JSON array)
       return modelPromise = Promise.all(_.map(data, item => this.get(item, options)));
     } else if (_.isObject(data)) { // you already have the json data, just instanciate the model
@@ -203,5 +203,7 @@ export class Service {
 }
 
 function isNotNullArray(arr) {
-  return _.some(arr, _.negate(_.isNil));
+  // If the arr is an empty array, it is NOT a null array.
+  // Therefore we can't compact it and check if it is empty.
+  return !_.isArray(arr) || _.isEmpty(arr) || _.some(arr, _.negate(_.isNil));
 }
