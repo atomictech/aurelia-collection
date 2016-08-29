@@ -12,7 +12,7 @@ System.register(['lodash', 'aurelia-fetch-client'], function (_export, _context)
   }
 
   function isNotNullArray(arr) {
-    return _.some(arr, _.negate(_.isNil));
+    return !_.isArray(arr) || _.isEmpty(arr) || _.some(arr, _.negate(_.isNil));
   }
   return {
     setters: [function (_lodash) {
@@ -157,7 +157,7 @@ System.register(['lodash', 'aurelia-fetch-client'], function (_export, _context)
           var modelPromise = null;
 
           if (_.isEmpty(data)) {
-            return Promise.resolve(null);
+            return Promise.resolve(data);
           } else if (_.isArray(data)) {
             return modelPromise = Promise.all(_.map(data, function (item) {
               return _this3.get(item, options);
