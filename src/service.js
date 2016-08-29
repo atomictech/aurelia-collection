@@ -165,12 +165,34 @@ export class Service {
         // each reference attribute (described by the model class) is replaced by the matching model instance if we ask for population
         return Promise.all(
             _.map(this.refKeys(model), item => {
+              item = _.defaults(item, {
+                backendKey: null,
+                collection: null,
+                frontendKey: null,
+                backendKeyDeletion: true
+              });
+
+              // collection and backendKey have to be defined.
+              let collection = this.container.collections[item.collection];
+              if (_.isNil(item.backendKey) || _.isNull(item.collection) || _.isUndefined(collection)) {
+                return;
+              }
+
+              // If frontendKey has not been specified,
+              // we consider it as equal to backendKey
+              if (_.isNil(item.frontendKey)) {
+                item.frontendKey = item.backendKey;
+              }
+
               let itemData = model[item.backendKey];
-              return this.container.collections[item.collection].get(itemData, childOpt)
+              return collection.get(itemData, childOpt)
                 .then(childrenItems => {
                   // Replace the model key if necessary.
-                  if ((item.backendKey !== item.frontendKey) && !_.isNil(childrenItems) && isNotNullArray(childrenItems)) {
-                    delete model[item.backendKey];
+                  if (!_.isNil(childrenItems) && isNotNullArray(childrenItems)) {
+                    if (item.backendKeyDeletion === true) {
+                      delete model[item.backendKey];
+                    }
+
                     return model[item.frontendKey] = childrenItems;
                   }
                 });
