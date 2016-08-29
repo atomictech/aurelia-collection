@@ -200,6 +200,83 @@ export class Service {
           .then(() => model);
       });
   }
+
+  update(model, attr) {
+    return this._frontToBackend(attr)
+      .then(backAttr => {
+        return this._httpClient
+          .fetch(this.defaultRoute + model[this.modelid], {
+            method: 'put',
+            headers: { 'Content-Type': 'application/json' },
+            body: json(backAttr)
+          }).then(response => response.json())
+          .then(attributes => this._backToFrontend(attributes, backAttr, model));
+      }).then(() => model);
+  }
+
+  _frontToBackend(attributes) {
+    const refKeys = this.refKeys();
+
+    let _getIdFromData = (data) => {
+      if (_.isString(data)) {
+        return data;
+      } else if (_.isArray(data)) {
+        return _.map(data, _getIdFromData);
+      } else if (_.isObject(data)) {
+        return data[this.modelid];
+      }
+    };
+
+    _.each(attributes, (value, field) => {
+      let item = _.find(refKeys, { frontendKey: field });
+      item = _.defaults(item, {
+        backendKey: null,
+        frontendKey: null,
+        backendKeyDeletion: true
+      });
+
+      // If undefined, nothing to convert.
+      if (_.isUndefined(item)) {
+        return;
+      }
+
+      if (item.backendKeyDeletion) {
+        delete attributes[item.frontendKey];
+      }
+
+      attributes[item.backendKey] = _getIdFromData(value);
+    });
+
+    return Promise.resolve(attributes);
+  }
+
+  _backToFrontend(attributes, backAttr, model) {
+    const refKeys = this.refKeys();
+
+    return Promise.all(_.map(backAttr, (value, field) => {
+      let frontendKey = field;
+      let backendKey = field;
+      let frontendValue = Promise.resolve(attributes[backendKey]);
+
+      // The current field is a frontend type of key.
+      let item = _.find(refKeys, { backendKey: field });
+      item = _.defaults(item, {
+        backendKey: null,
+        frontendKey: null,
+        backendKeyDeletion: true
+      });
+
+      if (!_.isUndefined(item)) {
+        frontendKey = item.frontendKey;
+        backendKey = item.backendKey;
+        frontendValue = this.container.collections[item.collection].get(attributes[backendKey]);
+      }
+
+      // Update the right key in the model.
+      return frontendValue.then(result => model[frontendKey] = result);
+    }));
+  }
+
 }
 
 function isNotNullArray(arr) {
