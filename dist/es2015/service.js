@@ -150,10 +150,29 @@ export let Service = class Service {
       childOpt._child = true;
 
       return Promise.all(_.map(this.refKeys(model), item => {
+        item = _.defaults(item, {
+          backendKey: null,
+          collection: null,
+          frontendKey: null,
+          backendKeyDeletion: true
+        });
+
+        let collection = this.container.collections[item.collection];
+        if (_.isNil(item.backendKey) || _.isNull(item.collection) || _.isUndefined(collection)) {
+          return;
+        }
+
+        if (_.isNil(item.frontendKey)) {
+          item.frontendKey = item.backendKey;
+        }
+
         let itemData = model[item.backendKey];
-        return this.container.collections[item.collection].get(itemData, childOpt).then(childrenItems => {
-          if (item.backendKey !== item.frontendKey && !_.isNil(childrenItems) && isNotNullArray(childrenItems)) {
-            delete model[item.backendKey];
+        return collection.get(itemData, childOpt).then(childrenItems => {
+          if (!_.isNil(childrenItems) && isNotNullArray(childrenItems)) {
+            if (item.backendKeyDeletion === true) {
+              delete model[item.backendKey];
+            }
+
             return model[item.frontendKey] = childrenItems;
           }
         });

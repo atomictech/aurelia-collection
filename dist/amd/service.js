@@ -187,10 +187,29 @@ define(['exports', 'lodash', 'aurelia-fetch-client'], function (exports, _lodash
         childOpt._child = true;
 
         return Promise.all(_lodash2.default.map(_this3.refKeys(model), function (item) {
+          item = _lodash2.default.defaults(item, {
+            backendKey: null,
+            collection: null,
+            frontendKey: null,
+            backendKeyDeletion: true
+          });
+
+          var collection = _this3.container.collections[item.collection];
+          if (_lodash2.default.isNil(item.backendKey) || _lodash2.default.isNull(item.collection) || _lodash2.default.isUndefined(collection)) {
+            return;
+          }
+
+          if (_lodash2.default.isNil(item.frontendKey)) {
+            item.frontendKey = item.backendKey;
+          }
+
           var itemData = model[item.backendKey];
-          return _this3.container.collections[item.collection].get(itemData, childOpt).then(function (childrenItems) {
-            if (item.backendKey !== item.frontendKey && !_lodash2.default.isNil(childrenItems) && isNotNullArray(childrenItems)) {
-              delete model[item.backendKey];
+          return collection.get(itemData, childOpt).then(function (childrenItems) {
+            if (!_lodash2.default.isNil(childrenItems) && isNotNullArray(childrenItems)) {
+              if (item.backendKeyDeletion === true) {
+                delete model[item.backendKey];
+              }
+
               return model[item.frontendKey] = childrenItems;
             }
           });

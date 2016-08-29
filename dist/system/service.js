@@ -188,10 +188,29 @@ System.register(['lodash', 'aurelia-fetch-client'], function (_export, _context)
             childOpt._child = true;
 
             return Promise.all(_.map(_this3.refKeys(model), function (item) {
+              item = _.defaults(item, {
+                backendKey: null,
+                collection: null,
+                frontendKey: null,
+                backendKeyDeletion: true
+              });
+
+              var collection = _this3.container.collections[item.collection];
+              if (_.isNil(item.backendKey) || _.isNull(item.collection) || _.isUndefined(collection)) {
+                return;
+              }
+
+              if (_.isNil(item.frontendKey)) {
+                item.frontendKey = item.backendKey;
+              }
+
               var itemData = model[item.backendKey];
-              return _this3.container.collections[item.collection].get(itemData, childOpt).then(function (childrenItems) {
-                if (item.backendKey !== item.frontendKey && !_.isNil(childrenItems) && isNotNullArray(childrenItems)) {
-                  delete model[item.backendKey];
+              return collection.get(itemData, childOpt).then(function (childrenItems) {
+                if (!_.isNil(childrenItems) && isNotNullArray(childrenItems)) {
+                  if (item.backendKeyDeletion === true) {
+                    delete model[item.backendKey];
+                  }
+
                   return model[item.frontendKey] = childrenItems;
                 }
               });
