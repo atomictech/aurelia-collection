@@ -1,17 +1,18 @@
 import _ from 'lodash';
 
 import { json } from 'aurelia-fetch-client';
+import { ModelFactory } from './model-factory';
 
 export class Service {
 
-  constructor(container, key, defaultRoute, modelClass, modelid = '_id') {
+  constructor(container, key, defaultRoute, modelFactory = ModelFactory, modelid = '_id') {
     if (_.isUndefined(defaultRoute)) {
       defaultRoute = '/api/' + key + '/';
     }
 
     this.modelid = modelid;
     this.defaultRoute = defaultRoute;
-    this.ModelClass = modelClass;
+    this.modelFactory = modelFactory;
     this.collection = [];
     this.container = container;
 
@@ -22,7 +23,7 @@ export class Service {
     let model = this._getFromCollection(data[this.modelid]);
 
     if (_.isUndefined(model)) {
-      model = new this.ModelClass(data);
+      model = this.modelFactory.create(data);
       if (!_.has(options, 'ignoreCollection')) {
         this.collection.push(model);
       }
