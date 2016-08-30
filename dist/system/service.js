@@ -22,10 +22,12 @@ System.register(['lodash', 'aurelia-fetch-client'], function (_export, _context)
     }],
     execute: function () {
       _export('Service', Service = function () {
-        function Service(container, key, defaultRoute, modelClass) {
-          var modelid = arguments.length <= 4 || arguments[4] === undefined ? '_id' : arguments[4];
-
+        function Service() {
           _classCallCheck(this, Service);
+        }
+
+        Service.prototype.configure = function configure(container, plugin, key, defaultRoute, modelClass) {
+          var modelid = arguments.length <= 5 || arguments[5] === undefined ? '_id' : arguments[5];
 
           if (_.isUndefined(defaultRoute)) {
             defaultRoute = '/api/' + key + '/';
@@ -33,18 +35,20 @@ System.register(['lodash', 'aurelia-fetch-client'], function (_export, _context)
 
           this.modelid = modelid;
           this.defaultRoute = defaultRoute;
-          this.ModelClass = modelClass;
+          this.modelClass = modelClass;
           this.collection = [];
+          this.plugin = plugin;
           this.container = container;
 
           this._httpClient = null;
-        }
+        };
 
         Service.prototype.fromJSON = function fromJSON(data, options) {
           var model = this._getFromCollection(data[this.modelid]);
 
           if (_.isUndefined(model)) {
-            model = new this.ModelClass(data);
+            model = this.container.invoke(this.modelClass, data);
+
             if (!_.has(options, 'ignoreCollection')) {
               this.collection.push(model);
             }
@@ -195,7 +199,7 @@ System.register(['lodash', 'aurelia-fetch-client'], function (_export, _context)
                 backendKeyDeletion: true
               });
 
-              var collection = _this3.container.collections[item.collection];
+              var collection = _this3.plugin.collections[item.collection];
               if (_.isNil(item.backendKey) || _.isNull(item.collection) || _.isUndefined(collection)) {
                 return;
               }

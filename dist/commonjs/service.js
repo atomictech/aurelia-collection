@@ -16,10 +16,12 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var Service = exports.Service = function () {
-  function Service(container, key, defaultRoute, modelClass) {
-    var modelid = arguments.length <= 4 || arguments[4] === undefined ? '_id' : arguments[4];
-
+  function Service() {
     _classCallCheck(this, Service);
+  }
+
+  Service.prototype.configure = function configure(container, plugin, key, defaultRoute, modelClass) {
+    var modelid = arguments.length <= 5 || arguments[5] === undefined ? '_id' : arguments[5];
 
     if (_lodash2.default.isUndefined(defaultRoute)) {
       defaultRoute = '/api/' + key + '/';
@@ -27,18 +29,20 @@ var Service = exports.Service = function () {
 
     this.modelid = modelid;
     this.defaultRoute = defaultRoute;
-    this.ModelClass = modelClass;
+    this.modelClass = modelClass;
     this.collection = [];
+    this.plugin = plugin;
     this.container = container;
 
     this._httpClient = null;
-  }
+  };
 
   Service.prototype.fromJSON = function fromJSON(data, options) {
     var model = this._getFromCollection(data[this.modelid]);
 
     if (_lodash2.default.isUndefined(model)) {
-      model = new this.ModelClass(data);
+      model = this.container.invoke(this.modelClass, data);
+
       if (!_lodash2.default.has(options, 'ignoreCollection')) {
         this.collection.push(model);
       }
@@ -189,7 +193,7 @@ var Service = exports.Service = function () {
           backendKeyDeletion: true
         });
 
-        var collection = _this3.container.collections[item.collection];
+        var collection = _this3.plugin.collections[item.collection];
         if (_lodash2.default.isNil(item.backendKey) || _lodash2.default.isNull(item.collection) || _lodash2.default.isUndefined(collection)) {
           return;
         }

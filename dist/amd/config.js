@@ -1,10 +1,18 @@
-define(['exports', 'aurelia-framework', 'aurelia-fetch-client', './service'], function (exports, _aureliaFramework, _aureliaFetchClient, _service) {
+define(['exports', 'lodash', 'aurelia-framework', 'aurelia-fetch-client'], function (exports, _lodash, _aureliaFramework, _aureliaFetchClient) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
   exports.Config = undefined;
+
+  var _lodash2 = _interopRequireDefault(_lodash);
+
+  function _interopRequireDefault(obj) {
+    return obj && obj.__esModule ? obj : {
+      default: obj
+    };
+  }
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -14,23 +22,28 @@ define(['exports', 'aurelia-framework', 'aurelia-fetch-client', './service'], fu
 
   var _dec, _class;
 
-  var Config = exports.Config = (_dec = (0, _aureliaFramework.inject)(_aureliaFetchClient.HttpClient), _dec(_class = function () {
-    function Config(httpClient) {
+  function ObjectCreator(data) {
+    return _lodash2.default.cloneDeep(data);
+  }
+
+  var Config = exports.Config = (_dec = (0, _aureliaFramework.inject)(_aureliaFramework.Aurelia, _aureliaFetchClient.HttpClient), _dec(_class = function () {
+    function Config(aurelia, httpClient) {
       _classCallCheck(this, Config);
 
       this.collections = {};
       this.defaultCollection = null;
 
       this.httpClient = httpClient;
+      this.aurelia = aurelia;
     }
 
-    Config.prototype.registerCollection = function registerCollection(key, defaultRoute) {
-      var modelClass = arguments.length <= 2 || arguments[2] === undefined ? Object : arguments[2];
-      var modelid = arguments.length <= 3 || arguments[3] === undefined ? '_id' : arguments[3];
-      var ServiceClass = arguments.length <= 4 || arguments[4] === undefined ? _service.Service : arguments[4];
+    Config.prototype.registerCollection = function registerCollection(key, defaultRoute, collectionService) {
+      var modelClass = arguments.length <= 3 || arguments[3] === undefined ? ObjectCreator : arguments[3];
+      var modelid = arguments.length <= 4 || arguments[4] === undefined ? '_id' : arguments[4];
 
+      this.collections[key] = collectionService;
+      collectionService.configure(this.aurelia.container, this, key, defaultRoute, modelClass, modelid);
 
-      this.collections[key] = new ServiceClass(this, key, defaultRoute, modelClass, modelid);
       this.collections[key]._setHttpClient(this.httpClient);
 
       return this;
