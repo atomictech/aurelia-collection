@@ -218,6 +218,90 @@ var Service = exports.Service = function () {
     });
   };
 
+  Service.prototype.update = function update(model, attr) {
+    var _this4 = this;
+
+    return this._frontToBackend(attr).then(function (backAttr) {
+      return _this4._httpClient.fetch(_this4.defaultRoute + model[_this4.modelid], {
+        method: 'put',
+        headers: { 'Content-Type': 'application/json' },
+        body: (0, _aureliaFetchClient.json)(backAttr)
+      }).then(function (response) {
+        return response.json();
+      }).then(function (attributes) {
+        return _this4._backToFrontend(attributes, backAttr, model);
+      });
+    }).then(function () {
+      return model;
+    });
+  };
+
+  Service.prototype._frontToBackend = function _frontToBackend(attributes) {
+    var _this5 = this;
+
+    var refKeys = this.refKeys();
+
+    var _getIdFromData = function _getIdFromData(data) {
+      if (_lodash2.default.isString(data)) {
+        return data;
+      } else if (_lodash2.default.isArray(data)) {
+        return _lodash2.default.map(data, _getIdFromData);
+      } else if (_lodash2.default.isObject(data)) {
+        return data[_this5.modelid];
+      }
+    };
+
+    _lodash2.default.each(attributes, function (value, field) {
+      var item = _lodash2.default.find(refKeys, { frontendKey: field });
+      item = _lodash2.default.defaults(item, {
+        backendKey: null,
+        frontendKey: null,
+        backendKeyDeletion: true
+      });
+
+      if (_lodash2.default.isUndefined(item)) {
+        return;
+      }
+
+      if (item.backendKeyDeletion) {
+        delete attributes[item.frontendKey];
+      }
+
+      attributes[item.backendKey] = _getIdFromData(value);
+    });
+
+    return Promise.resolve(attributes);
+  };
+
+  Service.prototype._backToFrontend = function _backToFrontend(attributes, backAttr, model) {
+    var _this6 = this;
+
+    var refKeys = this.refKeys();
+
+    return Promise.all(_lodash2.default.map(backAttr, function (value, field) {
+      var frontendKey = field;
+      var backendKey = field;
+      var frontendValue = Promise.resolve(attributes[backendKey]);
+
+      var item = _lodash2.default.find(refKeys, { backendKey: field });
+      item = _lodash2.default.defaults(item, {
+        backendKey: null,
+        frontendKey: null,
+        backendKeyDeletion: true
+      });
+
+      if (!_lodash2.default.isUndefined(item)) {
+        frontendKey = item.frontendKey;
+        backendKey = item.backendKey;
+        frontendValue = _this6.container.collections[item.collection].get(attributes[backendKey]);
+      }
+
+      return frontendValue.then(function (result) {
+        return model[frontendKey] = result;
+      });
+    }));
+  };
+
   return Service;
 }();
 
