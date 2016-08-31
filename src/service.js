@@ -47,7 +47,7 @@ export class Service {
   }
 
   sync(model) {
-    this.get(model[this.modelid], { force: true });
+    return this.get(_.isString(model) ? model : model[this.modelid], { force: true });
   }
 
   // Should be an array of objects

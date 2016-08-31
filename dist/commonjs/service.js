@@ -65,7 +65,7 @@ var Service = exports.Service = function () {
   };
 
   Service.prototype.sync = function sync(model) {
-    this.get(model[this.modelid], { force: true });
+    return this.get(_lodash2.default.isString(model) ? model : model[this.modelid], { force: true });
   };
 
   Service.prototype.refKeys = function refKeys() {

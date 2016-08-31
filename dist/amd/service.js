@@ -70,7 +70,7 @@ define(['exports', 'lodash', 'aurelia-fetch-client'], function (exports, _lodash
     };
 
     Service.prototype.sync = function sync(model) {
-      this.get(model[this.modelid], { force: true });
+      return this.get(_lodash2.default.isString(model) ? model : model[this.modelid], { force: true });
     };
 
     Service.prototype.refKeys = function refKeys() {
