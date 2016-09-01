@@ -160,7 +160,7 @@ System.register(['lodash', 'aurelia-fetch-client'], function (_export, _context)
 
           var modelPromise = null;
 
-          if (_.isEmpty(data)) {
+          if (_.isEmpty(data) || _.isUndefined(data)) {
             return Promise.resolve(data);
           } else if (_.isArray(data)) {
             return modelPromise = Promise.all(_.map(data, function (item) {

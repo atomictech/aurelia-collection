@@ -122,7 +122,7 @@ export let Service = class Service {
 
     let modelPromise = null;
 
-    if (_.isEmpty(data)) {
+    if (_.isEmpty(data) || _.isUndefined(data)) {
       return Promise.resolve(data);
     } else if (_.isArray(data)) {
       return modelPromise = Promise.all(_.map(data, item => this.get(item, options)));

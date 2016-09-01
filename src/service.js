@@ -132,7 +132,7 @@ export class Service {
 
     let modelPromise = null;
 
-    if (_.isEmpty(data)) { // you cannot get nothing
+    if (_.isEmpty(data) || _.isUndefined(data)) { // you cannot get nothing
       return Promise.resolve(data);
     } else if (_.isArray(data)) { // you iterate on the array, and go one level deeper (for ID or JSON array)
       return modelPromise = Promise.all(_.map(data, item => this.get(item, options)));

@@ -154,7 +154,7 @@ var Service = exports.Service = function () {
 
     var modelPromise = null;
 
-    if (_lodash2.default.isEmpty(data)) {
+    if (_lodash2.default.isEmpty(data) || _lodash2.default.isUndefined(data)) {
       return Promise.resolve(data);
     } else if (_lodash2.default.isArray(data)) {
       return modelPromise = Promise.all(_lodash2.default.map(data, function (item) {
