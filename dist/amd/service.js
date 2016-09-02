@@ -43,6 +43,10 @@ define(['exports', 'lodash', 'aurelia-fetch-client'], function (exports, _lodash
     };
 
     Service.prototype.fromJSON = function fromJSON(data, options) {
+      if (_lodash2.default.isNil(data)) {
+        return Promise.resolve(null);
+      }
+
       var model = this._getFromCollection(data[this.modelid]);
 
       if (_lodash2.default.isUndefined(model)) {
@@ -214,7 +218,7 @@ define(['exports', 'lodash', 'aurelia-fetch-client'], function (exports, _lodash
                 delete model[item.backendKey];
               }
 
-              return model[item.frontendKey] = childrenItems;
+              return model[item.frontendKey] = _lodash2.default.pull(childrenItems, [null, undefined]);
             }
           });
         })).then(function () {

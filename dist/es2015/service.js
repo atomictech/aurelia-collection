@@ -20,6 +20,10 @@ export let Service = class Service {
   }
 
   fromJSON(data, options) {
+    if (_.isNil(data)) {
+      return Promise.resolve(null);
+    }
+
     let model = this._getFromCollection(data[this.modelid]);
 
     if (_.isUndefined(model)) {
@@ -175,7 +179,7 @@ export let Service = class Service {
               delete model[item.backendKey];
             }
 
-            return model[item.frontendKey] = childrenItems;
+            return model[item.frontendKey] = _.pull(childrenItems, [null, undefined]);
           }
         });
       })).then(() => model);
