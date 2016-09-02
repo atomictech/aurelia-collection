@@ -219,7 +219,7 @@ System.register(['lodash', 'aurelia-fetch-client'], function (_export, _context)
                     delete model[item.backendKey];
                   }
 
-                  return model[item.frontendKey] = _.pull(childrenItems, [null, undefined]);
+                  return model[item.frontendKey] = _.pull(childrenItems, null, undefined);
                 }
               });
             })).then(function () {

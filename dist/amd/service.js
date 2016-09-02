@@ -218,7 +218,7 @@ define(['exports', 'lodash', 'aurelia-fetch-client'], function (exports, _lodash
                 delete model[item.backendKey];
               }
 
-              return model[item.frontendKey] = _lodash2.default.pull(childrenItems, [null, undefined]);
+              return model[item.frontendKey] = _lodash2.default.pull(childrenItems, null, undefined);
             }
           });
         })).then(function () {
