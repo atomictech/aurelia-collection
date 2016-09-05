@@ -263,15 +263,16 @@ System.register(['lodash', 'aurelia-fetch-client'], function (_export, _context)
 
           _.each(attributes, function (value, field) {
             var item = _.find(refKeys, { frontendKey: field });
+
+            if (_.isUndefined(item)) {
+              return;
+            }
+
             item = _.defaults(item, {
               backendKey: null,
               frontendKey: null,
               backendKeyDeletion: true
             });
-
-            if (_.isUndefined(item)) {
-              return;
-            }
 
             if (item.backendKeyDeletion) {
               delete attributes[item.frontendKey];
@@ -294,16 +295,16 @@ System.register(['lodash', 'aurelia-fetch-client'], function (_export, _context)
             var frontendValue = Promise.resolve(attributes[backendKey]);
 
             var item = _.find(refKeys, { backendKey: field });
-            item = _.defaults(item, {
-              backendKey: null,
-              frontendKey: null,
-              backendKeyDeletion: true
-            });
-
             if (!_.isUndefined(item)) {
+              item = _.defaults(item, {
+                backendKey: null,
+                frontendKey: null,
+                backendKeyDeletion: true
+              });
+
               frontendKey = item.frontendKey;
               backendKey = item.backendKey;
-              frontendValue = _this6.container.collections[item.collection].get(attributes[backendKey]);
+              frontendValue = _this6.plugin.collections[item.collection].get(attributes[backendKey]);
             }
 
             return frontendValue.then(function (result) {

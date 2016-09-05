@@ -257,15 +257,16 @@ var Service = exports.Service = function () {
 
     _lodash2.default.each(attributes, function (value, field) {
       var item = _lodash2.default.find(refKeys, { frontendKey: field });
+
+      if (_lodash2.default.isUndefined(item)) {
+        return;
+      }
+
       item = _lodash2.default.defaults(item, {
         backendKey: null,
         frontendKey: null,
         backendKeyDeletion: true
       });
-
-      if (_lodash2.default.isUndefined(item)) {
-        return;
-      }
 
       if (item.backendKeyDeletion) {
         delete attributes[item.frontendKey];
@@ -288,16 +289,16 @@ var Service = exports.Service = function () {
       var frontendValue = Promise.resolve(attributes[backendKey]);
 
       var item = _lodash2.default.find(refKeys, { backendKey: field });
-      item = _lodash2.default.defaults(item, {
-        backendKey: null,
-        frontendKey: null,
-        backendKeyDeletion: true
-      });
-
       if (!_lodash2.default.isUndefined(item)) {
+        item = _lodash2.default.defaults(item, {
+          backendKey: null,
+          frontendKey: null,
+          backendKeyDeletion: true
+        });
+
         frontendKey = item.frontendKey;
         backendKey = item.backendKey;
-        frontendValue = _this6.container.collections[item.collection].get(attributes[backendKey]);
+        frontendValue = _this6.plugin.collections[item.collection].get(attributes[backendKey]);
       }
 
       return frontendValue.then(function (result) {

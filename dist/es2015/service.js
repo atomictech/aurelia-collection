@@ -211,15 +211,16 @@ export let Service = class Service {
 
     _.each(attributes, (value, field) => {
       let item = _.find(refKeys, { frontendKey: field });
+
+      if (_.isUndefined(item)) {
+        return;
+      }
+
       item = _.defaults(item, {
         backendKey: null,
         frontendKey: null,
         backendKeyDeletion: true
       });
-
-      if (_.isUndefined(item)) {
-        return;
-      }
 
       if (item.backendKeyDeletion) {
         delete attributes[item.frontendKey];
@@ -240,16 +241,16 @@ export let Service = class Service {
       let frontendValue = Promise.resolve(attributes[backendKey]);
 
       let item = _.find(refKeys, { backendKey: field });
-      item = _.defaults(item, {
-        backendKey: null,
-        frontendKey: null,
-        backendKeyDeletion: true
-      });
-
       if (!_.isUndefined(item)) {
+        item = _.defaults(item, {
+          backendKey: null,
+          frontendKey: null,
+          backendKeyDeletion: true
+        });
+
         frontendKey = item.frontendKey;
         backendKey = item.backendKey;
-        frontendValue = this.container.collections[item.collection].get(attributes[backendKey]);
+        frontendValue = this.plugin.collections[item.collection].get(attributes[backendKey]);
       }
 
       return frontendValue.then(result => model[frontendKey] = result);
