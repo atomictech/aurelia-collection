@@ -179,7 +179,7 @@ export let Service = class Service {
               delete model[item.backendKey];
             }
 
-            return model[item.frontendKey] = _.pull(childrenItems, [null, undefined]);
+            return model[item.frontendKey] = _.pull(childrenItems, null, undefined);
           }
         });
       })).then(() => model);

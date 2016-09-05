@@ -213,7 +213,7 @@ var Service = exports.Service = function () {
               delete model[item.backendKey];
             }
 
-            return model[item.frontendKey] = _lodash2.default.pull(childrenItems, [null, undefined]);
+            return model[item.frontendKey] = _lodash2.default.pull(childrenItems, null, undefined);
           }
         });
       })).then(function () {
