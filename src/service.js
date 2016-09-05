@@ -235,16 +235,16 @@ export class Service {
 
     _.each(attributes, (value, field) => {
       let item = _.find(refKeys, { frontendKey: field });
+      // If undefined, nothing to convert.
+      if (_.isUndefined(item)) {
+        return;
+      }
+
       item = _.defaults(item, {
         backendKey: null,
         frontendKey: null,
         backendKeyDeletion: true
       });
-
-      // If undefined, nothing to convert.
-      if (_.isUndefined(item)) {
-        return;
-      }
 
       if (item.backendKeyDeletion) {
         delete attributes[item.frontendKey];
@@ -266,16 +266,16 @@ export class Service {
 
       // The current field is a frontend type of key.
       let item = _.find(refKeys, { backendKey: field });
-      item = _.defaults(item, {
-        backendKey: null,
-        frontendKey: null,
-        backendKeyDeletion: true
-      });
-
       if (!_.isUndefined(item)) {
+        item = _.defaults(item, {
+          backendKey: null,
+          frontendKey: null,
+          backendKeyDeletion: true
+        });
+
         frontendKey = item.frontendKey;
         backendKey = item.backendKey;
-        frontendValue = this.container.collections[item.collection].get(attributes[backendKey]);
+        frontendValue = this.plugin.collections[item.collection].get(attributes[backendKey]);
       }
 
       // Update the right key in the model.
