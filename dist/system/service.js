@@ -74,8 +74,8 @@ System.register(['lodash', 'aurelia-fetch-client'], function (_export, _context)
           return true;
         };
 
-        Service.prototype.sync = function sync(model) {
-          return this.get(_.isString(model) ? model : model[this.modelid], { force: true });
+        Service.prototype.sync = function sync(model, options) {
+          return this.get(_.isString(model) ? model : model[this.modelid], _.merge({}, options, { force: true }));
         };
 
         Service.prototype.refKeys = function refKeys() {
