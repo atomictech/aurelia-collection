@@ -198,7 +198,7 @@ var Service = exports.Service = function () {
         });
 
         var collection = _this3.plugin.collections[item.collection];
-        if (_lodash2.default.isNil(item.backendKey) || _lodash2.default.isNull(item.collection) || _lodash2.default.isUndefined(collection)) {
+        if (_lodash2.default.isNil(item.backendKey)) {
           return;
         }
 
@@ -207,7 +207,16 @@ var Service = exports.Service = function () {
         }
 
         var itemData = model[item.backendKey];
-        return collection.get(itemData, childOpt).then(function (childrenItems) {
+
+        var itemDataPromise = Promise.resolve(null);
+
+        if (_lodash2.default.isNull(item.collection)) {
+          itemDataPromise = Promise.resolve(itemData);
+        } else if (!_lodash2.default.isUndefined(collection)) {
+          itemDataPromise = collection.get(itemData, childOpt);
+        }
+
+        return itemDataPromise.then(function (childrenItems) {
           if (!_lodash2.default.isNil(childrenItems) && isNotNullArray(childrenItems)) {
             if (item.backendKeyDeletion === true) {
               delete model[item.backendKey];
@@ -293,12 +302,16 @@ var Service = exports.Service = function () {
         item = _lodash2.default.defaults(item, {
           backendKey: null,
           frontendKey: null,
+          collection: null,
           backendKeyDeletion: true
         });
 
         frontendKey = item.frontendKey;
         backendKey = item.backendKey;
-        frontendValue = _this6.plugin.collections[item.collection].get(attributes[backendKey]);
+
+        if (!_lodash2.default.isNull(item.collection)) {
+          frontendValue = _this6.plugin.collections[item.collection].get(attributes[backendKey]);
+        }
       }
 
       return frontendValue.then(function (result) {

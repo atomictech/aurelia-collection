@@ -164,7 +164,7 @@ export let Service = class Service {
         });
 
         let collection = this.plugin.collections[item.collection];
-        if (_.isNil(item.backendKey) || _.isNull(item.collection) || _.isUndefined(collection)) {
+        if (_.isNil(item.backendKey)) {
           return;
         }
 
@@ -173,7 +173,16 @@ export let Service = class Service {
         }
 
         let itemData = model[item.backendKey];
-        return collection.get(itemData, childOpt).then(childrenItems => {
+
+        let itemDataPromise = Promise.resolve(null);
+
+        if (_.isNull(item.collection)) {
+          itemDataPromise = Promise.resolve(itemData);
+        } else if (!_.isUndefined(collection)) {
+          itemDataPromise = collection.get(itemData, childOpt);
+        }
+
+        return itemDataPromise.then(childrenItems => {
           if (!_.isNil(childrenItems) && isNotNullArray(childrenItems)) {
             if (item.backendKeyDeletion === true) {
               delete model[item.backendKey];
@@ -245,12 +254,16 @@ export let Service = class Service {
         item = _.defaults(item, {
           backendKey: null,
           frontendKey: null,
+          collection: null,
           backendKeyDeletion: true
         });
 
         frontendKey = item.frontendKey;
         backendKey = item.backendKey;
-        frontendValue = this.plugin.collections[item.collection].get(attributes[backendKey]);
+
+        if (!_.isNull(item.collection)) {
+          frontendValue = this.plugin.collections[item.collection].get(attributes[backendKey]);
+        }
       }
 
       return frontendValue.then(result => model[frontendKey] = result);
