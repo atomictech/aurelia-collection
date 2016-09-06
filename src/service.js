@@ -50,8 +50,8 @@ export class Service {
     return true;
   }
 
-  sync(model) {
-    return this.get(_.isString(model) ? model : model[this.modelid], { force: true });
+  sync(model, options) {
+    return this.get(_.isString(model) ? model : model[this.modelid], _.merge({}, options, { force: true }));
   }
 
   // Should be an array of objects
