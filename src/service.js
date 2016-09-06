@@ -121,7 +121,7 @@ export class Service {
     }
 
     this._removeFromCollection(id);
-    return this._httpClient.fetch(apiRoute, {
+    return this._httpClient.fetch(apiRoute + id, {
       method: 'delete'
     }).then(response => response.json());
   }
@@ -180,7 +180,7 @@ export class Service {
 
               // collection and backendKey have to be defined.
               let collection = this.plugin.collections[item.collection];
-              if (_.isNil(item.backendKey) || _.isNull(item.collection) || _.isUndefined(collection)) {
+              if (_.isNil(item.backendKey)) {
                 return;
               }
 
@@ -191,7 +191,17 @@ export class Service {
               }
 
               let itemData = model[item.backendKey];
-              return collection.get(itemData, childOpt)
+
+              let itemDataPromise = Promise.resolve(null);
+
+              // item.collection can be null if we want to keep JSON data.
+              if (_.isNull(item.collection)) {
+                itemDataPromise = Promise.resolve(itemData);
+              } else if (!_.isUndefined(collection)) {
+                itemDataPromise = collection.get(itemData, childOpt);
+              }
+
+              return itemDataPromise
                 .then(childrenItems => {
                   // Replace the model key if necessary.
                   if (!_.isNil(childrenItems) && isNotNullArray(childrenItems)) {
@@ -270,12 +280,17 @@ export class Service {
         item = _.defaults(item, {
           backendKey: null,
           frontendKey: null,
+          collection: null,
           backendKeyDeletion: true
         });
 
         frontendKey = item.frontendKey;
         backendKey = item.backendKey;
-        frontendValue = this.plugin.collections[item.collection].get(attributes[backendKey]);
+
+        // item.collection can be null if we want to keep JSON data.
+        if (!_.isNull(item.collection)) {
+          frontendValue = this.plugin.collections[item.collection].get(attributes[backendKey]);
+        }
       }
 
       // Update the right key in the model.
