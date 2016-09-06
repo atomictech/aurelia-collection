@@ -139,7 +139,7 @@ var Service = exports.Service = function () {
     }
 
     this._removeFromCollection(id);
-    return this._httpClient.fetch(apiRoute, {
+    return this._httpClient.fetch(apiRoute + id, {
       method: 'delete'
     }).then(function (response) {
       return response.json();

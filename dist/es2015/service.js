@@ -111,7 +111,7 @@ export let Service = class Service {
     }
 
     this._removeFromCollection(id);
-    return this._httpClient.fetch(apiRoute, {
+    return this._httpClient.fetch(apiRoute + id, {
       method: 'delete'
     }).then(response => response.json());
   }
