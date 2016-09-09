@@ -142,10 +142,12 @@ System.register(['lodash', 'aurelia-fetch-client'], function (_export, _context)
 
           if (!_.isNil(route)) {
             apiRoute += route;
+          } else {
+            apiRoute += id;
           }
 
           this._removeFromCollection(id);
-          return this._httpClient.fetch(apiRoute + id, {
+          return this._httpClient.fetch(apiRoute, {
             method: 'delete'
           }).then(function (response) {
             return response.json();

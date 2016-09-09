@@ -118,10 +118,12 @@ export class Service {
 
     if (!_.isNil(route)) {
       apiRoute += route;
+    } else {
+      apiRoute += id;
     }
 
     this._removeFromCollection(id);
-    return this._httpClient.fetch(apiRoute + id, {
+    return this._httpClient.fetch(apiRoute, {
       method: 'delete'
     }).then(response => response.json());
   }

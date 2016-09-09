@@ -141,10 +141,12 @@ define(['exports', 'lodash', 'aurelia-fetch-client'], function (exports, _lodash
 
       if (!_lodash2.default.isNil(route)) {
         apiRoute += route;
+      } else {
+        apiRoute += id;
       }
 
       this._removeFromCollection(id);
-      return this._httpClient.fetch(apiRoute + id, {
+      return this._httpClient.fetch(apiRoute, {
         method: 'delete'
       }).then(function (response) {
         return response.json();
