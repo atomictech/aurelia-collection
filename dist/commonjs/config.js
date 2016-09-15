@@ -9,18 +9,14 @@ var _dec, _class;
 
 var _lodash = require('lodash');
 
-var _lodash2 = _interopRequireDefault(_lodash);
-
 var _aureliaFramework = require('aurelia-framework');
 
 var _aureliaFetchClient = require('aurelia-fetch-client');
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function ObjectCreator(data) {
-  return _lodash2.default.cloneDeep(data);
+  return _lodash._.cloneDeep(data);
 }
 
 var Config = exports.Config = (_dec = (0, _aureliaFramework.inject)(_aureliaFramework.Aurelia, _aureliaFetchClient.HttpClient), _dec(_class = function () {

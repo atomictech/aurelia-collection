@@ -17,7 +17,7 @@ System.register(['lodash', 'aurelia-framework', 'aurelia-fetch-client'], functio
 
   return {
     setters: [function (_lodash) {
-      _ = _lodash.default;
+      _ = _lodash._;
     }, function (_aureliaFramework) {
       Aurelia = _aureliaFramework.Aurelia;
       inject = _aureliaFramework.inject;

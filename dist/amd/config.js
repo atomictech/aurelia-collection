@@ -6,14 +6,6 @@ define(['exports', 'lodash', 'aurelia-framework', 'aurelia-fetch-client'], funct
   });
   exports.Config = undefined;
 
-  var _lodash2 = _interopRequireDefault(_lodash);
-
-  function _interopRequireDefault(obj) {
-    return obj && obj.__esModule ? obj : {
-      default: obj
-    };
-  }
-
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
       throw new TypeError("Cannot call a class as a function");
@@ -23,7 +15,7 @@ define(['exports', 'lodash', 'aurelia-framework', 'aurelia-fetch-client'], funct
   var _dec, _class;
 
   function ObjectCreator(data) {
-    return _lodash2.default.cloneDeep(data);
+    return _lodash._.cloneDeep(data);
   }
 
   var Config = exports.Config = (_dec = (0, _aureliaFramework.inject)(_aureliaFramework.Aurelia, _aureliaFetchClient.HttpClient), _dec(_class = function () {

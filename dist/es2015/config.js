@@ -1,6 +1,6 @@
 var _dec, _class;
 
-import _ from 'lodash';
+import { _ } from 'lodash';
 
 import { Aurelia, inject } from 'aurelia-framework';
 import { HttpClient } from 'aurelia-fetch-client';

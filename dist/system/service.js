@@ -16,7 +16,7 @@ System.register(['lodash', 'aurelia-fetch-client'], function (_export, _context)
   }
   return {
     setters: [function (_lodash) {
-      _ = _lodash.default;
+      _ = _lodash._;
     }, function (_aureliaFetchClient) {
       json = _aureliaFetchClient.json;
     }],
@@ -48,15 +48,20 @@ System.register(['lodash', 'aurelia-fetch-client'], function (_export, _context)
             return Promise.resolve(null);
           }
 
+          options = _.defaults(options, {
+            ignoreCollection: false,
+            force: false
+          });
+
           var model = this._getFromCollection(data[this.modelid]);
 
           if (_.isUndefined(model)) {
             model = this.container.invoke(this.modelClass, data);
 
-            if (!_.has(options, 'ignoreCollection')) {
+            if (!options.ignoreCollection) {
               this.collection.push(model);
             }
-          } else if (!this.isComplete(model) || _.has(options, 'force') && options.force) {
+          } else if (!this.isComplete(model) || options.force) {
             this._syncFrom(model, data);
           }
           return Promise.resolve(model);

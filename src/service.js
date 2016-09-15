@@ -1,9 +1,28 @@
-import _ from 'lodash';
+import { _ } from 'lodash';
 
 import { json } from 'aurelia-fetch-client';
 
+/**
+ * Service class. A collection of models that are
+ * related to a backend service.
+ */
 export class Service {
 
+  /**
+   * Configure the service.
+   * @param  {Container} container : the aurelia container to perform model
+   * creations and resolves dependency injection.
+   * @param  {Config} plugin : the object containing all the services where
+   * models can be retrieved.
+   * @param  {String} key : the key provided when the service has been
+   * registered
+   * @param  {String} defaultRoute : route to use when performing the backend
+   * http requests, to which the model id is to be appended where expected.
+   * @param  {Function} modelClass : function to be called to be called to
+   * create a model.
+   * @param  {String} modelid : the key to use for uniqueness of the models in
+   * order to store and search for them.
+   */
   configure(container, plugin, key, defaultRoute, modelClass, modelid = '_id') {
     if (_.isUndefined(defaultRoute)) {
       defaultRoute = '/api/' + key + '/';
@@ -19,70 +38,146 @@ export class Service {
     this._httpClient = null;
   }
 
+  /**
+   * Creates or syncs a model from data.
+   * @param  {Object} data : the content of the model to use for its creation or its sync.
+   * @param  {Object} options : modifiers for the method:
+   * - ignoreCollection attribute can prevent the model from being stored in the
+   * service when created.
+   * - force attribute forces the sync of a model (when it already exists) even
+   * if it is complete.
+   * @return {Promise} a promise containg the resolved model created or got from the
+   * models set saved within the service. If data is null or undefined, it resolves to null.
+   */
   fromJSON(data, options) {
     if (_.isNil(data)) {
       return Promise.resolve(null);
     }
+
+    options = _.defaults(options, {
+      ignoreCollection: false,
+      force: false
+    });
 
     let model = this._getFromCollection(data[this.modelid]);
 
     if (_.isUndefined(model)) {
       model = this.container.invoke(this.modelClass, data);
 
-      if (!_.has(options, 'ignoreCollection')) {
+      if (!options.ignoreCollection) {
         this.collection.push(model);
       }
-    } else if (!this.isComplete(model) || (_.has(options, 'force') && options.force)) {
+    } else if (!this.isComplete(model) || options.force) {
       this._syncFrom(model, data);
     }
     return Promise.resolve(model);
   }
 
+/**
+ * Converts a model to a literal object. It usually calls the model's `toJSON`
+ * method.
+ * @param  {Model} model : the instance to be converted.
+ * @param {Object} options : a placeholder argument that may be used when the
+ * function is overloaded.
+ * @return {Object} : the literal object made of the model's content.
+ */
   toJSON(model, options) {
     return _.isFunction(model.toJSON) ? model.toJSON() : model;
   }
 
+  /**
+   * Clears the set from the models it contained.
+   */
   flush() {
     this.collection = [];
   }
 
+  /**
+   * Checks if a model is complete, that is whether all the required fields
+   * have been filled. If a model is not complete, then it can be fetched
+   * again and then `_syncFrom`ed.
+   * @param  {Model}  model : the model to check for completeness.
+   * @return {Boolean} true if a model is considered as complete, false.
+   * otherwise
+   */
   isComplete(model) {
     return true;
   }
 
+  /**
+   * Sets the content of a model
+   * @param  {String or Object} model : if it is a string, model is treated as
+   * a model's id, otherwise it is treated as the content of the model to set.
+   * @param  {Object} options : options to be provided to the get method, with
+   * `force` attribute set to true to force the request to the backend and the
+   * assignement of the received data to the model.
+   * @return {Promise} a promise when the sync is done with the synced model.
+   */
   sync(model, options) {
     return this.get(_.isString(model) ? model : model[this.modelid], _.merge({}, options, { force: true }));
   }
 
-  // Should be an array of objects
-  // The objects should be made of 3 keys:
-  // a backendKey, the `old` key in the data
-  // a frontendKey, the `new` key in the model
-  // and a collection, the collection from which the items will be 'got'.
+/**
+ * The models the service collects may have references to other models
+ * in other services (i.e. collections).
+ * This method defines which keys may contain references, the name of
+ * the key when received from the backend's data, and its name in the model
+ * class (i.e. `frontendKey`)
+ * @return {Array} an array of objects which should be made of 3 keys:
+ * - a backendKey, the `old` key in the data.
+ * - a frontendKey, the `new` key in the model.
+ * - and a collection, the collection from which the items will be 'got'.
+ */
   refKeys() {
     return [];
   }
 
+  /**
+   * [_setHttpClient description]
+   * @param {[type]} httpClient [description]
+   */
   _setHttpClient(httpClient) {
     this._httpClient = httpClient;
   }
 
+  /**
+   * [_syncFrom description]
+   * @param  {[type]} model [description]
+   * @param  {[type]} data  [description]
+   * @return {[type]}       [description]
+   */
   _syncFrom(model, data) {
     _.defaults(model, data);
   }
 
+  /**
+   * [_getFromCollection description]
+   * @param  {[type]} id [description]
+   * @return {[type]}    [description]
+   */
   _getFromCollection(id) {
     let obj = {};
     obj[this.modelid] = id;
     return _.find(this.collection, obj);
   }
 
+  /**
+   * [_removeFromCollection description]
+   * @param  {[type]} id [description]
+   * @return {[type]}    [description]
+   */
   _removeFromCollection(id) {
     let obj = {};
     obj[this.modelid] = id;
     _.remove(this.collection, obj);
   }
 
+  /**
+   * [_getById description]
+   * @param  {[type]} id    [description]
+   * @param  {[type]} force [description]
+   * @return {[type]}       [description]
+   */
   _getById(id, force) {
     let model = this._getFromCollection(id);
 
@@ -98,6 +193,12 @@ export class Service {
     return Promise.resolve(model);
   }
 
+  /**
+   * [create description]
+   * @param  {[type]} jsonModel [description]
+   * @param  {[type]} route     [description]
+   * @return {[type]}           [description]
+   */
   create(jsonModel, route) {
     let apiRoute = this.defaultRoute.slice(0, -1);
 
@@ -113,6 +214,12 @@ export class Service {
       .then(data => this.get(data));
   }
 
+  /**
+   * [destroy description]
+   * @param  {[type]} id    [description]
+   * @param  {[type]} route [description]
+   * @return {[type]}       [description]
+   */
   destroy(id, route) {
     let apiRoute = this.defaultRoute;
 
@@ -128,6 +235,12 @@ export class Service {
     }).then(response => response.json());
   }
 
+  /**
+   * [get description]
+   * @param  {[type]} data    [description]
+   * @param  {[type]} options [description]
+   * @return {[type]}         [description]
+   */
   get(data, options) {
     options = _.defaults(options, {
       _child: false,
@@ -219,6 +332,12 @@ export class Service {
       });
   }
 
+  /**
+   * [update description]
+   * @param  {[type]} model [description]
+   * @param  {[type]} attr  [description]
+   * @return {[type]}       [description]
+   */
   update(model, attr) {
     return this._frontToBackend(attr)
       .then(backAttr => {
@@ -232,6 +351,11 @@ export class Service {
       }).then(() => model);
   }
 
+  /**
+   * [_frontToBackend description]
+   * @param  {[type]} attributes [description]
+   * @return {[type]}            [description]
+   */
   _frontToBackend(attributes) {
     const refKeys = this.refKeys();
 
@@ -271,6 +395,13 @@ export class Service {
     return Promise.resolve(attributes);
   }
 
+  /**
+   * [_backToFrontend description]
+   * @param  {[type]} attributes [description]
+   * @param  {[type]} backAttr   [description]
+   * @param  {[type]} model      [description]
+   * @return {[type]}            [description]
+   */
   _backToFrontend(attributes, backAttr, model) {
     const refKeys = this.refKeys();
 
@@ -305,6 +436,13 @@ export class Service {
 
 }
 
+/**
+ * Helper function to check that an object is not an `array filled with null
+ * values`.
+ * @param  {Any}  arr : the `object` to check.
+ * @return {Boolean} false it is an array filled with `null` values, true
+ * otherwise.
+ */
 function isNotNullArray(arr) {
   // If the arr is an empty array, it is NOT a null array.
   // Therefore we can't compact it and check if it is empty.

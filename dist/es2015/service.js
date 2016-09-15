@@ -1,9 +1,8 @@
-import _ from 'lodash';
+import { _ } from 'lodash';
 
 import { json } from 'aurelia-fetch-client';
 
 export let Service = class Service {
-
   configure(container, plugin, key, defaultRoute, modelClass, modelid = '_id') {
     if (_.isUndefined(defaultRoute)) {
       defaultRoute = '/api/' + key + '/';
@@ -24,15 +23,20 @@ export let Service = class Service {
       return Promise.resolve(null);
     }
 
+    options = _.defaults(options, {
+      ignoreCollection: false,
+      force: false
+    });
+
     let model = this._getFromCollection(data[this.modelid]);
 
     if (_.isUndefined(model)) {
       model = this.container.invoke(this.modelClass, data);
 
-      if (!_.has(options, 'ignoreCollection')) {
+      if (!options.ignoreCollection) {
         this.collection.push(model);
       }
-    } else if (!this.isComplete(model) || _.has(options, 'force') && options.force) {
+    } else if (!this.isComplete(model) || options.force) {
       this._syncFrom(model, data);
     }
     return Promise.resolve(model);
