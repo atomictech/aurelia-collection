@@ -264,6 +264,7 @@ var Service = exports.Service = function () {
       } else if (_lodash2.default.isObject(data)) {
         return data[_this5.modelid];
       }
+      return null;
     };
 
     _lodash2.default.each(attributes, function (value, field) {
@@ -283,7 +284,8 @@ var Service = exports.Service = function () {
         delete attributes[item.frontendKey];
       }
 
-      attributes[item.backendKey] = _getIdFromData(value);
+      var id = _getIdFromData(value);
+      attributes[item.backendKey] = _lodash2.default.isUndefined(id) ? null : id;
     });
 
     return Promise.resolve(attributes);

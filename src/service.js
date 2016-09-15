@@ -243,6 +243,7 @@ export class Service {
       } else if (_.isObject(data)) {
         return data[this.modelid];
       }
+      return null;
     };
 
     _.each(attributes, (value, field) => {
@@ -262,7 +263,9 @@ export class Service {
         delete attributes[item.frontendKey];
       }
 
-      attributes[item.backendKey] = _getIdFromData(value);
+      // browser request filter undefined fields, we need to explicitely set it to null to be sent to the backend. (in case of reseting the field)
+      let id = _getIdFromData(value);
+      attributes[item.backendKey] = _.isUndefined(id) ? null : id;
     });
 
     return Promise.resolve(attributes);

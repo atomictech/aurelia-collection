@@ -270,6 +270,7 @@ System.register(['lodash', 'aurelia-fetch-client'], function (_export, _context)
             } else if (_.isObject(data)) {
               return data[_this5.modelid];
             }
+            return null;
           };
 
           _.each(attributes, function (value, field) {
@@ -289,7 +290,8 @@ System.register(['lodash', 'aurelia-fetch-client'], function (_export, _context)
               delete attributes[item.frontendKey];
             }
 
-            attributes[item.backendKey] = _getIdFromData(value);
+            var id = _getIdFromData(value);
+            attributes[item.backendKey] = _.isUndefined(id) ? null : id;
           });
 
           return Promise.resolve(attributes);

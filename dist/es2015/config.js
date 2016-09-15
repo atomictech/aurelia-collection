@@ -10,7 +10,6 @@ function ObjectCreator(data) {
 }
 
 export let Config = (_dec = inject(Aurelia, HttpClient), _dec(_class = class Config {
-
   constructor(aurelia, httpClient) {
     this.collections = {};
     this.defaultCollection = null;

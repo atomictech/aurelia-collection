@@ -218,6 +218,7 @@ export let Service = class Service {
       } else if (_.isObject(data)) {
         return data[this.modelid];
       }
+      return null;
     };
 
     _.each(attributes, (value, field) => {
@@ -237,7 +238,8 @@ export let Service = class Service {
         delete attributes[item.frontendKey];
       }
 
-      attributes[item.backendKey] = _getIdFromData(value);
+      let id = _getIdFromData(value);
+      attributes[item.backendKey] = _.isUndefined(id) ? null : id;
     });
 
     return Promise.resolve(attributes);
