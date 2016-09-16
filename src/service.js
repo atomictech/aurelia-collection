@@ -40,14 +40,16 @@ export class Service {
 
   /**
    * Creates or syncs a model from data.
-   * @param  {Object} data : the content of the model to use for its creation or its sync.
+   * @param  {Object} data : the content of the model to use for its creation
+   * or its sync.
    * @param  {Object} options : modifiers for the method:
    * - ignoreCollection attribute can prevent the model from being stored in the
    * service when created.
    * - force attribute forces the sync of a model (when it already exists) even
    * if it is complete.
-   * @return {Promise} a promise containg the resolved model created or got from the
-   * models set saved within the service. If data is null or undefined, it resolves to null.
+   * @return {Promise} a promise containg the resolved model created or got
+   * from the models set saved within the service. If data is null or
+   * undefined, it resolves to null.
    */
   fromJSON(data, options) {
     if (_.isNil(data)) {
@@ -133,27 +135,26 @@ export class Service {
   }
 
   /**
-   * [_setHttpClient description]
-   * @param {[type]} httpClient [description]
+   * Set the http client to be used for the requests made by the service.
+   * @param {Object} httpClient : an http client supporting the fetch API.
    */
   _setHttpClient(httpClient) {
     this._httpClient = httpClient;
   }
 
   /**
-   * [_syncFrom description]
-   * @param  {[type]} model [description]
-   * @param  {[type]} data  [description]
-   * @return {[type]}       [description]
+   * Affects the content of data to a model.
+   * @param  {Model} model : the instance to be modified.
+   * @param  {Object} data : the data to set to model.
    */
   _syncFrom(model, data) {
     _.defaults(model, data);
   }
 
   /**
-   * [_getFromCollection description]
-   * @param  {[type]} id [description]
-   * @return {[type]}    [description]
+   * Get a model by id.
+   * @param  {String} id : the id of the model to be searched for.
+   * @return {Model} : the matched model or undefined otherwise.
    */
   _getFromCollection(id) {
     let obj = {};
@@ -162,9 +163,8 @@ export class Service {
   }
 
   /**
-   * [_removeFromCollection description]
-   * @param  {[type]} id [description]
-   * @return {[type]}    [description]
+   * Remove a model from the collection by id.
+   * @param  {String} id : the id of the model to be removed.
    */
   _removeFromCollection(id) {
     let obj = {};
