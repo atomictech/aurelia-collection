@@ -9,7 +9,7 @@ export let Collection = (_dec = resolver(), _dec(_class = class Collection {
   }
 
   get(container) {
-    return container.get(Config).getCollection(this._key);
+    return container.get(Config).getService(this._key);
   }
 
   static of(key) {

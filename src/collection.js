@@ -20,7 +20,7 @@ export class Collection {
    * @return {Service} The service instance associated to the collection key, otherwise undefined.
    */
   get(container) {
-    return container.get(Config).getCollection(this._key);
+    return container.get(Config).getService(this._key);
   }
 
   /**

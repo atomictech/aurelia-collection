@@ -11,36 +11,36 @@ function ObjectCreator(data) {
 
 export let Config = (_dec = inject(Aurelia, HttpClient), _dec(_class = class Config {
   constructor(aurelia, httpClient) {
-    this.collections = {};
-    this.defaultCollection = null;
+    this.services = {};
+    this.defaultService = null;
 
     this.httpClient = httpClient;
     this.aurelia = aurelia;
   }
 
-  registerCollection(key, defaultRoute, collectionService, modelClass = ObjectCreator, modelid = '_id') {
-    this.collections[key] = collectionService;
+  registerService(key, defaultRoute, collectionService, modelClass = ObjectCreator, modelid = '_id') {
+    this.services[key] = service;
     collectionService.configure(this.aurelia.container, this, key, defaultRoute, modelClass, modelid);
 
-    this.collections[key]._setHttpClient(this.httpClient);
+    this.services[key]._setHttpClient(this.httpClient);
 
     return this;
   }
 
-  getCollection(key) {
+  getService(key) {
     if (!key) {
-      return this.defaultCollection || null;
+      return this.defaultService || null;
     }
 
-    return this.collections[key] || null;
+    return this.services[key] || null;
   }
 
-  collectionExists(key) {
-    return !!this.collections[key];
+  serviceExists(key) {
+    return !!this.services[key];
   }
 
-  setDefaultCollection(key) {
-    this.defaultCollection = this.getCollection(key);
+  setDefaultService(key) {
+    this.defaultService = this.getService(key);
 
     return this;
   }

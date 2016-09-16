@@ -21,7 +21,7 @@ var Collection = exports.Collection = (_dec = (0, _aureliaDependencyInjection.re
   }
 
   Collection.prototype.get = function get(container) {
-    return container.get(_config.Config).getCollection(this._key);
+    return container.get(_config.Config).getService(this._key);
   };
 
   Collection.of = function of(key) {

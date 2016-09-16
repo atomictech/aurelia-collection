@@ -23,39 +23,39 @@ var Config = exports.Config = (_dec = (0, _aureliaFramework.inject)(_aureliaFram
   function Config(aurelia, httpClient) {
     _classCallCheck(this, Config);
 
-    this.collections = {};
-    this.defaultCollection = null;
+    this.services = {};
+    this.defaultService = null;
 
     this.httpClient = httpClient;
     this.aurelia = aurelia;
   }
 
-  Config.prototype.registerCollection = function registerCollection(key, defaultRoute, collectionService) {
+  Config.prototype.registerService = function registerService(key, defaultRoute, collectionService) {
     var modelClass = arguments.length <= 3 || arguments[3] === undefined ? ObjectCreator : arguments[3];
     var modelid = arguments.length <= 4 || arguments[4] === undefined ? '_id' : arguments[4];
 
-    this.collections[key] = collectionService;
+    this.services[key] = service;
     collectionService.configure(this.aurelia.container, this, key, defaultRoute, modelClass, modelid);
 
-    this.collections[key]._setHttpClient(this.httpClient);
+    this.services[key]._setHttpClient(this.httpClient);
 
     return this;
   };
 
-  Config.prototype.getCollection = function getCollection(key) {
+  Config.prototype.getService = function getService(key) {
     if (!key) {
-      return this.defaultCollection || null;
+      return this.defaultService || null;
     }
 
-    return this.collections[key] || null;
+    return this.services[key] || null;
   };
 
-  Config.prototype.collectionExists = function collectionExists(key) {
-    return !!this.collections[key];
+  Config.prototype.serviceExists = function serviceExists(key) {
+    return !!this.services[key];
   };
 
-  Config.prototype.setDefaultCollection = function setDefaultCollection(key) {
-    this.defaultCollection = this.getCollection(key);
+  Config.prototype.setDefaultService = function setDefaultService(key) {
+    this.defaultService = this.getService(key);
 
     return this;
   };

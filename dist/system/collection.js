@@ -26,7 +26,7 @@ System.register(['aurelia-dependency-injection', './config'], function (_export,
         }
 
         Collection.prototype.get = function get(container) {
-          return container.get(Config).getCollection(this._key);
+          return container.get(Config).getService(this._key);
         };
 
         Collection.of = function of(key) {
