@@ -18,9 +18,9 @@ export let Config = (_dec = inject(Aurelia, HttpClient), _dec(_class = class Con
     this.aurelia = aurelia;
   }
 
-  registerService(key, defaultRoute, collectionService, modelClass = ObjectCreator, modelid = '_id') {
+  registerService(key, defaultRoute, service, modelClass = ObjectCreator, modelid = '_id') {
     this.services[key] = service;
-    collectionService.configure(this.aurelia.container, this, key, defaultRoute, modelClass, modelid);
+    service.configure(this.aurelia.container, this, key, defaultRoute, modelClass, modelid);
 
     this.services[key]._setHttpClient(this.httpClient);
 

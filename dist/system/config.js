@@ -36,12 +36,12 @@ System.register(['lodash', 'aurelia-framework', 'aurelia-fetch-client'], functio
           this.aurelia = aurelia;
         }
 
-        Config.prototype.registerService = function registerService(key, defaultRoute, collectionService) {
+        Config.prototype.registerService = function registerService(key, defaultRoute, service) {
           var modelClass = arguments.length <= 3 || arguments[3] === undefined ? ObjectCreator : arguments[3];
           var modelid = arguments.length <= 4 || arguments[4] === undefined ? '_id' : arguments[4];
 
           this.services[key] = service;
-          collectionService.configure(this.aurelia.container, this, key, defaultRoute, modelClass, modelid);
+          service.configure(this.aurelia.container, this, key, defaultRoute, modelClass, modelid);
 
           this.services[key]._setHttpClient(this.httpClient);
 

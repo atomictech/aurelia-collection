@@ -60,7 +60,6 @@
   },
   "jspm": {
     "registry": "npm",
-    "jspmPackage": true,
     "main": "aurelia-collection",
     "format": "amd",
     "directories": {
@@ -70,10 +69,12 @@
       "aurelia-dependency-injection": "^1.0.0",
       "aurelia-fetch-client": "^1.0.0",
       "aurelia-framework": "^1.0.1",
+      "aurelia-pal": "^1.0.0",
       "fetch": "github:github/fetch@^1.0.0",
       "lodash": "^4.15.0"
     },
     "devDependencies": {
+      "aurelia-pal-browser": "^1.0.0",
       "aurelia-polyfills": "^1.0.0-beta.1.1.0"
     }
   }

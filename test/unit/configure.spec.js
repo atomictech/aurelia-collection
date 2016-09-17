@@ -1,20 +1,30 @@
-import { configure } from '../../src/aurelia-collection';
+import {Aurelia} from 'aurelia-framework';
 
-class ConfigStub {
-  globalResources(...resources) {
-    this.resources = resources;
+import { Service } from '../../src/service';
+import { Config } from '../../src/config';
+
+class HttpStub {
+  fetch(url) {
+    let response = this.itemStub;
+    this.url = url;
+    return new Promise((resolve) => {
+      resolve({ json: () => response });
+    });
+  }
+
+  configure(func) {
   }
 }
 
-describe('the Aurelia configuration', () => {
-  let mockedConfiguration;
+describe('Config', function() {
+  describe('.registerService()', function() {
+    it('Should properly register a service.', function() {
+      let config = new Config(Aurelia, new HttpStub());
+      let service = new Service();
+      let result = config.registerService('myService', '/api/myservice', service);
 
-  beforeEach(() => {
-    mockedConfiguration = new ConfigStub();
-    configure(mockedConfiguration);
-  });
-
-  it('should register a global resource', () => {
-    expect(mockedConfiguration.resources).toContain('./config');
+      expect(config.services.myService).toEqual(service);
+      expect(result).toBe(config);
+    });
   });
 });

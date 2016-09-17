@@ -32,8 +32,8 @@ export class Config {
    * @param  {String} key : the key to identify a service, such as a string.
    * @param  {String} defaultRoute : route to use when performing the backend
    * http requests, to which the model id is to be appended where expected.
-   * @param  {Service} collectionService : a collection of models (such as a
-   * `Service`) to be stored.
+   * @param  {Service} service : a collection of models (as a `Service` instance)
+   * to be stored.
    * @param  {Function} modelClass : a function to be called when new data has
    * been retrieved from the backend (i.e. not already known thanks to the
    * modelid key)?
@@ -41,9 +41,9 @@ export class Config {
    * modelClass instances.
    * @return {Config} the current Config instance.
    */
-  registerService(key, defaultRoute, collectionService, modelClass = ObjectCreator, modelid = '_id') {
+  registerService(key, defaultRoute, service, modelClass = ObjectCreator, modelid = '_id') {
     this.services[key] = service;
-    collectionService.configure(this.aurelia.container, this, key, defaultRoute, modelClass, modelid);
+    service.configure(this.aurelia.container, this, key, defaultRoute, modelClass, modelid);
 
     this.services[key]._setHttpClient(this.httpClient);
 
