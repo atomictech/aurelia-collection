@@ -1,6 +1,6 @@
 <p align="center">
     <a href="https://travis-ci.org/atomictech/aurelia-collection" align="center"><img src="https://travis-ci.org/atomictech/aurelia-collection.svg?branch=master"></a>&nbsp;&nbsp;
-    <a href="https://www.npmjs.com/package/aurelia-collection"><img src="https://img.shields.io/npm/6.2.0/npm.svg"></a>&nbsp;&nbsp;
+    <a href="https://www.npmjs.com/package/aurelia-collection"><img src="https://img.shields.io/npm/v/npm.svg"></a>&nbsp;&nbsp;
     <a href="https://raw.githubusercontent.com/atomictech/aurelia-collection/master/LICENSE" alt="License"><img src="https://img.shields.io/badge/license-MIT-blue.svg"></a>&nbsp;&nbsp;
 </p>
 
