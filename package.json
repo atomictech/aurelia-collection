@@ -11,6 +11,11 @@
   "bugs": {
     "url": "https://github.com/typedef42/aurelia-collection/issues"
   },
+  "scripts": {
+    "build": "gulp build",
+    "test": "gulp test",
+    "lint": "gulp lint"
+  },
   "license": "MIT",
   "author": "Yannis Torres <yann.torres@gmail.com>",
   "main": "dist/commonjs/index.js",
