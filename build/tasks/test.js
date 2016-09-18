@@ -29,13 +29,15 @@ gulp.task('tdd', function(done) {
 });
 
 gulp.task('coveralls', function(done) { // 2nd arg is a dependency: 'karma' must be finished first.
+  process.env.NODE_ENV = 'test';
+
   new Karma({
     configFile: __dirname + '/../../karma.conf.js',
     singleRun: true,
     reporters: ['coverage'],
     preprocessors: {
       'test/**/*.js': ['babel'],
-      'src/**/*.js': ['babel', 'coverage']
+      'src/**/*.js': ['babel']
     },
     coverageReporter: {
       type: 'lcov',
@@ -55,22 +57,18 @@ gulp.task('coveralls', function(done) { // 2nd arg is a dependency: 'karma' must
  * Run test once with code coverage and exit
  */
 gulp.task('cover', function(done) {
+  process.env.NODE_ENV = 'test';
+
   new Karma({
     configFile: __dirname + '/../../karma.conf.js',
     singleRun: true,
     reporters: ['coverage'],
     preprocessors: {
       'test/**/*.js': ['babel'],
-      'src/**/*.js': ['babel', 'coverage']
+      'src/**/*.js': ['babel']
     },
     coverageReporter: {
       includeAllSources: true,
-      instrumenters: {
-        isparta: require('isparta')
-      },
-      instrumenter: {
-        'src/**/*.js': 'isparta'
-      },
       reporters: [
         { type: 'html', dir: 'coverage' },
         { type: 'text' }
