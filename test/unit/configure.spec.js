@@ -47,4 +47,19 @@ describe('Config', () => {
       expect(defaultService._httpClient instanceof HttpStub).toBe(true);
     });
   });
+
+  describe('.serviceExists()', () => {
+    it('Should true when a service is registered', () => {
+      let config = new Config(new HttpStub());
+      let service = new Service();
+
+      config.registerService('service', '/api/service', service);
+
+      let exists = config.serviceExists('service');
+      let unknownExist = config.serviceExists('unknownService');
+
+      expect(exists).toBe(true);
+      expect(unknownExist).toBe(false);
+    });
+  });
 });
