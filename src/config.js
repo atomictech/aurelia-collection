@@ -1,6 +1,6 @@
 import { _ } from 'lodash';
 
-import { Aurelia, inject } from 'aurelia-framework';
+import { inject } from 'aurelia-framework';
 import { HttpClient } from 'aurelia-fetch-client';
 
 function ObjectCreator(data) {
@@ -10,7 +10,7 @@ function ObjectCreator(data) {
 /**
  * Config class. Configures and stores service instances.
  */
-@inject(Aurelia, HttpClient)
+@inject(HttpClient)
 export class Config {
 
   /**
@@ -18,9 +18,8 @@ export class Config {
    * @param  {Aurelia} aurelia : the aurelia object containing all containers.
    * @param  {Object} httpClient : the http client of our choice.
    */
-  constructor(aurelia, httpClient) {
+  constructor(httpClient) {
     this.httpClient = httpClient;
-    this.aurelia = aurelia;
   }
 
   services = {};
@@ -43,7 +42,7 @@ export class Config {
    */
   registerService(key, defaultRoute, service, modelClass = ObjectCreator, modelid = '_id') {
     this.services[key] = service;
-    service.configure(this.aurelia.container, this, key, defaultRoute, modelClass, modelid);
+    service.configure(key, defaultRoute, modelClass, modelid);
 
     this.services[key]._setHttpClient(this.httpClient);
 
