@@ -7,7 +7,11 @@ exports.Service = undefined;
 
 var _lodash = require('lodash');
 
+var _aureliaDependencyInjection = require('aurelia-dependency-injection');
+
 var _aureliaFetchClient = require('aurelia-fetch-client');
+
+var _config = require('./config');
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -16,8 +20,10 @@ var Service = exports.Service = function () {
     _classCallCheck(this, Service);
   }
 
-  Service.prototype.configure = function configure(container, plugin, key, defaultRoute, modelClass) {
-    var modelid = arguments.length <= 5 || arguments[5] === undefined ? '_id' : arguments[5];
+  Service.prototype.configure = function configure(key, defaultRoute, modelClass) {
+    var modelid = arguments.length <= 3 || arguments[3] === undefined ? '_id' : arguments[3];
+
+    this.container = _aureliaDependencyInjection.Container.instance;
 
     if (_lodash._.isUndefined(defaultRoute)) {
       defaultRoute = '/api/' + key + '/';
@@ -27,8 +33,6 @@ var Service = exports.Service = function () {
     this.defaultRoute = defaultRoute;
     this.modelClass = modelClass;
     this.collection = [];
-    this.plugin = plugin;
-    this.container = container;
 
     this._httpClient = null;
   };
@@ -200,7 +204,7 @@ var Service = exports.Service = function () {
           backendKeyDeletion: true
         });
 
-        var collection = _this3.plugin.collections[item.collection];
+        var collection = _this3.container.get(_config.Config).collections[item.collection];
         if (_lodash._.isNil(item.backendKey)) {
           return;
         }
@@ -315,7 +319,7 @@ var Service = exports.Service = function () {
         backendKey = item.backendKey;
 
         if (!_lodash._.isNull(item.collection)) {
-          frontendValue = _this6.plugin.collections[item.collection].get(attributes[backendKey]);
+          frontendValue = _this6.container.get(_config.Config).collections[item.collection].get(attributes[backendKey]);
         }
       }
 

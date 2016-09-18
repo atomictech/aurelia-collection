@@ -3,7 +3,7 @@
 System.register(['lodash', 'aurelia-framework', 'aurelia-fetch-client'], function (_export, _context) {
   "use strict";
 
-  var _, Aurelia, inject, HttpClient, _dec, _class, Config;
+  var _, inject, HttpClient, _dec, _class, Config;
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -19,21 +19,19 @@ System.register(['lodash', 'aurelia-framework', 'aurelia-fetch-client'], functio
     setters: [function (_lodash) {
       _ = _lodash._;
     }, function (_aureliaFramework) {
-      Aurelia = _aureliaFramework.Aurelia;
       inject = _aureliaFramework.inject;
     }, function (_aureliaFetchClient) {
       HttpClient = _aureliaFetchClient.HttpClient;
     }],
     execute: function () {
-      _export('Config', Config = (_dec = inject(Aurelia, HttpClient), _dec(_class = function () {
-        function Config(aurelia, httpClient) {
+      _export('Config', Config = (_dec = inject(HttpClient), _dec(_class = function () {
+        function Config(httpClient) {
           _classCallCheck(this, Config);
 
           this.services = {};
           this.defaultService = null;
 
           this.httpClient = httpClient;
-          this.aurelia = aurelia;
         }
 
         Config.prototype.registerService = function registerService(key, defaultRoute, service) {
@@ -41,7 +39,7 @@ System.register(['lodash', 'aurelia-framework', 'aurelia-fetch-client'], functio
           var modelid = arguments.length <= 4 || arguments[4] === undefined ? '_id' : arguments[4];
 
           this.services[key] = service;
-          service.configure(this.aurelia.container, this, key, defaultRoute, modelClass, modelid);
+          service.configure(key, defaultRoute, modelClass, modelid);
 
           this.services[key]._setHttpClient(this.httpClient);
 

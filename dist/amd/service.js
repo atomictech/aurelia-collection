@@ -1,4 +1,4 @@
-define(['exports', 'lodash', 'aurelia-fetch-client'], function (exports, _lodash, _aureliaFetchClient) {
+define(['exports', 'lodash', 'aurelia-dependency-injection', 'aurelia-fetch-client', './config'], function (exports, _lodash, _aureliaDependencyInjection, _aureliaFetchClient, _config) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -17,8 +17,10 @@ define(['exports', 'lodash', 'aurelia-fetch-client'], function (exports, _lodash
       _classCallCheck(this, Service);
     }
 
-    Service.prototype.configure = function configure(container, plugin, key, defaultRoute, modelClass) {
-      var modelid = arguments.length <= 5 || arguments[5] === undefined ? '_id' : arguments[5];
+    Service.prototype.configure = function configure(key, defaultRoute, modelClass) {
+      var modelid = arguments.length <= 3 || arguments[3] === undefined ? '_id' : arguments[3];
+
+      this.container = _aureliaDependencyInjection.Container.instance;
 
       if (_lodash._.isUndefined(defaultRoute)) {
         defaultRoute = '/api/' + key + '/';
@@ -28,8 +30,6 @@ define(['exports', 'lodash', 'aurelia-fetch-client'], function (exports, _lodash
       this.defaultRoute = defaultRoute;
       this.modelClass = modelClass;
       this.collection = [];
-      this.plugin = plugin;
-      this.container = container;
 
       this._httpClient = null;
     };
@@ -201,7 +201,7 @@ define(['exports', 'lodash', 'aurelia-fetch-client'], function (exports, _lodash
             backendKeyDeletion: true
           });
 
-          var collection = _this3.plugin.collections[item.collection];
+          var collection = _this3.container.get(_config.Config).collections[item.collection];
           if (_lodash._.isNil(item.backendKey)) {
             return;
           }
@@ -316,7 +316,7 @@ define(['exports', 'lodash', 'aurelia-fetch-client'], function (exports, _lodash
           backendKey = item.backendKey;
 
           if (!_lodash._.isNull(item.collection)) {
-            frontendValue = _this6.plugin.collections[item.collection].get(attributes[backendKey]);
+            frontendValue = _this6.container.get(_config.Config).collections[item.collection].get(attributes[backendKey]);
           }
         }
 

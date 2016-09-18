@@ -19,15 +19,14 @@ function ObjectCreator(data) {
   return _lodash._.cloneDeep(data);
 }
 
-var Config = exports.Config = (_dec = (0, _aureliaFramework.inject)(_aureliaFramework.Aurelia, _aureliaFetchClient.HttpClient), _dec(_class = function () {
-  function Config(aurelia, httpClient) {
+var Config = exports.Config = (_dec = (0, _aureliaFramework.inject)(_aureliaFetchClient.HttpClient), _dec(_class = function () {
+  function Config(httpClient) {
     _classCallCheck(this, Config);
 
     this.services = {};
     this.defaultService = null;
 
     this.httpClient = httpClient;
-    this.aurelia = aurelia;
   }
 
   Config.prototype.registerService = function registerService(key, defaultRoute, service) {
@@ -35,7 +34,7 @@ var Config = exports.Config = (_dec = (0, _aureliaFramework.inject)(_aureliaFram
     var modelid = arguments.length <= 4 || arguments[4] === undefined ? '_id' : arguments[4];
 
     this.services[key] = service;
-    service.configure(this.aurelia.container, this, key, defaultRoute, modelClass, modelid);
+    service.configure(key, defaultRoute, modelClass, modelid);
 
     this.services[key]._setHttpClient(this.httpClient);
 

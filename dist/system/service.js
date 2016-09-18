@@ -1,9 +1,9 @@
 'use strict';
 
-System.register(['lodash', 'aurelia-fetch-client'], function (_export, _context) {
+System.register(['lodash', 'aurelia-dependency-injection', 'aurelia-fetch-client', './config'], function (_export, _context) {
   "use strict";
 
-  var _, json, Service;
+  var _, Container, json, Config, Service;
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -17,8 +17,12 @@ System.register(['lodash', 'aurelia-fetch-client'], function (_export, _context)
   return {
     setters: [function (_lodash) {
       _ = _lodash._;
+    }, function (_aureliaDependencyInjection) {
+      Container = _aureliaDependencyInjection.Container;
     }, function (_aureliaFetchClient) {
       json = _aureliaFetchClient.json;
+    }, function (_config) {
+      Config = _config.Config;
     }],
     execute: function () {
       _export('Service', Service = function () {
@@ -26,8 +30,10 @@ System.register(['lodash', 'aurelia-fetch-client'], function (_export, _context)
           _classCallCheck(this, Service);
         }
 
-        Service.prototype.configure = function configure(container, plugin, key, defaultRoute, modelClass) {
-          var modelid = arguments.length <= 5 || arguments[5] === undefined ? '_id' : arguments[5];
+        Service.prototype.configure = function configure(key, defaultRoute, modelClass) {
+          var modelid = arguments.length <= 3 || arguments[3] === undefined ? '_id' : arguments[3];
+
+          this.container = Container.instance;
 
           if (_.isUndefined(defaultRoute)) {
             defaultRoute = '/api/' + key + '/';
@@ -37,8 +43,6 @@ System.register(['lodash', 'aurelia-fetch-client'], function (_export, _context)
           this.defaultRoute = defaultRoute;
           this.modelClass = modelClass;
           this.collection = [];
-          this.plugin = plugin;
-          this.container = container;
 
           this._httpClient = null;
         };
@@ -210,7 +214,7 @@ System.register(['lodash', 'aurelia-fetch-client'], function (_export, _context)
                 backendKeyDeletion: true
               });
 
-              var collection = _this3.plugin.collections[item.collection];
+              var collection = _this3.container.get(Config).collections[item.collection];
               if (_.isNil(item.backendKey)) {
                 return;
               }
@@ -325,7 +329,7 @@ System.register(['lodash', 'aurelia-fetch-client'], function (_export, _context)
               backendKey = item.backendKey;
 
               if (!_.isNull(item.collection)) {
-                frontendValue = _this6.plugin.collections[item.collection].get(attributes[backendKey]);
+                frontendValue = _this6.container.get(Config).collections[item.collection].get(attributes[backendKey]);
               }
             }
 

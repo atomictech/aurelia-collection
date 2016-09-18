@@ -1,9 +1,14 @@
 import { _ } from 'lodash';
 
+import { Container } from 'aurelia-dependency-injection';
 import { json } from 'aurelia-fetch-client';
 
+import { Config } from './config';
+
 export let Service = class Service {
-  configure(container, plugin, key, defaultRoute, modelClass, modelid = '_id') {
+  configure(key, defaultRoute, modelClass, modelid = '_id') {
+    this.container = Container.instance;
+
     if (_.isUndefined(defaultRoute)) {
       defaultRoute = '/api/' + key + '/';
     }
@@ -12,8 +17,6 @@ export let Service = class Service {
     this.defaultRoute = defaultRoute;
     this.modelClass = modelClass;
     this.collection = [];
-    this.plugin = plugin;
-    this.container = container;
 
     this._httpClient = null;
   }
@@ -169,7 +172,7 @@ export let Service = class Service {
           backendKeyDeletion: true
         });
 
-        let collection = this.plugin.collections[item.collection];
+        let collection = this.container.get(Config).collections[item.collection];
         if (_.isNil(item.backendKey)) {
           return;
         }
@@ -270,7 +273,7 @@ export let Service = class Service {
         backendKey = item.backendKey;
 
         if (!_.isNull(item.collection)) {
-          frontendValue = this.plugin.collections[item.collection].get(attributes[backendKey]);
+          frontendValue = this.container.get(Config).collections[item.collection].get(attributes[backendKey]);
         }
       }
 

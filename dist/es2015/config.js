@@ -2,25 +2,24 @@ var _dec, _class;
 
 import { _ } from 'lodash';
 
-import { Aurelia, inject } from 'aurelia-framework';
+import { inject } from 'aurelia-framework';
 import { HttpClient } from 'aurelia-fetch-client';
 
 function ObjectCreator(data) {
   return _.cloneDeep(data);
 }
 
-export let Config = (_dec = inject(Aurelia, HttpClient), _dec(_class = class Config {
-  constructor(aurelia, httpClient) {
+export let Config = (_dec = inject(HttpClient), _dec(_class = class Config {
+  constructor(httpClient) {
     this.services = {};
     this.defaultService = null;
 
     this.httpClient = httpClient;
-    this.aurelia = aurelia;
   }
 
   registerService(key, defaultRoute, service, modelClass = ObjectCreator, modelid = '_id') {
     this.services[key] = service;
-    service.configure(this.aurelia.container, this, key, defaultRoute, modelClass, modelid);
+    service.configure(key, defaultRoute, modelClass, modelid);
 
     this.services[key]._setHttpClient(this.httpClient);
 
