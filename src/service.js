@@ -293,7 +293,7 @@ export class Service {
               });
 
               // collection and backendKey have to be defined.
-              let collection = this.container.get(Config).collections[item.collection];
+              let collection = this.container.get(Config).getService(item.collection);
               if (_.isNil(item.backendKey)) {
                 return;
               }
@@ -424,7 +424,7 @@ export class Service {
 
         // item.collection can be null if we want to keep JSON data.
         if (!_.isNull(item.collection)) {
-          frontendValue = this.container.get(Config).collections[item.collection].get(attributes[backendKey]);
+          frontendValue = this.container.get(Config).getService(item.collection).get(attributes[backendKey]);
         }
       }
 

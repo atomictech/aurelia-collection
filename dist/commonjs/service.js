@@ -204,7 +204,7 @@ var Service = exports.Service = function () {
           backendKeyDeletion: true
         });
 
-        var collection = _this3.container.get(_config.Config).collections[item.collection];
+        var collection = _this3.container.get(_config.Config).getService(item.collection);
         if (_lodash._.isNil(item.backendKey)) {
           return;
         }
@@ -319,7 +319,7 @@ var Service = exports.Service = function () {
         backendKey = item.backendKey;
 
         if (!_lodash._.isNull(item.collection)) {
-          frontendValue = _this6.container.get(_config.Config).collections[item.collection].get(attributes[backendKey]);
+          frontendValue = _this6.container.get(_config.Config).getService(item.collection).get(attributes[backendKey]);
         }
       }
 

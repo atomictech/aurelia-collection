@@ -214,7 +214,7 @@ System.register(['lodash', 'aurelia-dependency-injection', 'aurelia-fetch-client
                 backendKeyDeletion: true
               });
 
-              var collection = _this3.container.get(Config).collections[item.collection];
+              var collection = _this3.container.get(Config).getService(item.collection);
               if (_.isNil(item.backendKey)) {
                 return;
               }
@@ -329,7 +329,7 @@ System.register(['lodash', 'aurelia-dependency-injection', 'aurelia-fetch-client
               backendKey = item.backendKey;
 
               if (!_.isNull(item.collection)) {
-                frontendValue = _this6.container.get(Config).collections[item.collection].get(attributes[backendKey]);
+                frontendValue = _this6.container.get(Config).getService(item.collection).get(attributes[backendKey]);
               }
             }
 
