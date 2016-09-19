@@ -9,16 +9,16 @@ let config = container.get(Config);
 let service = new Service();
 config.registerService('fake', service, 'http://jsonplaceholder.typicode.com');
 
-describe('Collection', function() {
-  describe('static .of()', function() {
-    it('Should return a new instance of self.', function() {
+describe('Collection', () => {
+  describe('static .of()', () => {
+    it('Should return a new instance of self.', () => {
       let collection = Collection.of('foo');
 
       expect(collection instanceof Collection).toBe(true);
       expect(collection._key).toBe('foo');
     });
 
-    it('Should return a new instance of Service.', function() {
+    it('Should return a new instance of Service.', () => {
       let injectTest = container.get(InjectTest);
 
       expect(injectTest.myService instanceof Service).toBe(true);
