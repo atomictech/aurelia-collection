@@ -7,9 +7,9 @@
     "plugin",
     "skeleton"
   ],
-  "homepage": "https://github.com/typedef42/aurelia-collection",
+  "homepage": "https://github.com/atomictech/aurelia-collection",
   "bugs": {
-    "url": "https://github.com/typedef42/aurelia-collection/issues"
+    "url": "https://github.com/atomictech/aurelia-collection/issues"
   },
   "scripts": {
     "build": "gulp build",
@@ -22,7 +22,7 @@
   "main": "dist/commonjs/index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/typedef42/aurelia-collection"
+    "url": "https://github.com/atomictech/aurelia-collection"
   },
   "devDependencies": {
     "aurelia-tools": "^0.2.4",
@@ -63,6 +63,7 @@
   },
   "jspm": {
     "registry": "npm",
+    "jspmPackage": true,
     "main": "aurelia-collection",
     "format": "amd",
     "directories": {
