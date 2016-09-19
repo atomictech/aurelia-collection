@@ -17,7 +17,7 @@ export let Config = (_dec = inject(HttpClient), _dec(_class = class Config {
     this.httpClient = httpClient;
   }
 
-  registerService(key, defaultRoute, service, modelClass = ObjectCreator, modelid = '_id') {
+  registerService(key, service, defaultRoute, modelClass = ObjectCreator, modelid = '_id') {
     this.services[key] = service;
     service.configure(key, defaultRoute, modelClass, modelid);
 

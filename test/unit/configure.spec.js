@@ -18,7 +18,7 @@ describe('Config', () => {
     it('Should properly register a service.', () => {
       let config = new Config(new HttpStub());
       let service = new Service();
-      let result = config.registerService('myService', '/api/myservice', service);
+      let result = config.registerService('myService', service, '/api/myservice');
 
       expect(config.services.myService).toEqual(service);
       expect(result).toBe(config);
@@ -29,7 +29,7 @@ describe('Config', () => {
     it('Should return the registred service, or null.', () => {
       let config = new Config(new HttpStub());
       let service = new Service();
-      config.registerService('myService', '/api/myservice', service);
+      config.registerService('myService', service, '/api/myservice');
 
       let myService = config.getService('myService');
       let nullService = config.getService('none');
@@ -53,7 +53,7 @@ describe('Config', () => {
       let config = new Config(new HttpStub());
       let service = new Service();
 
-      config.registerService('service', '/api/service', service);
+      config.registerService('service', service, '/api/service');
 
       let exists = config.serviceExists('service');
       let unknownExist = config.serviceExists('unknownService');

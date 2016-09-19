@@ -34,7 +34,7 @@ System.register(['lodash', 'aurelia-framework', 'aurelia-fetch-client'], functio
           this.httpClient = httpClient;
         }
 
-        Config.prototype.registerService = function registerService(key, defaultRoute, service) {
+        Config.prototype.registerService = function registerService(key, service, defaultRoute) {
           var modelClass = arguments.length <= 3 || arguments[3] === undefined ? ObjectCreator : arguments[3];
           var modelid = arguments.length <= 4 || arguments[4] === undefined ? '_id' : arguments[4];
 

@@ -29,18 +29,18 @@ export class Config {
    * Register a service for it to be use thanks to the `Collection` resolver.
    * Additional params are used to configure the service.
    * @param  {String} key : the key to identify a service, such as a string.
-   * @param  {String} defaultRoute : route to use when performing the backend
-   * http requests, to which the model id is to be appended where expected.
    * @param  {Service} service : a collection of models (as a `Service` instance)
    * to be stored.
-   * @param  {Function} modelClass : a function to be called when new data has
+   * @param  {String} [defaultRoute] : route to use when performing the backend
+   * http requests, to which the model id is to be appended where expected.
+   * @param  {Function} [modelClass] : a function to be called when new data has
    * been retrieved from the backend (i.e. not already known thanks to the
    * modelid key)?
-   * @param  {String} modelid : the key to use as the id (uniqueness) in the
+   * @param  {String} [modelid] : the key to use as the id (uniqueness) in the
    * modelClass instances.
    * @return {Config} the current Config instance.
    */
-  registerService(key, defaultRoute, service, modelClass = ObjectCreator, modelid = '_id') {
+  registerService(key, service, defaultRoute, modelClass = ObjectCreator, modelid = '_id') {
     this.services[key] = service;
     service.configure(key, defaultRoute, modelClass, modelid);
 

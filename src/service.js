@@ -15,11 +15,11 @@ export class Service {
    * Configure the service.
    * @param  {String} key : the key provided when the service has been
    * registered
-   * @param  {String} defaultRoute : route to use when performing the backend
+   * @param  {String} [defaultRoute] : route to use when performing the backend
    * http requests, to which the model id is to be appended where expected.
-   * @param  {Function} modelClass : function to be called to be called to
+   * @param  {Function} [modelClass] : function to be called to be called to
    * create a model.
-   * @param  {String} modelid : the key to use for uniqueness of the models in
+   * @param  {String} [modelid] : the key to use for uniqueness of the models in
    * order to store and search for them.
    */
   configure(key, defaultRoute, modelClass, modelid = '_id') {
