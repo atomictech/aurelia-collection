@@ -6,7 +6,7 @@ import { json } from 'aurelia-fetch-client';
 import { Config } from './config';
 
 export let Service = class Service {
-  configure(key, defaultRoute, modelClass, modelid = '_id') {
+  configure(key, modelClass, defaultRoute, modelid = '_id') {
     this.container = Container.instance;
 
     if (_.isUndefined(defaultRoute)) {

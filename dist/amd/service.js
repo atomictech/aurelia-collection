@@ -17,8 +17,8 @@ define(['exports', 'lodash', 'aurelia-dependency-injection', 'aurelia-fetch-clie
       _classCallCheck(this, Service);
     }
 
-    Service.prototype.configure = function configure(key, defaultRoute, modelClass) {
-      var modelid = arguments.length <= 3 || arguments[3] === undefined ? '_id' : arguments[3];
+    Service.prototype.configure = function configure(key, modelClass, defaultRoute) {
+      var modelid = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : '_id';
 
       this.container = _aureliaDependencyInjection.Container.instance;
 

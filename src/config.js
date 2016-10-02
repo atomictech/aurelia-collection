@@ -42,7 +42,7 @@ export class Config {
    */
   registerService(key, service, defaultRoute, modelClass = ObjectCreator, modelid = '_id') {
     this.services[key] = service;
-    service.configure(key, defaultRoute, modelClass, modelid);
+    service.configure(key, modelClass, defaultRoute, modelid);
 
     this.services[key]._setHttpClient(this.httpClient);
 

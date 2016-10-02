@@ -9,9 +9,12 @@ define(['exports', './collection', './service', './config', 'fetch'], function (
   function configure(aurelia, configCallback) {
     var config = aurelia.container.get(_config.Config);
 
-    if (configCallback !== undefined && typeof configCallback === 'function') {
-      configCallback(config);
+    if (configCallback === undefined || typeof configCallback !== 'function') {
+      var error = 'You need to provide a callback method to properly configure the library';
+      throw error;
     }
+
+    configCallback(config);
   }
 
   exports.Collection = _collection.Collection;

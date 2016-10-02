@@ -22,7 +22,7 @@ export class Service {
    * @param  {String} [modelid] : the key to use for uniqueness of the models in
    * order to store and search for them.
    */
-  configure(key, defaultRoute, modelClass, modelid = '_id') {
+  configure(key, modelClass, defaultRoute, modelid = '_id') {
     this.container = Container.instance;
 
     if (_.isUndefined(defaultRoute)) {

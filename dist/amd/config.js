@@ -29,11 +29,11 @@ define(['exports', 'lodash', 'aurelia-framework', 'aurelia-fetch-client'], funct
     }
 
     Config.prototype.registerService = function registerService(key, service, defaultRoute) {
-      var modelClass = arguments.length <= 3 || arguments[3] === undefined ? ObjectCreator : arguments[3];
-      var modelid = arguments.length <= 4 || arguments[4] === undefined ? '_id' : arguments[4];
+      var modelClass = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : ObjectCreator;
+      var modelid = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : '_id';
 
       this.services[key] = service;
-      service.configure(key, defaultRoute, modelClass, modelid);
+      service.configure(key, modelClass, defaultRoute, modelid);
 
       this.services[key]._setHttpClient(this.httpClient);
 
