@@ -1,3 +1,4 @@
+import { _ } from 'lodash';
 import fakeFetch from 'fake-fetch';
 import { Container } from 'aurelia-dependency-injection';
 import { StageComponent } from 'aurelia-testing';
@@ -200,6 +201,114 @@ describe('Service', () => {
       service.collection.push(model);
       expect(service._getFromCollection('myId')).toEqual(model);
       expect(service._getFromCollection('noId')).toBeUndefined();
+    });
+  });
+
+  describe('._removeFromCollection', () => {
+    let creator;
+    let service;
+
+    beforeEach(() => {
+      creator = (data) => data;
+      service = new Service();
+    });
+
+    it('Should remove a model with default _id property value', () => {
+      let model = { _id: 'myId' };
+      let anotherModel = { idField: 'myOtherId' };
+      config.registerService('myKey', service, 'default/route', creator);
+
+      service.collection.push(model);
+      service.collection.push(anotherModel);
+
+      service._removeFromCollection('myId');
+      expect(service.collection).toEqual([anotherModel]);
+
+      // We can try to remove it  again, and it still works.
+      service._removeFromCollection('myId');
+      expect(service.collection).toEqual([anotherModel]);
+    });
+
+    it('Should remove a model with default _id property value', () => {
+      let model = { idField: 'myId' };
+      let anotherModel = { idField: 'myOtherId' };
+      config.registerService('myKey', service, 'default/route', creator, 'idField');
+
+      service.collection.push(model);
+      service.collection.push(anotherModel);
+
+      service._removeFromCollection('myId');
+      expect(service.collection).toEqual([anotherModel]);
+
+      // We can try to remove it  again, and it still works.
+      service._removeFromCollection('myId');
+      expect(service.collection).toEqual([anotherModel]);
+    });
+  });
+
+  describe('._getById', () => {
+    let creator;
+    let model;
+    let service;
+
+    beforeEach(() => {
+      creator = (data) => data;
+      model = { _id: 'myId', wheels: 4 };
+      service = new Service();
+      config.registerService('myKey', service, 'default/route', creator);
+    });
+
+
+    it('Should return an already known model', done => {
+      service.collection.push(model);
+
+      service._getById('myId')
+        .then(foundModel => {
+          expect(foundModel).toBe(model);
+          done();
+        });
+    });
+
+    it('Should return a model when it is not already a known model', done => {
+      fakeFetch.respondWith(JSON.stringify(model));
+
+      spyOn(service._httpClient, 'fetch').and.callThrough();
+
+      service._getById('myId')
+        .then(foundModel => {
+          expect(foundModel).toEqual(model);
+          expect(service._httpClient.fetch).toHaveBeenCalled();
+          done();
+        });
+    });
+
+    it('Should return the model by calling the fetch method when forcing it', done => {
+      service.collection.push(model);
+      fakeFetch.respondWith(JSON.stringify(model));
+
+      spyOn(service._httpClient, 'fetch').and.callThrough();
+
+      service._getById('myId', true)
+        .then(foundModel => {
+          expect(foundModel).toEqual(model);
+          expect(service._httpClient.fetch).toHaveBeenCalled();
+          done();
+        });
+    });
+
+    it('Should return the model by calling the fetch method is the model is not complete', done => {
+      service.isComplete = m => _.has(m, ['_id', 'wheels', 'doors']);
+
+      service.collection.push(model);
+      fakeFetch.respondWith(JSON.stringify(model));
+
+      spyOn(service._httpClient, 'fetch').and.callThrough();
+      service._getById('myId', true)
+        .then(foundModel => {
+          expect(foundModel).toEqual(model);
+          expect(service._httpClient.fetch).toHaveBeenCalled();
+          done();
+        });
     });
   });
 });
