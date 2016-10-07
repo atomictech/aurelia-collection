@@ -12,18 +12,18 @@ describe('Service', () => {
   let container;
   let config;
 
-  beforeEach(done => {
+  beforeAll(done => {
     fakeFetch.install();
     component = StageComponent.withResources();
     component.create(bootstrap)
       .then(() => {
-        container = new Container();
+        container = Container.instance;
         config = container.get(Config);
         done();
       });
   });
 
-  afterEach(() => {
+  afterAll(() => {
     fakeFetch.restore();
     component.dispose();
   });
@@ -33,6 +33,7 @@ describe('Service', () => {
       let service = new Service();
       service.configure('myKey');
 
+      expect(service.container).toBe(container);
       expect(service.modelid).toBe('_id');
       expect(service.modelClass).toBeUndefined();
       expect(service.defaultRoute).toBe('/api/myKey/');
@@ -258,7 +259,6 @@ describe('Service', () => {
       config.registerService('myKey', service, 'default/route', creator);
     });
 
-
     it('Should return an already known model', done => {
       service.collection.push(model);
 
@@ -307,6 +307,85 @@ describe('Service', () => {
         .then(foundModel => {
           expect(foundModel).toEqual(model);
           expect(service._httpClient.fetch).toHaveBeenCalled();
+          done();
+        });
+    });
+  });
+
+  describe('.create', () => {
+    let creator;
+    let model;
+    let service;
+
+    beforeEach(() => {
+      creator = (data) => data;
+      model = { _id: 'myId', wheels: 4 };
+      service = new Service();
+      config.registerService('myKey', service, 'default/route', creator);
+    });
+
+    it('Should return the created model', done => {
+      model = { _id: 'myId', wheels: 4 };
+      fakeFetch.respondWith(JSON.stringify(model));
+
+      spyOn(service._httpClient, 'fetch').and.callThrough();
+
+      service.create(model)
+        .then(createdModel => {
+          expect(createdModel).toEqual(model);
+          expect(service._httpClient.fetch).toHaveBeenCalled();
+          done();
+        });
+    });
+
+    it('Should return the created model on a dedicated route', done => {
+      model = { _id: 'myId', wheels: 4 };
+      fakeFetch.respondWith(JSON.stringify(model));
+
+      spyOn(service._httpClient, 'fetch').and.callThrough();
+
+      service.create(model, 'creation')
+        .then(createdModel => {
+          expect(createdModel).toEqual(model);
+          expect(service._httpClient.fetch).toHaveBeenCalled();
+          done();
+        });
+    });
+
+    it('Should return the model and leave the submodel id', done => {
+      let service2 = new Service();
+      let driver = { _id: 'fakeId', name: 'Fake Name' };
+      model._ref_driver = 'fakeId';
+      config.registerService('Drivers', service2, 'api/drivers', creator);
+      service2.collection.push(driver);
+      service.refKeys = () => [{ backendKey: '_ref_driver', collection: 'Drivers', frontendKey: 'driver' }];
+
+      fakeFetch.respondWith('{ "_id": "myId", "wheels": 4, "_ref_driver": "fakeId"}');
+
+      service.create(model)
+        .then(createdModel => {
+          expect(createdModel._id).toEqual('myId');
+          expect(createdModel.wheels).toEqual(4);
+          expect(createdModel._ref_driver).toEqual(driver._id);
+          done();
+        });
+    });
+
+    it('Should return the model and replace the submodel id by its model when the backend populate its data', done => {
+      let service2 = new Service();
+      let driver = { _id: 'fakeId', name: 'Fake Name' };
+      model._ref_driver = 'fakeId';
+      config.registerService('Drivers', service2, 'api/drivers', creator);
+      service2.collection.push(driver);
+      service.refKeys = () => [{ backendKey: '_ref_driver', collection: 'Drivers', frontendKey: 'driver' }];
+
+      fakeFetch.respondWith('{ "_id": "myId", "wheels": 4, "_ref_driver": { "_id": "fakeId", "name": "Fake Name" } }');
+
+      service.create(model)
+        .then(createdModel => {
+          expect(createdModel._id).toEqual('myId');
+          expect(createdModel.wheels).toEqual(4);
+          expect(createdModel.driver).toBe(driver);
           done();
         });
     });
