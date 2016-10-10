@@ -321,7 +321,7 @@ describe('Service', () => {
       creator = (data) => data;
       model = { _id: 'myId', wheels: 4 };
       service = new Service();
-      config.registerService('myKey', service, 'default/route', creator);
+      config.registerService('myKey', service, 'default/route/', creator);
     });
 
     it('Should return the created model', done => {
@@ -333,7 +333,7 @@ describe('Service', () => {
       service.create(model)
         .then(createdModel => {
           expect(createdModel).toEqual(model);
-          expect(service._httpClient.fetch).toHaveBeenCalled();
+          expect(service._httpClient.fetch).toHaveBeenCalledWith('default/route', jasmine.objectContaining({ method: 'post' }));
           done();
         });
     });
@@ -347,7 +347,7 @@ describe('Service', () => {
       service.create(model, 'creation')
         .then(createdModel => {
           expect(createdModel).toEqual(model);
-          expect(service._httpClient.fetch).toHaveBeenCalled();
+          expect(service._httpClient.fetch).toHaveBeenCalledWith(('default/route/creation'), jasmine.objectContaining({ method: 'post' }));
           done();
         });
     });
@@ -356,7 +356,7 @@ describe('Service', () => {
       let service2 = new Service();
       let driver = { _id: 'fakeId', name: 'Fake Name' };
       model._ref_driver = 'fakeId';
-      config.registerService('Drivers', service2, 'api/drivers', creator);
+      config.registerService('Drivers', service2, 'api/drivers/', creator);
       service2.collection.push(driver);
       service.refKeys = () => [{ backendKey: '_ref_driver', collection: 'Drivers', frontendKey: 'driver' }];
 
@@ -375,7 +375,7 @@ describe('Service', () => {
       let service2 = new Service();
       let driver = { _id: 'fakeId', name: 'Fake Name' };
       model._ref_driver = 'fakeId';
-      config.registerService('Drivers', service2, 'api/drivers', creator);
+      config.registerService('Drivers', service2, 'api/drivers/', creator);
       service2.collection.push(driver);
       service.refKeys = () => [{ backendKey: '_ref_driver', collection: 'Drivers', frontendKey: 'driver' }];
 
@@ -386,6 +386,40 @@ describe('Service', () => {
           expect(createdModel._id).toEqual('myId');
           expect(createdModel.wheels).toEqual(4);
           expect(createdModel.driver).toBe(driver);
+          done();
+        });
+    });
+  });
+
+  describe('.destroy()', () => {
+    let creator;
+    let model;
+    let service;
+
+    beforeEach(() => {
+      creator = (data) => data;
+      model = { _id: 'myId', wheels: 4 };
+      service = new Service();
+      config.registerService('myKey', service, 'default/route/', creator);
+      service.collection.push(model);
+      fakeFetch.respondWith('{ "response": "ok" }');
+      spyOn(service._httpClient, 'fetch').and.callThrough();
+    });
+
+    it('Should remove the model from the collection and call the fetch method', done => {
+      service.destroy(model._id)
+        .then(answer => {
+          expect(service.collection).toEqual([]);
+          expect(service._httpClient.fetch).toHaveBeenCalledWith('default/route/' + model._id, { method: 'delete' });
+          done();
+        });
+    });
+
+    it('Should remove the model and call the fetch method on a dedicated route', done => {
+      service.destroy(model._id, 'destroy/' + model._id)
+        .then(answer => {
+          expect(service.collection).toEqual([]);
+          expect(service._httpClient.fetch).toHaveBeenCalledWith('default/route/destroy/' + model._id, { method: 'delete' });
           done();
         });
     });
