@@ -49,7 +49,7 @@ describe('Service', () => {
     beforeEach(() => {
       let creator = (data) => data;
       service = new Service();
-      config.registerService('myKey', service, 'default/route', creator);
+      config.registerService('myKey', service, 'default/route/', creator);
     });
 
     it('Should return null when data is undefined or null', () => {
@@ -85,7 +85,7 @@ describe('Service', () => {
       let creator = (data) => data;
       model = { _id: 'fakeId', other: 'field' };
       service = new Service();
-      config.registerService('myKey', service, 'default/route', creator);
+      config.registerService('myKey', service, 'default/route/', creator);
     });
 
     it('Should return the model when the model doesn\'t have a toJSON method', () => {
@@ -135,7 +135,7 @@ describe('Service', () => {
       let creator = (data) => data;
       model = { _id: 'myId' };
       service = new Service();
-      config.registerService('myKey', service, 'default/route', creator);
+      config.registerService('myKey', service, 'default/route/', creator);
     });
 
     it('Should return the synced model when given an id', done => {
@@ -186,7 +186,7 @@ describe('Service', () => {
       let creator = (data) => data;
       let model = { _id: 'myId' };
       let service = new Service();
-      config.registerService('myKey', service, 'default/route', creator);
+      config.registerService('myKey', service, 'default/route/', creator);
 
       service.collection.push(model);
       expect(service._getFromCollection('myId')).toEqual(model);
@@ -197,7 +197,7 @@ describe('Service', () => {
       let creator = (data) => data;
       let model = { idField: 'myId' };
       let service = new Service();
-      config.registerService('myKey', service, 'default/route', creator, 'idField');
+      config.registerService('myKey', service, 'default/route/', creator, 'idField');
 
       service.collection.push(model);
       expect(service._getFromCollection('myId')).toEqual(model);
@@ -217,7 +217,7 @@ describe('Service', () => {
     it('Should remove a model with default _id property value', () => {
       let model = { _id: 'myId' };
       let anotherModel = { idField: 'myOtherId' };
-      config.registerService('myKey', service, 'default/route', creator);
+      config.registerService('myKey', service, 'default/route/', creator);
 
       service.collection.push(model);
       service.collection.push(anotherModel);
@@ -233,7 +233,7 @@ describe('Service', () => {
     it('Should remove a model with default _id property value', () => {
       let model = { idField: 'myId' };
       let anotherModel = { idField: 'myOtherId' };
-      config.registerService('myKey', service, 'default/route', creator, 'idField');
+      config.registerService('myKey', service, 'default/route/', creator, 'idField');
 
       service.collection.push(model);
       service.collection.push(anotherModel);
@@ -256,7 +256,7 @@ describe('Service', () => {
       creator = (data) => data;
       model = { _id: 'myId', wheels: 4 };
       service = new Service();
-      config.registerService('myKey', service, 'default/route', creator);
+      config.registerService('myKey', service, 'default/route/', creator);
     });
 
     it('Should return an already known model', done => {
@@ -420,6 +420,185 @@ describe('Service', () => {
         .then(answer => {
           expect(service.collection).toEqual([]);
           expect(service._httpClient.fetch).toHaveBeenCalledWith('default/route/destroy/' + model._id, { method: 'delete' });
+          done();
+        });
+    });
+  });
+
+  describe('.get()', () => {
+    let creator;
+    let model;
+    let driver;
+    let phone;
+    let service;
+    let service2;
+    let service3;
+
+    beforeEach(() => {
+      creator = (data) => data;
+      model = { _id: 'myId', wheels: 4 };
+      service = new Service;
+      config.registerService('myKey', service, 'default/route/', creator);
+      service.collection.push(model);
+
+      service2 = new Service();
+      driver = { _id: 'fakeId', name: 'Fake Name' };
+      model._ref_driver = 'fakeId';
+      config.registerService('Drivers', service2, 'api/drivers/', creator);
+      service2.collection.push(driver);
+      service.refKeys = () => [{ backendKey: '_ref_driver', collection: 'Drivers', frontendKey: 'driver' }];
+
+      service3 = new Service();
+      phone = { _id: 'phone1', battery: '3h' };
+      driver._ref_phones = ['phone1'];
+      config.registerService('Phones', service3, 'api/phones/', creator);
+      service3.collection.push(phone);
+      service2.refKeys = () => [{ backendKey: '_ref_phones', collection: 'Phones', frontendKey: 'phones' }];
+    });
+
+    it('Should return the parameters when calling with undefined', done => {
+      service.get()
+        .then(data => {
+          expect(data).toBeUndefined();
+          done();
+        });
+    });
+
+    it('Should return the parameters when calling with null', done => {
+      service.get(null)
+        .then(data => {
+          expect(data).toBeNull();
+          done();
+        });
+    });
+
+    it('Should return a model according to its id.', done => {
+      service.get('myId')
+        .then(foundModel => {
+          expect(foundModel).toBe(model);
+          done();
+        });
+    });
+
+    it('Should return a model according to its attributes containg an id.', done => {
+      service.get({ _id: 'myId' })
+        .then(foundModel => {
+          expect(foundModel).toBe(model);
+          done();
+        });
+    });
+
+    it('Should return the models according to the ids array.', done => {
+      let model2 = { _id: 'id2', wheels: 2, _ref_driver: undefined };
+      service.collection.push(model2);
+
+      service.get(['myId', 'id2'])
+        .then(modelArray => {
+          expect(modelArray).toContain(model);
+          expect(modelArray).toContain(model2);
+          done();
+        });
+    });
+
+    it('Should return a model by calling the fetch api when using force parameter', done => {
+      fakeFetch.respondWith('{ "_id": "myId", "wheels": 4, "_ref_driver": "fakeId" }');
+      spyOn(service._httpClient, 'fetch').and.callThrough();
+
+      service.get('myId', { force: true })
+        .then(foundModel => {
+          expect(foundModel).toEqual(model);
+          expect(service._httpClient.fetch).toHaveBeenCalledWith(jasmine.stringMatching('default/route/' + model._id));
+          done();
+        });
+    });
+
+    it('Should populate the child when forcing it', done => {
+      service.get('myId', { populate: true })
+        .then(foundModel => {
+          expect(foundModel._id).toBe('myId');
+          expect(foundModel.wheels).toBe(4);
+          expect(foundModel.driver).toEqual({ _id: 'fakeId', name: 'Fake Name', _ref_phones: ['phone1'] });
+          done();
+        });
+    });
+
+    it('Should populate the child and its grand child when using recursive and populate options', done => {
+      service.get('myId', { populate: true, recursive: true })
+        .then(foundModel => {
+          expect(foundModel._id).toBe('myId');
+          expect(foundModel.wheels).toBe(4);
+          expect(foundModel.driver._id).toBe('fakeId');
+          expect(foundModel.driver.name).toBe('Fake Name');
+          expect(foundModel.driver.phones).toContain(phone);
+          done();
+        });
+    });
+
+    it('Should leave the reference key unmodified when no backendKey has been defined', done => {
+      service.refKeys = () => [{ collection: 'Drivers', frontendKey: 'driver' }];
+
+      service.get('myId', { populate: true })
+        .then(foundModel => {
+          expect(foundModel._id).toBe('myId');
+          expect(foundModel.wheels).toBe(4);
+          expect(foundModel._ref_driver).toEqual('fakeId');
+          done();
+        });
+    });
+
+    it('Should not modyfing the key used for references when no frontendKey has been defined', done => {
+      service.refKeys = () => [{ backendKey: '_ref_driver', collection: 'Drivers' }];
+
+      service.get('myId', { populate: true })
+        .then(foundModel => {
+          expect(foundModel._id).toBe('myId');
+          expect(foundModel.wheels).toBe(4);
+          expect(foundModel._ref_driver).toEqual({ _id: 'fakeId', name: 'Fake Name', _ref_phones: ['phone1'] });
+          done();
+        });
+    });
+
+    it('Should keep the JSON data when no collection has been set', done => {
+      service.refKeys = () => [{ backendKey: '_ref_driver', frontendKey: 'driver' }];
+
+      service.get('myId', { populate: true })
+        .then(foundModel => {
+          expect(foundModel._id).toBe('myId');
+          expect(foundModel.wheels).toBe(4);
+          expect(foundModel.driver).toEqual('fakeId');
+          done();
+        });
+    });
+
+    it('Should populate the child when forcing it', done => {
+      service.refKeys = () => [{ backendKey: '_ref_driver', collection: 'Drivers', frontendKey: 'driver', backendKeyDeletion: false }];
+
+      service.get('myId', { populate: true })
+        .then(foundModel => {
+          expect(foundModel._id).toBe('myId');
+          expect(foundModel.wheels).toBe(4);
+          expect(foundModel._ref_driver).toBe('fakeId');
+          expect(foundModel.driver).toEqual({ _id: 'fakeId', name: 'Fake Name', _ref_phones: ['phone1'] });
+          done();
+        });
+    });
+
+    it('Should create all the models accoordingly', done => {
+      fakeFetch.respondWith('{ "_id": "myId", "wheels": 4, "_ref_driver" : { "_id" : "fakeId", "name" : "Updated Fake Name", "_ref_phones" : [{ "_id" : "phone1", "battery": "4h"}] } }');
+      service.collection = [];
+      service2.collection = [];
+      service3.collection = [];
+
+      service.get('myId')
+        .then(foundModel => {
+          expect(foundModel._id).toBe('myId');
+          expect(foundModel.wheels).toBe(4);
+          expect(foundModel.driver._id).toBe('fakeId');
+          expect(foundModel.driver.name).toBe('Updated Fake Name');
+          expect(foundModel.driver.phones).toContain({ _id: 'phone1', battery: '4h' });
+          expect(service.collection).toContain(foundModel);
+          expect(service2.collection).toContain(foundModel.driver);
+          expect(service3.collection).toContain(foundModel.driver.phones[0]);
           done();
         });
     });
