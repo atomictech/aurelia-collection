@@ -64,6 +64,14 @@ describe('Service', () => {
       });
     });
 
+    it('Should return a new model when data has an id not found in the collection', () => {
+      service.fromJSON({ _id: 'myId', foo: 21 }, { ignoreCollection: true })
+        .then(res => {
+          expect(res).toEqual({ _id: 'myId', foo: 21 });
+          expect(service.collection).toEqual([]);
+        });
+    });
+
     it('Should return a existing model, _syncFrom depending on isComplete, if data id is found in the collection', () => {
       let model = {
         _id: 'myId',
@@ -501,7 +509,7 @@ describe('Service', () => {
     });
 
     it('Should return a model by calling the fetch api when using force parameter', done => {
-      fakeFetch.respondWith('{ "_id": "myId", "wheels": 4, "_ref_driver": "fakeId" }');
+      fakeFetch.respondWith(JSON.stringify(model));
       spyOn(service._httpClient, 'fetch').and.callThrough();
 
       service.get('myId', { force: true })
@@ -518,6 +526,19 @@ describe('Service', () => {
           expect(foundModel._id).toBe('myId');
           expect(foundModel.wheels).toBe(4);
           expect(foundModel.driver).toEqual({ _id: 'fakeId', name: 'Fake Name', _ref_phones: ['phone1'] });
+          done();
+        });
+    });
+
+    it('Should leave the reference key unmodified when the collection has not been registered', done => {
+      service.refKeys = () => [{ backendKey: '_ref_driver', collection: 'UnknownCollection', frontendKey: 'driver' }];
+
+      service.get('myId', { populate: true })
+        .then(foundModel => {
+          expect(foundModel._id).toBe('myId');
+          expect(foundModel.wheels).toBe(4);
+          expect(foundModel._ref_driver).toBe('fakeId');
+          expect(foundModel.driver).toBeUndefined();
           done();
         });
     });
@@ -599,6 +620,188 @@ describe('Service', () => {
           expect(service.collection).toContain(foundModel);
           expect(service2.collection).toContain(foundModel.driver);
           expect(service3.collection).toContain(foundModel.driver.phones[0]);
+          done();
+        });
+    });
+  });
+
+  describe('.update()', () => {
+    let creator;
+    let model;
+    let service;
+
+    beforeEach(() => {
+      creator = (data) => data;
+      model = { _id: 'myId', wheels: 4 };
+      service = new Service();
+      config.registerService('myKey', service, '/default/route/', creator);
+      service.collection.push(model);
+    });
+
+    it('Should modify the model according to the attribute values', done => {
+      fakeFetch.respondWith('{ "_id": "myId", "wheels": 5 }');
+      spyOn(service._httpClient, 'fetch').and.callThrough();
+
+      service.update(model, { wheels: 5 })
+        .then(updatedModel => {
+          expect(updatedModel).toBe(model);
+          expect(updatedModel.wheels).toBe(5);
+          expect(service._httpClient.fetch).toHaveBeenCalledWith('/default/route/myId', jasmine.objectContaining({ method: 'put' }));
+          done();
+        });
+    });
+  });
+
+  describe('._frontToBackend()', () => {
+    let creator;
+    let driver;
+    let service;
+
+    beforeEach(() => {
+      creator = (data) => data;
+      service = new Service;
+      config.registerService('myKey', service, 'default/route/', creator);
+      driver = { _id: 'fakeId', name: 'Fake Name' };
+      service.refKeys = () => [{ backendKey: '_ref_driver', collection: 'Drivers', frontendKey: 'driver' }];
+    });
+
+    it('Should not convert anything when no refkeys have been overloaded', done => {
+      service.refKeys = () => [];
+
+      service._frontToBackend({ wheels: 5, driver: driver })
+        .then(attributes => {
+          expect(attributes).toEqual({ wheels: 5, driver: driver });
+          done();
+        });
+    });
+
+    it('Should replace a refkey\'d attribute by its id', done => {
+      service._frontToBackend({ wheels: 5, driver: driver })
+        .then(attributes => {
+          expect(attributes.wheels).toBe(5);
+          expect(attributes.driver).toBeUndefined();
+          expect(attributes._ref_driver).toBe(driver._id);
+          done();
+        });
+    });
+
+    it('Should not delete the frontendKey if backendKeyDeletion is true', done => {
+      service.refKeys = () => [{ backendKey: '_ref_driver', collection: 'Drivers', frontendKey: 'driver', backendKeyDeletion: false }];
+
+      service._frontToBackend({ wheels: 5, driver: driver })
+        .then(attributes => {
+          expect(attributes.wheels).toBe(5);
+          expect(attributes.driver).toBe(driver);
+          expect(attributes._ref_driver).toBe(driver._id);
+          done();
+        });
+    });
+
+    it('Should support the use of an array of references', done => {
+      let driver2 = { _id: 'fakeDriver2', name: 'Frank' };
+
+      service._frontToBackend({ wheels: 5, driver: [driver, driver2] })
+        .then(attributes => {
+          expect(attributes.wheels).toBe(5);
+          expect(attributes.driver).toBeUndefined();
+          expect(attributes._ref_driver).toContain(driver._id);
+          expect(attributes._ref_driver).toContain(driver2._id);
+          done();
+        });
+    });
+
+    it('Should support the use of an id for reference', done => {
+      service._frontToBackend({ wheels: 5, driver: driver._id })
+        .then(attributes => {
+          expect(attributes.wheels).toBe(5);
+          expect(attributes.driver).toBeUndefined();
+          expect(attributes._ref_driver).toBe(driver._id);
+          done();
+        });
+    });
+
+    it('Should convert the backend key to null if the frontend key is not of supported type', done => {
+      service._frontToBackend({ wheels: 5, driver: 42 })
+        .then(attributes => {
+          expect(attributes.wheels).toBe(5);
+          expect(attributes.driver).toBeUndefined();
+          expect(attributes._ref_driver).toBeNull();
+          done();
+        });
+    });
+
+    it('Should convert the backend key to null if the value is an object without its id value', done => {
+      service._frontToBackend({ wheels: 5, driver: { name: 'Unknown name' } })
+        .then(attributes => {
+          expect(attributes.wheels).toBe(5);
+          expect(attributes.driver).toBeUndefined();
+          expect(attributes._ref_driver).toBeNull();
+          done();
+        });
+    });
+  });
+
+  describe('._backToFrontend()', () => {
+    let creator;
+    let model;
+    let driver;
+    let service;
+    let service2;
+    let backEndAttrs;
+
+    beforeEach(() => {
+      creator = (data) => data;
+      model = { _id: 'myId', wheels: 4 };
+      service = new Service;
+      config.registerService('myKey', service, 'default/route/', creator);
+      service.collection.push(model);
+
+      service2 = new Service();
+      driver = { _id: 'fakeId', name: 'Fake Name' };
+      model.driver = 'fakeId';
+      config.registerService('Drivers', service2, 'api/drivers/', creator);
+      service2.collection.push(driver);
+      service.refKeys = () => [{ backendKey: '_ref_driver', collection: 'Drivers', frontendKey: 'driver' }];
+
+      backEndAttrs = { wheels: 5, _ref_driver: driver, doors: 4, purchasedOn: new Date() };
+    });
+
+    it('Should not convert any key when no refkeys have been overloaded', done => {
+      service.refKeys = () => [];
+
+      service._backToFrontend(backEndAttrs, { wheels: 5, _ref_driver: driver }, model)
+        .then(attributes => {
+          expect(model.wheels).toBe(5);
+          expect(model._ref_driver).toBe(driver);
+          expect(model.purchasedOn).toBeUndefined();
+          expect(model.doors).toBeUndefined();
+          expect(model.driver).toBe(driver._id);
+          done();
+        });
+    });
+
+    it('Should not convert any key when no collection have been specified', done => {
+      service.refKeys = () => [{ backendKey: '_ref_driver', frontendKey: 'driver' }];
+
+      service._backToFrontend(backEndAttrs, { wheels: 5, _ref_driver: driver }, model)
+        .then(attributes => {
+          expect(model.wheels).toBe(5);
+          expect(model._ref_driver).toBeUndefined();
+          expect(model.purchasedOn).toBeUndefined();
+          expect(model.doors).toBeUndefined();
+          expect(model.driver).toBe(driver);
+          done();
+        });
+    });
+
+    it('Should replace a refkey\'d attribute by its value', done => {
+      service._backToFrontend(backEndAttrs, { wheels: 5, _ref_driver: driver }, model)
+        .then(attributes => {
+          expect(model.wheels).toBe(5);
+          expect(model.driver).toBe(driver);
+          expect(model.purchasedOn).toBeUndefined();
+          expect(model.doors).toBeUndefined();
+          expect(model._ref_driver).toBeUndefined();
           done();
         });
     });
