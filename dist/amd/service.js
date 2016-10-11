@@ -170,7 +170,7 @@ define(['exports', 'lodash', 'aurelia-dependency-injection', 'aurelia-fetch-clie
         }));
       } else if (_lodash._.isObject(data)) {
         modelPromise = this.fromJSON(data);
-      } else if (_lodash._.isString(data)) {
+      } else {
         if (!options._child) {
           modelPromise = this._getById(data, options.force);
         } else {
@@ -216,7 +216,7 @@ define(['exports', 'lodash', 'aurelia-dependency-injection', 'aurelia-fetch-clie
 
           if (_lodash._.isNull(item.collection)) {
             itemDataPromise = Promise.resolve(itemData);
-          } else if (!_lodash._.isUndefined(collection)) {
+          } else if (!_lodash._.isNil(collection)) {
             itemDataPromise = collection.get(itemData, childOpt);
           }
 

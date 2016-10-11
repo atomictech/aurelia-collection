@@ -256,7 +256,7 @@ export class Service {
       return modelPromise = Promise.all(_.map(data, item => this.get(item, options)));
     } else if (_.isObject(data)) { // you already have the json data, just instanciate the model
       modelPromise = this.fromJSON(data);
-    } else if (_.isString(data)) { // Test whether it is an id.
+    } else { // If we end up here, then data is string. We'd better test whether it is an id, but we consider a string as a type of an id.
       if (!options._child) { // we are the root level, we want the model no matter what.
         modelPromise = this._getById(data, options.force);
       } else {
@@ -311,7 +311,7 @@ export class Service {
               // item.collection can be null if we want to keep JSON data.
               if (_.isNull(item.collection)) {
                 itemDataPromise = Promise.resolve(itemData);
-              } else if (!_.isUndefined(collection)) {
+              } else if (!_.isNil(collection)) {
                 itemDataPromise = collection.get(itemData, childOpt);
               }
 

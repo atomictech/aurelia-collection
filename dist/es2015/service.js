@@ -141,7 +141,7 @@ export let Service = class Service {
       return modelPromise = Promise.all(_.map(data, item => this.get(item, options)));
     } else if (_.isObject(data)) {
       modelPromise = this.fromJSON(data);
-    } else if (_.isString(data)) {
+    } else {
       if (!options._child) {
         modelPromise = this._getById(data, options.force);
       } else {
@@ -187,7 +187,7 @@ export let Service = class Service {
 
         if (_.isNull(item.collection)) {
           itemDataPromise = Promise.resolve(itemData);
-        } else if (!_.isUndefined(collection)) {
+        } else if (!_.isNil(collection)) {
           itemDataPromise = collection.get(itemData, childOpt);
         }
 
