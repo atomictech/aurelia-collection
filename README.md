@@ -7,8 +7,9 @@
 
 # aurelia-collection
 
-An opinionated collection of models abstraction for aurelia framework.
-This is a work in progress, not ready to use yet.
+> This library is a plugin for the [Aurelia](http://www.aurelia.io/) platform and provide a simple way to store multiple set of models that can be retrieved (or pushed) to a backend collections and its REST api.
+
+
 
 ## Building The Code
 
