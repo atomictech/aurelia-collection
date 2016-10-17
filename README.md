@@ -40,6 +40,20 @@ You can configure each collection to:
 * Specify the type of model class your collection is going to handle
 * the unique id property name of your model object
 
+#### Basic configuration
+
+```js
+aurelia.use
+   /* Your other plugins and init code */
+   .plugin('aurelia-collection', config => {
+    // will handle object literals with a provided Service class instance, 
+    // that use '/api/SomeBasic/' as API default route.
+    config.registerService('SomeBasic');
+   });
+```
+
+#### Configuration with custom Collection implementation and custom Model class
+
 ```js
 import {SomeModel} from '/path/to/your/implementation.model';
 import {SomeService} from '/path/to/your/implementation.service';
@@ -78,4 +92,37 @@ export class MyClass {
 
 ### Implementing your own Collection
 
+If you need to go beyond our classic Service implementation that get|update|sync your models, you simply can declare your own Collection class that inherits the plugin class. You only need to implement these interfaces :
+
+```js
+class MyService extends Service {
+  isComplete(model) {
+    // optionnaly return a boolean, to tell if the provided model has all its field populated.
+  }
+  
+  refKeys() {
+    // optionnaly return an array that describe the mapping between model backend attribute names and frontend attribute names.
+  }
+  
+  /* your methods that do specific collection manipulations here */
+  
+}
+```
+
 ## Collection API overview 
+
+Here is a quick api overview of the Service class. More can be found in the complete [documentation](http://aurelia-collection-doc.atomictech.io).
+
+```js
+Collection
+  .fromJSON(data, options)
+  .toJSON(model, options)
+  .isComplete(model)
+  .flush
+  .refKeys
+  .create
+  .destroy
+  .get
+  .sync
+  .update
+```
