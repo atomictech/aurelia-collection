@@ -3,7 +3,7 @@
 System.register(['aurelia-dependency-injection', './config'], function (_export, _context) {
   "use strict";
 
-  var resolver, Config, _dec, _class, Collection;
+  var resolver, Config, _dec, _class, UseCollection;
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -18,25 +18,25 @@ System.register(['aurelia-dependency-injection', './config'], function (_export,
       Config = _config.Config;
     }],
     execute: function () {
-      _export('Collection', Collection = (_dec = resolver(), _dec(_class = function () {
-        function Collection(key) {
-          _classCallCheck(this, Collection);
+      _export('UseCollection', UseCollection = (_dec = resolver(), _dec(_class = function () {
+        function UseCollection(key) {
+          _classCallCheck(this, UseCollection);
 
           this._key = key;
         }
 
-        Collection.prototype.get = function get(container) {
-          return container.get(Config).getService(this._key);
+        UseCollection.prototype.get = function get(container) {
+          return container.get(Config).getCollection(this._key);
         };
 
-        Collection.of = function of(key) {
-          return new Collection(key);
+        UseCollection.of = function of(key) {
+          return new UseCollection(key);
         };
 
-        return Collection;
+        return UseCollection;
       }()) || _class));
 
-      _export('Collection', Collection);
+      _export('UseCollection', UseCollection);
     }
   };
 });

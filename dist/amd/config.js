@@ -22,38 +22,38 @@ define(['exports', 'lodash', 'aurelia-framework', 'aurelia-fetch-client'], funct
     function Config(httpClient) {
       _classCallCheck(this, Config);
 
-      this.services = {};
-      this.defaultService = null;
+      this.collections = {};
+      this.defaultCollection = null;
 
       this.httpClient = httpClient;
     }
 
-    Config.prototype.registerService = function registerService(key, service, defaultRoute) {
-      var modelClass = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : ObjectCreator;
-      var modelid = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : '_id';
+    Config.prototype.registerCollection = function registerCollection(key, collection, defaultRoute) {
+      var modelClass = arguments.length <= 3 || arguments[3] === undefined ? ObjectCreator : arguments[3];
+      var modelid = arguments.length <= 4 || arguments[4] === undefined ? '_id' : arguments[4];
 
-      this.services[key] = service;
-      service.configure(key, modelClass, defaultRoute, modelid);
+      this.collections[key] = collection;
+      collection.configure(key, modelClass, defaultRoute, modelid);
 
-      this.services[key]._setHttpClient(this.httpClient);
+      this.collections[key]._setHttpClient(this.httpClient);
 
       return this;
     };
 
-    Config.prototype.getService = function getService(key) {
+    Config.prototype.getCollection = function getCollection(key) {
       if (!key) {
-        return this.defaultService || null;
+        return this.defaultCollection || null;
       }
 
-      return this.services[key] || null;
+      return this.collections[key] || null;
     };
 
-    Config.prototype.serviceExists = function serviceExists(key) {
-      return !!this.services[key];
+    Config.prototype.collectionExists = function collectionExists(key) {
+      return !!this.collections[key];
     };
 
-    Config.prototype.setDefaultService = function setDefaultService(key) {
-      this.defaultService = this.getService(key);
+    Config.prototype.setDefaultCollection = function setDefaultCollection(key) {
+      this.defaultCollection = this.getCollection(key);
 
       return this;
     };

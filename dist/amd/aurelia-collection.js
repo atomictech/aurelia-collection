@@ -4,7 +4,7 @@ define(['exports', './collection', './service', './config', 'fetch'], function (
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
-  exports.Config = exports.Service = exports.Collection = undefined;
+  exports.Config = exports.Collection = exports.UseCollection = undefined;
   exports.configure = configure;
   function configure(aurelia, configCallback) {
     var config = aurelia.container.get(_config.Config);
@@ -17,7 +17,7 @@ define(['exports', './collection', './service', './config', 'fetch'], function (
     configCallback(config);
   }
 
-  exports.Collection = _collection.Collection;
-  exports.Service = _service.Service;
+  exports.UseCollection = _collection.UseCollection;
+  exports.Collection = _service.Collection;
   exports.Config = _config.Config;
 });

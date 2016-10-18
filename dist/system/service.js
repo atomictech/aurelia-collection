@@ -3,7 +3,7 @@
 System.register(['lodash', 'aurelia-dependency-injection', 'aurelia-fetch-client', './config'], function (_export, _context) {
   "use strict";
 
-  var _, Container, json, Config, Service;
+  var _, Container, json, Config, Collection;
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -25,13 +25,13 @@ System.register(['lodash', 'aurelia-dependency-injection', 'aurelia-fetch-client
       Config = _config.Config;
     }],
     execute: function () {
-      _export('Service', Service = function () {
-        function Service() {
-          _classCallCheck(this, Service);
+      _export('Collection', Collection = function () {
+        function Collection() {
+          _classCallCheck(this, Collection);
         }
 
-        Service.prototype.configure = function configure(key, modelClass, defaultRoute) {
-          var modelid = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : '_id';
+        Collection.prototype.configure = function configure(key, modelClass, defaultRoute) {
+          var modelid = arguments.length <= 3 || arguments[3] === undefined ? '_id' : arguments[3];
 
           this.container = Container.instance;
 
@@ -47,7 +47,7 @@ System.register(['lodash', 'aurelia-dependency-injection', 'aurelia-fetch-client
           this._httpClient = null;
         };
 
-        Service.prototype.fromJSON = function fromJSON(data, options) {
+        Collection.prototype.fromJSON = function fromJSON(data, options) {
           if (_.isNil(data)) {
             return Promise.resolve(null);
           }
@@ -71,47 +71,47 @@ System.register(['lodash', 'aurelia-dependency-injection', 'aurelia-fetch-client
           return Promise.resolve(model);
         };
 
-        Service.prototype.toJSON = function toJSON(model, options) {
+        Collection.prototype.toJSON = function toJSON(model, options) {
           return _.isFunction(model.toJSON) ? model.toJSON() : model;
         };
 
-        Service.prototype.flush = function flush() {
+        Collection.prototype.flush = function flush() {
           this.collection = [];
         };
 
-        Service.prototype.isComplete = function isComplete(model) {
+        Collection.prototype.isComplete = function isComplete(model) {
           return true;
         };
 
-        Service.prototype.sync = function sync(model, options) {
+        Collection.prototype.sync = function sync(model, options) {
           return this.get(_.isString(model) ? model : model[this.modelid], _.merge({}, options, { force: true }));
         };
 
-        Service.prototype.refKeys = function refKeys() {
+        Collection.prototype.refKeys = function refKeys() {
           return [];
         };
 
-        Service.prototype._setHttpClient = function _setHttpClient(httpClient) {
+        Collection.prototype._setHttpClient = function _setHttpClient(httpClient) {
           this._httpClient = httpClient;
         };
 
-        Service.prototype._syncFrom = function _syncFrom(model, data) {
+        Collection.prototype._syncFrom = function _syncFrom(model, data) {
           _.defaults(model, data);
         };
 
-        Service.prototype._getFromCollection = function _getFromCollection(id) {
+        Collection.prototype._getFromCollection = function _getFromCollection(id) {
           var obj = {};
           obj[this.modelid] = id;
           return _.find(this.collection, obj);
         };
 
-        Service.prototype._removeFromCollection = function _removeFromCollection(id) {
+        Collection.prototype._removeFromCollection = function _removeFromCollection(id) {
           var obj = {};
           obj[this.modelid] = id;
           _.remove(this.collection, obj);
         };
 
-        Service.prototype._getById = function _getById(id, force) {
+        Collection.prototype._getById = function _getById(id, force) {
           var _this = this;
 
           var model = this._getFromCollection(id);
@@ -127,7 +127,7 @@ System.register(['lodash', 'aurelia-dependency-injection', 'aurelia-fetch-client
           return Promise.resolve(model);
         };
 
-        Service.prototype.create = function create(jsonModel, route) {
+        Collection.prototype.create = function create(jsonModel, route) {
           var _this2 = this;
 
           var apiRoute = this.defaultRoute.slice(0, -1);
@@ -146,7 +146,7 @@ System.register(['lodash', 'aurelia-dependency-injection', 'aurelia-fetch-client
           });
         };
 
-        Service.prototype.destroy = function destroy(id, route) {
+        Collection.prototype.destroy = function destroy(id, route) {
           var apiRoute = this.defaultRoute;
 
           if (!_.isNil(route)) {
@@ -163,7 +163,7 @@ System.register(['lodash', 'aurelia-dependency-injection', 'aurelia-fetch-client
           });
         };
 
-        Service.prototype.get = function get(data, options) {
+        Collection.prototype.get = function get(data, options) {
           var _this3 = this;
 
           options = _.defaults(options, {
@@ -214,7 +214,7 @@ System.register(['lodash', 'aurelia-dependency-injection', 'aurelia-fetch-client
                 backendKeyDeletion: true
               });
 
-              var collection = _this3.container.get(Config).getService(item.collection);
+              var collection = _this3.container.get(Config).getCollection(item.collection);
               if (_.isNil(item.backendKey)) {
                 return;
               }
@@ -248,7 +248,7 @@ System.register(['lodash', 'aurelia-dependency-injection', 'aurelia-fetch-client
           });
         };
 
-        Service.prototype.update = function update(model, attr) {
+        Collection.prototype.update = function update(model, attr) {
           var _this4 = this;
 
           return this._frontToBackend(attr).then(function (backAttr) {
@@ -266,7 +266,7 @@ System.register(['lodash', 'aurelia-dependency-injection', 'aurelia-fetch-client
           });
         };
 
-        Service.prototype._frontToBackend = function _frontToBackend(attributes) {
+        Collection.prototype._frontToBackend = function _frontToBackend(attributes) {
           var _this5 = this;
 
           var refKeys = this.refKeys();
@@ -306,7 +306,7 @@ System.register(['lodash', 'aurelia-dependency-injection', 'aurelia-fetch-client
           return Promise.resolve(attributes);
         };
 
-        Service.prototype._backToFrontend = function _backToFrontend(attributes, backAttr, model) {
+        Collection.prototype._backToFrontend = function _backToFrontend(attributes, backAttr, model) {
           var _this6 = this;
 
           var refKeys = this.refKeys();
@@ -329,7 +329,7 @@ System.register(['lodash', 'aurelia-dependency-injection', 'aurelia-fetch-client
               backendKey = item.backendKey;
 
               if (!_.isNull(item.collection)) {
-                frontendValue = _this6.container.get(Config).getService(item.collection).get(attributes[backendKey]);
+                frontendValue = _this6.container.get(Config).getCollection(item.collection).get(attributes[backendKey]);
               }
             }
 
@@ -339,10 +339,10 @@ System.register(['lodash', 'aurelia-dependency-injection', 'aurelia-fetch-client
           }));
         };
 
-        return Service;
+        return Collection;
       }());
 
-      _export('Service', Service);
+      _export('Collection', Collection);
     }
   };
 });

@@ -3,7 +3,7 @@
 System.register(['fetch', './collection', './service', './config'], function (_export, _context) {
   "use strict";
 
-  var Collection, Service, Config;
+  var UseCollection, Collection, Config;
   function configure(aurelia, configCallback) {
     var config = aurelia.container.get(Config);
 
@@ -19,16 +19,16 @@ System.register(['fetch', './collection', './service', './config'], function (_e
 
   return {
     setters: [function (_fetch) {}, function (_collection) {
-      Collection = _collection.Collection;
+      UseCollection = _collection.UseCollection;
     }, function (_service) {
-      Service = _service.Service;
+      Collection = _service.Collection;
     }, function (_config) {
       Config = _config.Config;
     }],
     execute: function () {
-      _export('Collection', Collection);
+      _export('UseCollection', UseCollection);
 
-      _export('Service', Service);
+      _export('Collection', Collection);
 
       _export('Config', Config);
     }

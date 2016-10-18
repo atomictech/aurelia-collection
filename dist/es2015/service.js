@@ -5,7 +5,7 @@ import { json } from 'aurelia-fetch-client';
 
 import { Config } from './config';
 
-export let Service = class Service {
+export let Collection = class Collection {
   configure(key, modelClass, defaultRoute, modelid = '_id') {
     this.container = Container.instance;
 
@@ -172,7 +172,7 @@ export let Service = class Service {
           backendKeyDeletion: true
         });
 
-        let collection = this.container.get(Config).getService(item.collection);
+        let collection = this.container.get(Config).getCollection(item.collection);
         if (_.isNil(item.backendKey)) {
           return;
         }
@@ -273,7 +273,7 @@ export let Service = class Service {
         backendKey = item.backendKey;
 
         if (!_.isNull(item.collection)) {
-          frontendValue = this.container.get(Config).getService(item.collection).get(attributes[backendKey]);
+          frontendValue = this.container.get(Config).getCollection(item.collection).get(attributes[backendKey]);
         }
       }
 

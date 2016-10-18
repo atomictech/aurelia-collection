@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.Service = undefined;
+exports.Collection = undefined;
 
 var _lodash = require('lodash');
 
@@ -15,13 +15,13 @@ var _config = require('./config');
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var Service = exports.Service = function () {
-  function Service() {
-    _classCallCheck(this, Service);
+var Collection = exports.Collection = function () {
+  function Collection() {
+    _classCallCheck(this, Collection);
   }
 
-  Service.prototype.configure = function configure(key, modelClass, defaultRoute) {
-    var modelid = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : '_id';
+  Collection.prototype.configure = function configure(key, modelClass, defaultRoute) {
+    var modelid = arguments.length <= 3 || arguments[3] === undefined ? '_id' : arguments[3];
 
     this.container = _aureliaDependencyInjection.Container.instance;
 
@@ -37,7 +37,7 @@ var Service = exports.Service = function () {
     this._httpClient = null;
   };
 
-  Service.prototype.fromJSON = function fromJSON(data, options) {
+  Collection.prototype.fromJSON = function fromJSON(data, options) {
     if (_lodash._.isNil(data)) {
       return Promise.resolve(null);
     }
@@ -61,47 +61,47 @@ var Service = exports.Service = function () {
     return Promise.resolve(model);
   };
 
-  Service.prototype.toJSON = function toJSON(model, options) {
+  Collection.prototype.toJSON = function toJSON(model, options) {
     return _lodash._.isFunction(model.toJSON) ? model.toJSON() : model;
   };
 
-  Service.prototype.flush = function flush() {
+  Collection.prototype.flush = function flush() {
     this.collection = [];
   };
 
-  Service.prototype.isComplete = function isComplete(model) {
+  Collection.prototype.isComplete = function isComplete(model) {
     return true;
   };
 
-  Service.prototype.sync = function sync(model, options) {
+  Collection.prototype.sync = function sync(model, options) {
     return this.get(_lodash._.isString(model) ? model : model[this.modelid], _lodash._.merge({}, options, { force: true }));
   };
 
-  Service.prototype.refKeys = function refKeys() {
+  Collection.prototype.refKeys = function refKeys() {
     return [];
   };
 
-  Service.prototype._setHttpClient = function _setHttpClient(httpClient) {
+  Collection.prototype._setHttpClient = function _setHttpClient(httpClient) {
     this._httpClient = httpClient;
   };
 
-  Service.prototype._syncFrom = function _syncFrom(model, data) {
+  Collection.prototype._syncFrom = function _syncFrom(model, data) {
     _lodash._.defaults(model, data);
   };
 
-  Service.prototype._getFromCollection = function _getFromCollection(id) {
+  Collection.prototype._getFromCollection = function _getFromCollection(id) {
     var obj = {};
     obj[this.modelid] = id;
     return _lodash._.find(this.collection, obj);
   };
 
-  Service.prototype._removeFromCollection = function _removeFromCollection(id) {
+  Collection.prototype._removeFromCollection = function _removeFromCollection(id) {
     var obj = {};
     obj[this.modelid] = id;
     _lodash._.remove(this.collection, obj);
   };
 
-  Service.prototype._getById = function _getById(id, force) {
+  Collection.prototype._getById = function _getById(id, force) {
     var _this = this;
 
     var model = this._getFromCollection(id);
@@ -117,7 +117,7 @@ var Service = exports.Service = function () {
     return Promise.resolve(model);
   };
 
-  Service.prototype.create = function create(jsonModel, route) {
+  Collection.prototype.create = function create(jsonModel, route) {
     var _this2 = this;
 
     var apiRoute = this.defaultRoute.slice(0, -1);
@@ -136,7 +136,7 @@ var Service = exports.Service = function () {
     });
   };
 
-  Service.prototype.destroy = function destroy(id, route) {
+  Collection.prototype.destroy = function destroy(id, route) {
     var apiRoute = this.defaultRoute;
 
     if (!_lodash._.isNil(route)) {
@@ -153,7 +153,7 @@ var Service = exports.Service = function () {
     });
   };
 
-  Service.prototype.get = function get(data, options) {
+  Collection.prototype.get = function get(data, options) {
     var _this3 = this;
 
     options = _lodash._.defaults(options, {
@@ -204,7 +204,7 @@ var Service = exports.Service = function () {
           backendKeyDeletion: true
         });
 
-        var collection = _this3.container.get(_config.Config).getService(item.collection);
+        var collection = _this3.container.get(_config.Config).getCollection(item.collection);
         if (_lodash._.isNil(item.backendKey)) {
           return;
         }
@@ -238,7 +238,7 @@ var Service = exports.Service = function () {
     });
   };
 
-  Service.prototype.update = function update(model, attr) {
+  Collection.prototype.update = function update(model, attr) {
     var _this4 = this;
 
     return this._frontToBackend(attr).then(function (backAttr) {
@@ -256,7 +256,7 @@ var Service = exports.Service = function () {
     });
   };
 
-  Service.prototype._frontToBackend = function _frontToBackend(attributes) {
+  Collection.prototype._frontToBackend = function _frontToBackend(attributes) {
     var _this5 = this;
 
     var refKeys = this.refKeys();
@@ -296,7 +296,7 @@ var Service = exports.Service = function () {
     return Promise.resolve(attributes);
   };
 
-  Service.prototype._backToFrontend = function _backToFrontend(attributes, backAttr, model) {
+  Collection.prototype._backToFrontend = function _backToFrontend(attributes, backAttr, model) {
     var _this6 = this;
 
     var refKeys = this.refKeys();
@@ -319,7 +319,7 @@ var Service = exports.Service = function () {
         backendKey = item.backendKey;
 
         if (!_lodash._.isNull(item.collection)) {
-          frontendValue = _this6.container.get(_config.Config).getService(item.collection).get(attributes[backendKey]);
+          frontendValue = _this6.container.get(_config.Config).getCollection(item.collection).get(attributes[backendKey]);
         }
       }
 
@@ -329,7 +329,7 @@ var Service = exports.Service = function () {
     }));
   };
 
-  return Service;
+  return Collection;
 }();
 
 function isNotNullArray(arr) {

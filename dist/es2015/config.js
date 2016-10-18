@@ -11,35 +11,35 @@ function ObjectCreator(data) {
 
 export let Config = (_dec = inject(HttpClient), _dec(_class = class Config {
   constructor(httpClient) {
-    this.services = {};
-    this.defaultService = null;
+    this.collections = {};
+    this.defaultCollection = null;
 
     this.httpClient = httpClient;
   }
 
-  registerService(key, service, defaultRoute, modelClass = ObjectCreator, modelid = '_id') {
-    this.services[key] = service;
-    service.configure(key, modelClass, defaultRoute, modelid);
+  registerCollection(key, collection, defaultRoute, modelClass = ObjectCreator, modelid = '_id') {
+    this.collections[key] = collection;
+    collection.configure(key, modelClass, defaultRoute, modelid);
 
-    this.services[key]._setHttpClient(this.httpClient);
+    this.collections[key]._setHttpClient(this.httpClient);
 
     return this;
   }
 
-  getService(key) {
+  getCollection(key) {
     if (!key) {
-      return this.defaultService || null;
+      return this.defaultCollection || null;
     }
 
-    return this.services[key] || null;
+    return this.collections[key] || null;
   }
 
-  serviceExists(key) {
-    return !!this.services[key];
+  collectionExists(key) {
+    return !!this.collections[key];
   }
 
-  setDefaultService(key) {
-    this.defaultService = this.getService(key);
+  setDefaultCollection(key) {
+    this.defaultCollection = this.getCollection(key);
 
     return this;
   }

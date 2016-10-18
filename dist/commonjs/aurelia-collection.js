@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.Config = exports.Service = exports.Collection = undefined;
+exports.Config = exports.Collection = exports.UseCollection = undefined;
 exports.configure = configure;
 
 require('fetch');
@@ -25,6 +25,6 @@ function configure(aurelia, configCallback) {
   configCallback(config);
 }
 
-exports.Collection = _collection.Collection;
-exports.Service = _service.Service;
+exports.UseCollection = _collection.UseCollection;
+exports.Collection = _service.Collection;
 exports.Config = _config.Config;
