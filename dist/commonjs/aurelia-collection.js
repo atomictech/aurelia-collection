@@ -8,9 +8,9 @@ exports.configure = configure;
 
 require('fetch');
 
-var _collection = require('./collection');
+var _useCollection = require('./use-collection');
 
-var _service = require('./service');
+var _collection = require('./collection');
 
 var _config = require('./config');
 
@@ -25,6 +25,6 @@ function configure(aurelia, configCallback) {
   configCallback(config);
 }
 
-exports.UseCollection = _collection.UseCollection;
-exports.Collection = _service.Collection;
+exports.UseCollection = _useCollection.UseCollection;
+exports.Collection = _collection.Collection;
 exports.Config = _config.Config;

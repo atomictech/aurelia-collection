@@ -1,6 +1,6 @@
 'use strict';
 
-System.register(['fetch', './collection', './service', './config'], function (_export, _context) {
+System.register(['fetch', './use-collection', './collection', './config'], function (_export, _context) {
   "use strict";
 
   var UseCollection, Collection, Config;
@@ -18,10 +18,10 @@ System.register(['fetch', './collection', './service', './config'], function (_e
   _export('configure', configure);
 
   return {
-    setters: [function (_fetch) {}, function (_collection) {
-      UseCollection = _collection.UseCollection;
-    }, function (_service) {
-      Collection = _service.Collection;
+    setters: [function (_fetch) {}, function (_useCollection) {
+      UseCollection = _useCollection.UseCollection;
+    }, function (_collection) {
+      Collection = _collection.Collection;
     }, function (_config) {
       Config = _config.Config;
     }],

@@ -1,6 +1,6 @@
 import { Config } from '../../src/config';
-import { Collection } from '../../src/service';
-import { UseCollection } from '../../src/collection';
+import { Collection } from '../../src/collection';
+import { UseCollection } from '../../src/use-collection';
 import { Container } from 'aurelia-dependency-injection';
 import { InjectTest } from './resources/inject-test';
 
@@ -12,10 +12,10 @@ config.registerCollection('fake', collectionInstance, 'http://jsonplaceholder.ty
 describe('Collection', () => {
   describe('static .of()', () => {
     it('Should return a new instance of self.', () => {
-      let collection = UseCollection.of('foo');
+      let resolver = UseCollection.of('foo');
 
-      expect(collection instanceof UseCollection).toBe(true);
-      expect(collection._key).toBe('foo');
+      expect(resolver instanceof UseCollection).toBe(true);
+      expect(resolver._key).toBe('foo');
     });
 
     it('Should return a new instance of Collection.', () => {

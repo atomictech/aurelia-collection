@@ -1,4 +1,4 @@
-import { Collection } from '../../src/service';
+import { Collection } from '../../src/collection';
 import { Config } from '../../src/config';
 
 class HttpStub {

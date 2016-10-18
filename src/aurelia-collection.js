@@ -1,6 +1,6 @@
 import 'fetch';
-import { UseCollection } from './collection';
-import { Collection } from './service';
+import { UseCollection } from './use-collection';
+import { Collection } from './collection';
 import { Config } from './config';
 
 /**

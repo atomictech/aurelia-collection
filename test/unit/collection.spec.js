@@ -5,7 +5,7 @@ import { StageComponent } from 'aurelia-testing';
 import { bootstrap } from 'aurelia-bootstrapper';
 
 import { Config } from '../../src/config';
-import { Collection } from '../../src/service';
+import { Collection } from '../../src/collection';
 
 describe('Collection', () => {
   let component;

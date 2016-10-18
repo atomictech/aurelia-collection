@@ -1,4 +1,4 @@
-define(['exports', './collection', './service', './config', 'fetch'], function (exports, _collection, _service, _config) {
+define(['exports', './use-collection', './collection', './config', 'fetch'], function (exports, _useCollection, _collection, _config) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -17,7 +17,7 @@ define(['exports', './collection', './service', './config', 'fetch'], function (
     configCallback(config);
   }
 
-  exports.UseCollection = _collection.UseCollection;
-  exports.Collection = _service.Collection;
+  exports.UseCollection = _useCollection.UseCollection;
+  exports.Collection = _collection.Collection;
   exports.Config = _config.Config;
 });
