@@ -6,14 +6,14 @@ import { json } from 'aurelia-fetch-client';
 import { Config } from './config';
 
 /**
- * Service class. A collection of models that are
- * related to a backend service.
+ * Collection class. A collection of models that are
+ * related to a backend data store and accessible through REST API.
  */
-export class Service {
+export class Collection {
 
   /**
-   * Configure the service.
-   * @param  {String} key : the key provided when the service has been
+   * Configure the collection.
+   * @param  {String} key : the key provided when the collection has been
    * registered
    * @param  {String} [defaultRoute] : route to use when performing the backend
    * http requests, to which the model id is to be appended where expected.
@@ -43,11 +43,11 @@ export class Service {
    * or its sync.
    * @param  {Object} options : modifiers for the method:
    * - ignoreCollection attribute can prevent the model from being stored in the
-   * service when created.
+   * collection when created.
    * - force attribute forces the sync of a model (when it already exists) even
    * if it is complete.
    * @return {Promise} a promise containg the resolved model created or got
-   * from the models set saved within the service. If data is null or
+   * from the models set saved within the collection. If data is null or
    * undefined, it resolves to null.
    */
   fromJSON(data, options) {
@@ -119,8 +119,8 @@ export class Service {
   }
 
   /**
-   * The models the service collects may have references to other models
-   * in other services (i.e. collections).
+   * The models the collection collects may have references to other models
+   * in other collections (i.e. collections).
    * This method defines which keys may contain references, the name of
    * the key when received from the backend's data, and its name in the model
    * class (i.e. `frontendKey`)
@@ -134,7 +134,7 @@ export class Service {
   }
 
   /**
-   * Set the http client to be used for the requests made by the service.
+   * Set the http client to be used for the requests made by the collection.
    * @param {Object} httpClient : an http client supporting the fetch API.
    */
   _setHttpClient(httpClient) {
@@ -293,7 +293,7 @@ export class Service {
               });
 
               // collection and backendKey have to be defined.
-              let collection = this.container.get(Config).getService(item.collection);
+              let collection = this.container.get(Config).getCollection(item.collection);
               if (_.isNil(item.backendKey)) {
                 return;
               }
@@ -424,7 +424,7 @@ export class Service {
 
         // item.collection can be null if we want to keep JSON data.
         if (!_.isNull(item.collection)) {
-          frontendValue = this.container.get(Config).getService(item.collection).get(attributes[backendKey]);
+          frontendValue = this.container.get(Config).getCollection(item.collection).get(attributes[backendKey]);
         }
       }
 
