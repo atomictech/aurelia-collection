@@ -11,11 +11,11 @@
 
 Have you ever felt that you were writting the exact same code in your view-models to fetch objects from your backend ?
 
-aurelia-collection aims to avoid this, by providing both a Service functionnality that can wrap your backend API, and a repository collection functionnality that will store and sync the objects (or model classes) you fetch from your backend. This will also reduce the number of HTTP requests you need to do when changing route and activating new view-models, since object fetched are stored outside of your model-views scopes.
+aurelia-collection aims to avoid this, by providing both a REST service-like functionnality that can wrap your backend API, and a repository collection functionnality that will store and sync the objects (or model instances) you fetch from your backend. This will also reduce the number of HTTP requests your application use when changing route and activating new view-models, since object fetched are stored outside of your model-views scopes.
 
-aurelia-collection provide a generic Service that can be used for standard use-cases, but that can simply be inherited to add your custom service behavior. It can also handle object literal or your custom Model classes.
+aurelia-collection provide a standard service behavior that can be used for most of the classic use-cases, but this behavior can simply be enriched with custom service behavior through inheritance.
 
-The pluing itself can handle unlimited number of different collections that themselves handle differents types of objects.
+The pluing itself can handle multiple collections at the same time, that themselves handle object literals or custom Model classes instances. It provide a Collection resolver to simply inject your different collections instances where you need them.
 
 ## Documentation
 
