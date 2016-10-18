@@ -1,9 +1,9 @@
 import { inject } from 'aurelia-dependency-injection';
-import { Collection } from '../../../src/collection';
+import { UseCollection } from '../../../src/collection';
 
-@inject(Collection.of('fake'))
+@inject(UseCollection.of('fake'))
 export class InjectTest {
-  constructor(myService) {
-    this.myService = myService;
+  constructor(myCollection) {
+    this.myCollection = myCollection;
   }
 }

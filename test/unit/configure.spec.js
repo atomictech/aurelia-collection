@@ -1,4 +1,4 @@
-import { Service } from '../../src/service';
+import { Collection } from '../../src/service';
 import { Config } from '../../src/config';
 
 class HttpStub {
@@ -14,49 +14,49 @@ class HttpStub {
 }
 
 describe('Config', () => {
-  describe('.registerService()', () => {
-    it('Should properly register a service.', () => {
+  describe('.registerCollection()', () => {
+    it('Should properly register a collection.', () => {
       let config = new Config(new HttpStub());
-      let service = new Service();
-      let result = config.registerService('myService', service, '/api/myservice');
+      let collection = new Collection();
+      let result = config.registerCollection('myCollection', collection, '/api/mycollection');
 
-      expect(config.services.myService).toEqual(service);
+      expect(config.collections.myCollection).toEqual(collection);
       expect(result).toBe(config);
     });
   });
 
-  describe('.getService()', () => {
-    it('Should return the registred service, or null.', () => {
+  describe('.getCollection()', () => {
+    it('Should return the registred collection, or null.', () => {
       let config = new Config(new HttpStub());
-      let service = new Service();
-      config.registerService('myService', service, '/api/myservice');
+      let collection = new Collection();
+      config.registerCollection('myCollection', collection, '/api/mycollection');
 
-      let myService = config.getService('myService');
-      let nullService = config.getService('none');
-      let defaultService = config.getService();
+      let myCollection = config.getCollection('myCollection');
+      let nullCollection = config.getCollection('none');
+      let defaultCollection = config.getCollection();
 
-      expect(myService instanceof Service).toBe(true);
-      expect(myService._httpClient instanceof HttpStub).toBe(true);
-      expect(nullService).toBe(null);
-      expect(defaultService).toBe(null);
+      expect(myCollection instanceof Collection).toBe(true);
+      expect(myCollection._httpClient instanceof HttpStub).toBe(true);
+      expect(nullCollection).toBe(null);
+      expect(defaultCollection).toBe(null);
 
-      config.setDefaultService('myService');
-      defaultService = config.getService();
+      config.setDefaultCollection('myCollection');
+      defaultCollection = config.getCollection();
 
-      expect(defaultService instanceof Service).toBe(true);
-      expect(defaultService._httpClient instanceof HttpStub).toBe(true);
+      expect(defaultCollection instanceof Collection).toBe(true);
+      expect(defaultCollection._httpClient instanceof HttpStub).toBe(true);
     });
   });
 
-  describe('.serviceExists()', () => {
-    it('Should true when a service is registered', () => {
+  describe('.collectionExists()', () => {
+    it('Should true when a collection is registered', () => {
       let config = new Config(new HttpStub());
-      let service = new Service();
+      let collection = new Collection();
 
-      config.registerService('service', service, '/api/service');
+      config.registerCollection('collection', collection, '/api/collection');
 
-      let exists = config.serviceExists('service');
-      let unknownExist = config.serviceExists('unknownService');
+      let exists = config.collectionExists('collection');
+      let unknownExist = config.collectionExists('unknownCollection');
 
       expect(exists).toBe(true);
       expect(unknownExist).toBe(false);
