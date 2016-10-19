@@ -52,27 +52,30 @@ describe('Collection', () => {
       config.registerCollection('myKey', collection, 'default/route/', creator);
     });
 
-    it('Should return null when data is undefined or null', () => {
+    it('Should return null when data is undefined or null', done => {
       collection.fromJSON().then(res => {
         expect(res).toEqual(null);
+        done();
       });
     });
 
-    it('Should return a new model when data has an id not found in the collection', () => {
+    it('Should return a new model when data has an id not found in the collection', done => {
       collection.fromJSON({ _id: 'myId', foo: 21 }).then(res => {
         expect(res).toEqual({ _id: 'myId', foo: 21 });
+        done();
       });
     });
 
-    it('Should return a new model when data has an id not found in the collection', () => {
+    it('Should return a new model when data has an id not found in the collection', done => {
       collection.fromJSON({ _id: 'myId', foo: 21 }, { ignoreCollection: true })
         .then(res => {
           expect(res).toEqual({ _id: 'myId', foo: 21 });
           expect(collection.collection).toEqual([]);
+          done();
         });
     });
 
-    it('Should return a existing model, _syncFrom depending on isComplete, if data id is found in the collection', () => {
+    it('Should return a existing model, _syncFrom depending on isComplete, if data id is found in the collection', done => {
       let model = {
         _id: 'myId',
         foo: 42
@@ -81,6 +84,7 @@ describe('Collection', () => {
 
       collection.fromJSON({ _id: 'myId' }).then(res => {
         expect(res).toEqual(model);
+        done();
       });
     });
   });
