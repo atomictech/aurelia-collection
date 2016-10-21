@@ -23,7 +23,7 @@ You can find the complete API documentation at [aurelia-collection-doc](http://a
 
 There also is a sample repository that show how to use aurelia-collection plugin in advanced use cases at [aurelia-collection-sample](http://github.com/atomictech/aurelia-collection-sample/).
 
-## Instalattion
+## Installation
 
 Run `jspm install aurelia-collection`
 
@@ -46,9 +46,9 @@ You can configure each collection to:
 aurelia.use
    /* Your other plugins and init code */
    .plugin('aurelia-collection', config => {
-    // will handle object literals with a provided Service class instance, 
+    // will handle object literals with a provided Collection class instance, 
     // that use '/api/SomeBasic/' as API default route.
-    config.registerService('SomeBasic');
+    config.registerCollection('SomeBasic');
    });
 ```
 
@@ -56,14 +56,14 @@ aurelia.use
 
 ```js
 import {SomeModel} from '/path/to/your/implementation.model';
-import {SomeService} from '/path/to/your/implementation.service';
+import {SomeCollection} from '/path/to/your/implementation.collection';
 
 aurelia.use
    /* Your other plugins and init code */
    .plugin('aurelia-collection', config => {
-     const someService = aurelia.container.get(SomeService);
+     const someCollection = aurelia.container.get(SomeCollection);
      
-     config.registerService('Some', someService, 'api/some/', SomeModel);
+     config.registerCollection('Some', someCollection, 'api/some/', SomeModel);
    });
 ```
 
@@ -73,9 +73,9 @@ Collections can be injected where you need them.
 
 ```js
 import {inject} from 'aurelia-framework';
-import {Collection} from 'aurelia-collection';
+import {UseCollection} from 'aurelia-collection';
 
-@inject(Collection.of('Some'))
+@inject(UseCollection.of('Some'))
 export class MyClass {
   constructor(someCollection) {
     this.someCollection = someCollection;
@@ -92,10 +92,10 @@ export class MyClass {
 
 ### Implementing your own Collection
 
-If you need to go beyond our classic Service implementation that get|update|sync your models, you simply can declare your own Collection class that inherits the plugin class. You only need to implement these interfaces :
+If you need to go beyond our classic Collection implementation that get|update|sync your models, you simply can declare your own Collection class that inherits the plugin class. You only need to implement these interfaces :
 
 ```js
-class MyService extends Service {
+class MyCollection extends Collection {
   isComplete(model) {
     // optionnaly return a boolean, to tell if the provided model has all its field populated.
   }
@@ -111,7 +111,7 @@ class MyService extends Service {
 
 ## Collection API overview 
 
-Here is a quick api overview of the Service class. More can be found in the complete [documentation](http://aurelia-collection-doc.atomictech.io).
+Here is a quick api overview of the Collection class. More can be found in the complete [documentation](http://aurelia-collection-doc.atomictech.io).
 
 ```js
 Collection

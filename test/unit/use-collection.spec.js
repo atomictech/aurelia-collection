@@ -9,7 +9,7 @@ let config = container.get(Config);
 let collectionInstance = new Collection();
 config.registerCollection('fake', collectionInstance, 'http://jsonplaceholder.typicode.com');
 
-describe('Collection', () => {
+describe('UseCollection', () => {
   describe('static .of()', () => {
     it('Should return a new instance of self.', () => {
       let resolver = UseCollection.of('foo');
