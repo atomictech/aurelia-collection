@@ -48,8 +48,8 @@ describe('Collection', () => {
 
     beforeEach(() => {
       let creator = (data) => data;
-      collection = new Collection();
-      config.registerCollection('myKey', collection, 'default/route/', creator);
+      // collection = new Collection();
+      collection = config.registerCollection('myKey', 'default/route/', Collection, creator);
     });
 
     it('Should return null when data is undefined or null', done => {
@@ -96,8 +96,8 @@ describe('Collection', () => {
     beforeEach(() => {
       let creator = (data) => data;
       model = { _id: 'fakeId', other: 'field' };
-      collection = new Collection();
-      config.registerCollection('myKey', collection, 'default/route/', creator);
+      // collection = new Collection();
+      collection = config.registerCollection('myKey', 'default/route/', Collection, creator);
     });
 
     it('Should return the model when the model doesn\'t have a toJSON method', () => {
@@ -117,8 +117,8 @@ describe('Collection', () => {
     it('Should clear the collection from the created models', done => {
       fakeFetch.respondWith('{ "_id": "myId" }');
 
-      let collection = new Collection();
-      config.registerCollection('myKey', collection);
+      // let collection = new Collection();
+      let collection = config.registerCollection('myKey');
 
       expect(collection.collection).toEqual([]);
 
@@ -146,8 +146,8 @@ describe('Collection', () => {
       fakeFetch.respondWith('{ "_id": "myId", "foo": "bar" }');
       let creator = (data) => data;
       model = { _id: 'myId' };
-      collection = new Collection();
-      config.registerCollection('myKey', collection, 'default/route/', creator);
+      // collection = new Collection();
+      collection = config.registerCollection('myKey', 'default/route/', Collection, creator);
     });
 
     it('Should return the synced model when given an id', done => {
@@ -197,8 +197,8 @@ describe('Collection', () => {
     it('Should find a model with default _id property value', () => {
       let creator = (data) => data;
       let model = { _id: 'myId' };
-      let collection = new Collection();
-      config.registerCollection('myKey', collection, 'default/route/', creator);
+      // let collection = new Collection();
+      let collection = config.registerCollection('myKey', 'default/route/', Collection, creator);
 
       collection.collection.push(model);
       expect(collection._getFromCollection('myId')).toEqual(model);
@@ -208,8 +208,8 @@ describe('Collection', () => {
     it('Should find a model with custom id property value', () => {
       let creator = (data) => data;
       let model = { idField: 'myId' };
-      let collection = new Collection();
-      config.registerCollection('myKey', collection, 'default/route/', creator, 'idField');
+      // let collection = new Collection();
+      let collection = config.registerCollection('myKey', 'default/route/', Collection, creator, 'idField');
 
       collection.collection.push(model);
       expect(collection._getFromCollection('myId')).toEqual(model);
@@ -223,13 +223,13 @@ describe('Collection', () => {
 
     beforeEach(() => {
       creator = (data) => data;
-      collection = new Collection();
+      // collection = new Collection();
     });
 
     it('Should remove a model with default _id property value', () => {
       let model = { _id: 'myId' };
       let anotherModel = { idField: 'myOtherId' };
-      config.registerCollection('myKey', collection, 'default/route/', creator);
+      collection = config.registerCollection('myKey', 'default/route/', Collection, creator);
 
       collection.collection.push(model);
       collection.collection.push(anotherModel);
@@ -245,7 +245,7 @@ describe('Collection', () => {
     it('Should remove a model with default _id property value', () => {
       let model = { idField: 'myId' };
       let anotherModel = { idField: 'myOtherId' };
-      config.registerCollection('myKey', collection, 'default/route/', creator, 'idField');
+      collection = config.registerCollection('myKey', 'default/route/', Collection, creator, 'idField');
 
       collection.collection.push(model);
       collection.collection.push(anotherModel);
@@ -267,8 +267,8 @@ describe('Collection', () => {
     beforeEach(() => {
       creator = (data) => data;
       model = { _id: 'myId', wheels: 4 };
-      collection = new Collection();
-      config.registerCollection('myKey', collection, 'default/route/', creator);
+      // collection = new Collection();
+      collection = config.registerCollection('myKey', 'default/route/', Collection, creator);
     });
 
     it('Should return an already known model', done => {
@@ -332,8 +332,8 @@ describe('Collection', () => {
     beforeEach(() => {
       creator = (data) => data;
       model = { _id: 'myId', wheels: 4 };
-      collection = new Collection();
-      config.registerCollection('myKey', collection, 'default/route/', creator);
+      // collection = new Collection();
+      collection = config.registerCollection('myKey', 'default/route/', Collection, creator);
     });
 
     it('Should return the created model', done => {
@@ -365,10 +365,10 @@ describe('Collection', () => {
     });
 
     it('Should return the model and leave the submodel id', done => {
-      let collection2 = new Collection();
+      // let collection2 = new Collection();
       let driver = { _id: 'fakeId', name: 'Fake Name' };
       model._ref_driver = 'fakeId';
-      config.registerCollection('Drivers', collection2, 'api/drivers/', creator);
+      let collection2 = config.registerCollection('Drivers', 'api/drivers/', Collection, creator);
       collection2.collection.push(driver);
       collection.refKeys = () => [{ backendKey: '_ref_driver', collection: 'Drivers', frontendKey: 'driver' }];
 
@@ -384,10 +384,10 @@ describe('Collection', () => {
     });
 
     it('Should return the model and replace the submodel id by its model when the backend populate its data', done => {
-      let collection2 = new Collection();
+      // let collection2 = new Collection();
       let driver = { _id: 'fakeId', name: 'Fake Name' };
       model._ref_driver = 'fakeId';
-      config.registerCollection('Drivers', collection2, 'api/drivers/', creator);
+      let collection2 = config.registerCollection('Drivers', 'api/drivers/', Collection, creator);
       collection2.collection.push(driver);
       collection.refKeys = () => [{ backendKey: '_ref_driver', collection: 'Drivers', frontendKey: 'driver' }];
 
@@ -411,8 +411,8 @@ describe('Collection', () => {
     beforeEach(() => {
       creator = (data) => data;
       model = { _id: 'myId', wheels: 4 };
-      collection = new Collection();
-      config.registerCollection('myKey', collection, 'default/route/', creator);
+      // collection = new Collection();
+      collection = config.registerCollection('myKey', 'default/route/', Collection, creator);
       collection.collection.push(model);
       fakeFetch.respondWith('{ "response": "ok" }');
       spyOn(collection._httpClient, 'fetch').and.callThrough();
@@ -449,21 +449,21 @@ describe('Collection', () => {
     beforeEach(() => {
       creator = (data) => data;
       model = { _id: 'myId', wheels: 4 };
-      collection = new Collection;
-      config.registerCollection('myKey', collection, 'default/route/', creator);
+      // collection = new Collection;
+      collection = config.registerCollection('myKey', 'default/route/', Collection, creator);
       collection.collection.push(model);
 
-      collection2 = new Collection();
+      // collection2 = new Collection();
       driver = { _id: 'fakeId', name: 'Fake Name' };
       model._ref_driver = 'fakeId';
-      config.registerCollection('Drivers', collection2, 'api/drivers/', creator);
+      collection2 = config.registerCollection('Drivers', 'api/drivers/', Collection, creator);
       collection2.collection.push(driver);
       collection.refKeys = () => [{ backendKey: '_ref_driver', collection: 'Drivers', frontendKey: 'driver' }];
 
-      collection3 = new Collection();
+      // collection3 = new Collection();
       phone = { _id: 'phone1', battery: '3h' };
       driver._ref_phones = ['phone1'];
-      config.registerCollection('Phones', collection3, 'api/phones/', creator);
+      collection3 = config.registerCollection('Phones', 'api/phones/', Collection, creator);
       collection3.collection.push(phone);
       collection2.refKeys = () => [{ backendKey: '_ref_phones', collection: 'Phones', frontendKey: 'phones' }];
     });
@@ -637,8 +637,8 @@ describe('Collection', () => {
     beforeEach(() => {
       creator = (data) => data;
       model = { _id: 'myId', wheels: 4 };
-      collection = new Collection();
-      config.registerCollection('myKey', collection, '/default/route/', creator);
+      // collection = new Collection();
+      collection = config.registerCollection('myKey', '/default/route/', Collection, creator);
       collection.collection.push(model);
     });
 
@@ -663,8 +663,8 @@ describe('Collection', () => {
 
     beforeEach(() => {
       creator = (data) => data;
-      collection = new Collection;
-      config.registerCollection('myKey', collection, 'default/route/', creator);
+      // collection = new Collection;
+      collection = config.registerCollection('myKey', 'default/route/', Collection, creator);
       driver = { _id: 'fakeId', name: 'Fake Name' };
       collection.refKeys = () => [{ backendKey: '_ref_driver', collection: 'Drivers', frontendKey: 'driver' }];
     });
@@ -756,14 +756,14 @@ describe('Collection', () => {
     beforeEach(() => {
       creator = (data) => data;
       model = { _id: 'myId', wheels: 4 };
-      collection = new Collection;
-      config.registerCollection('myKey', collection, 'default/route/', creator);
+      // collection = new Collection;
+      collection = config.registerCollection('myKey', 'default/route/', Collection, creator);
       collection.collection.push(model);
 
-      collection2 = new Collection();
+      // collection2 = new Collection();
       driver = { _id: 'fakeId', name: 'Fake Name' };
       model.driver = 'fakeId';
-      config.registerCollection('Drivers', collection2, 'api/drivers/', creator);
+      collection2 = config.registerCollection('Drivers', 'api/drivers/', Collection, creator);
       collection2.collection.push(driver);
       collection.refKeys = () => [{ backendKey: '_ref_driver', collection: 'Drivers', frontendKey: 'driver' }];
 

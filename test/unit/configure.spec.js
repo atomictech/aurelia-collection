@@ -17,19 +17,18 @@ describe('Config', () => {
   describe('.registerCollection()', () => {
     it('Should properly register a collection.', () => {
       let config = new Config(new HttpStub());
-      let collection = new Collection();
-      let result = config.registerCollection('myCollection', collection, '/api/mycollection');
+      // let collection = new Collection();
+      let collection = config.registerCollection('myCollection', '/api/mycollection');
 
       expect(config.collections.myCollection).toEqual(collection);
-      expect(result).toBe(config);
     });
   });
 
   describe('.getCollection()', () => {
     it('Should return the registred collection, or null.', () => {
       let config = new Config(new HttpStub());
-      let collection = new Collection();
-      config.registerCollection('myCollection', collection, '/api/mycollection');
+      // let collection = new Collection();
+      let collection = config.registerCollection('myCollection', '/api/mycollection');
 
       let myCollection = config.getCollection('myCollection');
       let nullCollection = config.getCollection('none');
@@ -51,9 +50,9 @@ describe('Config', () => {
   describe('.collectionExists()', () => {
     it('Should true when a collection is registered', () => {
       let config = new Config(new HttpStub());
-      let collection = new Collection();
+      // let collection = new Collection();
 
-      config.registerCollection('collection', collection, '/api/collection');
+      let collection = config.registerCollection('collection', '/api/collection');
 
       let exists = config.collectionExists('collection');
       let unknownExist = config.collectionExists('unknownCollection');

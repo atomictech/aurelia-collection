@@ -1,7 +1,9 @@
 import { _ } from 'lodash';
 
 import { inject } from 'aurelia-framework';
+import { Container } from 'aurelia-dependency-injection';
 import { HttpClient } from 'aurelia-fetch-client';
+import { Collection } from './collection';
 
 function ObjectCreator(data) {
   return _.cloneDeep(data);
@@ -19,6 +21,7 @@ export class Config {
    * @param  {Object} httpClient : the http client of our choice.
    */
   constructor(httpClient) {
+    this.container = Container.instance;
     this.httpClient = httpClient;
   }
 
@@ -29,10 +32,10 @@ export class Config {
    * Register a collection for it to be use thanks to the `Collection` resolver.
    * Additional params are used to configure the collection.
    * @param  {String} key : the key to identify a collection, such as a string.
-   * @param  {Collection} collection : a collection of models (as a `Collection` instance)
-   * to be stored.
    * @param  {String} [defaultRoute] : route to use when performing the backend
    * http requests, to which the model id is to be appended where expected.
+   * @param  {Collection} collection : a collection of models (as a `Collection` instance)
+   * to be stored.
    * @param  {Function} [modelClass] : a function to be called when new data has
    * been retrieved from the backend (i.e. not already known thanks to the
    * modelid key)?
@@ -40,13 +43,14 @@ export class Config {
    * modelClass instances.
    * @return {Config} the current Config instance.
    */
-  registerCollection(key, collection, defaultRoute, modelClass = ObjectCreator, modelid = '_id') {
-    this.collections[key] = collection;
-    collection.configure(key, modelClass, defaultRoute, modelid);
+  registerCollection(key, defaultRoute, collection = Collection, modelClass = ObjectCreator, modelid = '_id') {
+    let c = this.container.invoke(collection);
+    this.collections[key] = c;
+    c.configure(key, modelClass, defaultRoute, modelid);
 
     this.collections[key]._setHttpClient(this.httpClient);
 
-    return this;
+    return c;
   }
 
   /**

@@ -6,8 +6,7 @@ import { InjectTest } from './resources/inject-test';
 
 let container = new Container();
 let config = container.get(Config);
-let collectionInstance = new Collection();
-config.registerCollection('fake', collectionInstance, 'http://jsonplaceholder.typicode.com');
+config.registerCollection('fake', 'http://jsonplaceholder.typicode.com');
 
 describe('UseCollection', () => {
   describe('static .of()', () => {
