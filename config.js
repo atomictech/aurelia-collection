@@ -17,7 +17,7 @@ System.config({
     "aurelia-testing": "npm:aurelia-testing@1.0.0-beta.2.0.0",
     "fake-fetch": "npm:fake-fetch@1.0.0",
     "fetch": "github:github/fetch@1.0.0",
-    "lodash": "npm:lodash@4.16.4",
+    "lodash": "npm:lodash@4.16.6",
     "github:jspm/nodelibs-assert@0.1.0": {
       "assert": "npm:assert@1.4.1"
     },
