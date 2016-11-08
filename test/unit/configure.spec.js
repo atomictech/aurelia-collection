@@ -1,3 +1,4 @@
+import { Aurelia } from 'aurelia-framework';
 import { Collection } from '../../src/collection';
 import { Config } from '../../src/config';
 
@@ -16,7 +17,7 @@ class HttpStub {
 describe('Config', () => {
   describe('.registerCollection()', () => {
     it('Should properly register a collection.', () => {
-      let config = new Config(new HttpStub());
+      let config = new Config(Aurelia, new HttpStub());
       // let collection = new Collection();
       let collection = config.registerCollection('myCollection', '/api/mycollection');
 
@@ -26,7 +27,7 @@ describe('Config', () => {
 
   describe('.getCollection()', () => {
     it('Should return the registred collection, or null.', () => {
-      let config = new Config(new HttpStub());
+      let config = new Config(Aurelia, new HttpStub());
       // let collection = new Collection();
       let collection = config.registerCollection('myCollection', '/api/mycollection');
 
