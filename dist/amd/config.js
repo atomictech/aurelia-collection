@@ -1,4 +1,4 @@
-define(['exports', 'lodash', 'aurelia-framework', 'aurelia-fetch-client'], function (exports, _lodash, _aureliaFramework, _aureliaFetchClient) {
+define(['exports', 'lodash', 'aurelia-framework', 'aurelia-dependency-injection', 'aurelia-fetch-client', './collection'], function (exports, _lodash, _aureliaFramework, _aureliaDependencyInjection, _aureliaFetchClient, _collection) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -18,26 +18,30 @@ define(['exports', 'lodash', 'aurelia-framework', 'aurelia-fetch-client'], funct
     return _lodash._.cloneDeep(data);
   }
 
-  var Config = exports.Config = (_dec = (0, _aureliaFramework.inject)(_aureliaFetchClient.HttpClient), _dec(_class = function () {
-    function Config(httpClient) {
+  var Config = exports.Config = (_dec = (0, _aureliaFramework.inject)(_aureliaFramework.Aurelia, _aureliaFetchClient.HttpClient), _dec(_class = function () {
+    function Config(aurelia, httpClient) {
       _classCallCheck(this, Config);
 
       this.collections = {};
       this.defaultCollection = null;
 
+      this.aurelia = aurelia;
+      this.container = _aureliaDependencyInjection.Container.instance;
       this.httpClient = httpClient;
     }
 
-    Config.prototype.registerCollection = function registerCollection(key, collection, defaultRoute) {
+    Config.prototype.registerCollection = function registerCollection(key, defaultRoute) {
+      var collection = arguments.length <= 2 || arguments[2] === undefined ? _collection.Collection : arguments[2];
       var modelClass = arguments.length <= 3 || arguments[3] === undefined ? ObjectCreator : arguments[3];
       var modelid = arguments.length <= 4 || arguments[4] === undefined ? '_id' : arguments[4];
 
-      this.collections[key] = collection;
-      collection.configure(key, modelClass, defaultRoute, modelid);
+      var c = this.container.invoke(collection);
+      this.collections[key] = c;
+      c.configure(key, modelClass, defaultRoute, modelid);
 
       this.collections[key]._setHttpClient(this.httpClient);
 
-      return this;
+      return c;
     };
 
     Config.prototype.getCollection = function getCollection(key) {

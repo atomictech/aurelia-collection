@@ -2,28 +2,33 @@ var _dec, _class;
 
 import { _ } from 'lodash';
 
-import { inject } from 'aurelia-framework';
+import { Aurelia, inject } from 'aurelia-framework';
+import { Container } from 'aurelia-dependency-injection';
 import { HttpClient } from 'aurelia-fetch-client';
+import { Collection } from './collection';
 
 function ObjectCreator(data) {
   return _.cloneDeep(data);
 }
 
-export let Config = (_dec = inject(HttpClient), _dec(_class = class Config {
-  constructor(httpClient) {
+export let Config = (_dec = inject(Aurelia, HttpClient), _dec(_class = class Config {
+  constructor(aurelia, httpClient) {
     this.collections = {};
     this.defaultCollection = null;
 
+    this.aurelia = aurelia;
+    this.container = Container.instance;
     this.httpClient = httpClient;
   }
 
-  registerCollection(key, collection, defaultRoute, modelClass = ObjectCreator, modelid = '_id') {
-    this.collections[key] = collection;
-    collection.configure(key, modelClass, defaultRoute, modelid);
+  registerCollection(key, defaultRoute, collection = Collection, modelClass = ObjectCreator, modelid = '_id') {
+    let c = this.container.invoke(collection);
+    this.collections[key] = c;
+    c.configure(key, modelClass, defaultRoute, modelid);
 
     this.collections[key]._setHttpClient(this.httpClient);
 
-    return this;
+    return c;
   }
 
   getCollection(key) {
