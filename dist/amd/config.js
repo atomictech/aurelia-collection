@@ -31,9 +31,9 @@ define(['exports', 'lodash', 'aurelia-framework', 'aurelia-dependency-injection'
     }
 
     Config.prototype.registerCollection = function registerCollection(key, defaultRoute) {
-      var collection = arguments.length <= 2 || arguments[2] === undefined ? _collection.Collection : arguments[2];
-      var modelClass = arguments.length <= 3 || arguments[3] === undefined ? ObjectCreator : arguments[3];
-      var modelid = arguments.length <= 4 || arguments[4] === undefined ? '_id' : arguments[4];
+      var collection = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : _collection.Collection;
+      var modelClass = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : ObjectCreator;
+      var modelid = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : '_id';
 
       var c = this.container.invoke(collection);
       this.collections[key] = c;

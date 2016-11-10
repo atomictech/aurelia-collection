@@ -18,7 +18,7 @@ define(['exports', 'lodash', 'aurelia-dependency-injection', 'aurelia-fetch-clie
     }
 
     Collection.prototype.configure = function configure(key, modelClass, defaultRoute) {
-      var modelid = arguments.length <= 3 || arguments[3] === undefined ? '_id' : arguments[3];
+      var modelid = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : '_id';
 
       this.container = _aureliaDependencyInjection.Container.instance;
 
