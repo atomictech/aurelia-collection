@@ -120,7 +120,7 @@ define(['exports', 'lodash', 'aurelia-dependency-injection', 'aurelia-fetch-clie
       var apiRoute = this.defaultRoute.slice(0, -1);
 
       if (!_lodash._.isNil(route)) {
-        apiRoute += '/' + route;
+        apiRoute = route;
       }
 
       return this._httpClient.fetch(apiRoute, {
