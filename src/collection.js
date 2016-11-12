@@ -147,7 +147,7 @@ export class Collection {
    * @param  {Object} data : the data to set to model.
    */
   _syncFrom(model, data) {
-    _.defaults(model, data);
+    _.merge(model, data);
   }
 
   /**

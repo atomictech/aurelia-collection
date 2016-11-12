@@ -96,7 +96,7 @@ System.register(['lodash', 'aurelia-dependency-injection', 'aurelia-fetch-client
         };
 
         Collection.prototype._syncFrom = function _syncFrom(model, data) {
-          _.defaults(model, data);
+          _.merge(model, data);
         };
 
         Collection.prototype._getFromCollection = function _getFromCollection(id) {

@@ -86,7 +86,7 @@ var Collection = exports.Collection = function () {
   };
 
   Collection.prototype._syncFrom = function _syncFrom(model, data) {
-    _lodash._.defaults(model, data);
+    _lodash._.merge(model, data);
   };
 
   Collection.prototype._getFromCollection = function _getFromCollection(id) {

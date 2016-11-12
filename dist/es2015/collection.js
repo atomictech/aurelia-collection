@@ -70,7 +70,7 @@ export let Collection = class Collection {
   }
 
   _syncFrom(model, data) {
-    _.defaults(model, data);
+    _.merge(model, data);
   }
 
   _getFromCollection(id) {
