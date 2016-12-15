@@ -96,7 +96,7 @@ System.register(['lodash', 'aurelia-dependency-injection', 'aurelia-fetch-client
         };
 
         Collection.prototype._syncFrom = function _syncFrom(model, data) {
-          _.defaults(model, data);
+          _.merge(model, data);
         };
 
         Collection.prototype._getFromCollection = function _getFromCollection(id) {
@@ -138,7 +138,7 @@ System.register(['lodash', 'aurelia-dependency-injection', 'aurelia-fetch-client
           var apiRoute = this.defaultRoute.slice(0, -1);
 
           if (!_.isNil(route)) {
-            apiRoute += '/' + route;
+            apiRoute = route;
           }
 
           return this._httpClient.fetch(apiRoute, {

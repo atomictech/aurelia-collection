@@ -147,7 +147,7 @@ export class Collection {
    * @param  {Object} data : the data to set to model.
    */
   _syncFrom(model, data) {
-    _.defaults(model, data);
+    _.merge(model, data);
   }
 
   /**
@@ -208,7 +208,7 @@ export class Collection {
     let apiRoute = this.defaultRoute.slice(0, -1);
 
     if (!_.isNil(route)) {
-      apiRoute += '/' + route;
+      apiRoute = route;
     }
 
     return this._httpClient

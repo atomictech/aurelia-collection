@@ -91,7 +91,7 @@ define(['exports', 'lodash', 'aurelia-dependency-injection', 'aurelia-fetch-clie
     };
 
     Collection.prototype._syncFrom = function _syncFrom(model, data) {
-      _lodash2.default.defaults(model, data);
+      _lodash2.default.merge(model, data);
     };
 
     Collection.prototype._getFromCollection = function _getFromCollection(id) {
@@ -133,7 +133,7 @@ define(['exports', 'lodash', 'aurelia-dependency-injection', 'aurelia-fetch-clie
       var apiRoute = this.defaultRoute.slice(0, -1);
 
       if (!_lodash2.default.isNil(route)) {
-        apiRoute += '/' + route;
+        apiRoute = route;
       }
 
       return this._httpClient.fetch(apiRoute, {

@@ -356,7 +356,7 @@ describe('Collection', () => {
 
       spyOn(collection._httpClient, 'fetch').and.callThrough();
 
-      collection.create(model, 'creation')
+      collection.create(model, 'default/route/creation')
         .then(createdModel => {
           expect(createdModel).toEqual(model);
           expect(collection._httpClient.fetch).toHaveBeenCalledWith(('default/route/creation'), jasmine.objectContaining({ method: 'post' }));
