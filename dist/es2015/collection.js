@@ -1,4 +1,4 @@
-import { _ } from 'lodash';
+import _ from 'lodash';
 
 import { Container } from 'aurelia-dependency-injection';
 import { json } from 'aurelia-fetch-client';
@@ -85,11 +85,16 @@ export let Collection = class Collection {
     _.remove(this.collection, obj);
   }
 
-  _getById(id, force) {
+  _getById(id, force, route) {
     let model = this._getFromCollection(id);
 
+    let apiRoute = this.defaultRoute + id;
+    if (!_.isNil(route)) {
+      apiRoute = this.defaultRoute + route;
+    }
+
     if (_.isUndefined(model) || !this.isComplete(model) || force) {
-      return this._httpClient.fetch(this.defaultRoute + id).then(response => response.json()).then(data => {
+      return this._httpClient.fetch(apiRoute).then(response => response.json()).then(data => {
         return this.fromJSON(data, { force: force });
       });
     }
@@ -143,10 +148,10 @@ export let Collection = class Collection {
       modelPromise = this.fromJSON(data);
     } else {
       if (!options._child) {
-        modelPromise = this._getById(data, options.force);
+        modelPromise = this._getById(data, options.force, options.route);
       } else {
         if (options.populate === true) {
-          modelPromise = this._getById(data, options.force);
+          modelPromise = this._getById(data, options.force, options.route);
         } else {
           modelPromise = Promise.resolve(null);
         }

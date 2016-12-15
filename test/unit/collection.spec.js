@@ -286,10 +286,10 @@ describe('Collection', () => {
 
       spyOn(collection._httpClient, 'fetch').and.callThrough();
 
-      collection._getById('myId')
+      collection._getById('myId', false, 'myId/myOther/path')
         .then(foundModel => {
           expect(foundModel).toEqual(model);
-          expect(collection._httpClient.fetch).toHaveBeenCalled();
+          expect(collection._httpClient.fetch).toHaveBeenCalledWith('default/route/myId/myOther/path');
           done();
         });
     });

@@ -16,7 +16,7 @@ System.register(['lodash', 'aurelia-dependency-injection', 'aurelia-fetch-client
   }
   return {
     setters: [function (_lodash) {
-      _ = _lodash._;
+      _ = _lodash.default;
     }, function (_aureliaDependencyInjection) {
       Container = _aureliaDependencyInjection.Container;
     }, function (_aureliaFetchClient) {
@@ -31,7 +31,7 @@ System.register(['lodash', 'aurelia-dependency-injection', 'aurelia-fetch-client
         }
 
         Collection.prototype.configure = function configure(key, modelClass, defaultRoute) {
-          var modelid = arguments.length <= 3 || arguments[3] === undefined ? '_id' : arguments[3];
+          var modelid = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : '_id';
 
           this.container = Container.instance;
 
@@ -111,13 +111,18 @@ System.register(['lodash', 'aurelia-dependency-injection', 'aurelia-fetch-client
           _.remove(this.collection, obj);
         };
 
-        Collection.prototype._getById = function _getById(id, force) {
+        Collection.prototype._getById = function _getById(id, force, route) {
           var _this = this;
 
           var model = this._getFromCollection(id);
 
+          var apiRoute = this.defaultRoute + id;
+          if (!_.isNil(route)) {
+            apiRoute = this.defaultRoute + route;
+          }
+
           if (_.isUndefined(model) || !this.isComplete(model) || force) {
-            return this._httpClient.fetch(this.defaultRoute + id).then(function (response) {
+            return this._httpClient.fetch(apiRoute).then(function (response) {
               return response.json();
             }).then(function (data) {
               return _this.fromJSON(data, { force: force });
@@ -185,10 +190,10 @@ System.register(['lodash', 'aurelia-dependency-injection', 'aurelia-fetch-client
             modelPromise = this.fromJSON(data);
           } else {
             if (!options._child) {
-              modelPromise = this._getById(data, options.force);
+              modelPromise = this._getById(data, options.force, options.route);
             } else {
               if (options.populate === true) {
-                modelPromise = this._getById(data, options.force);
+                modelPromise = this._getById(data, options.force, options.route);
               } else {
                 modelPromise = Promise.resolve(null);
               }

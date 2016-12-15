@@ -1,4 +1,4 @@
-import { _ } from 'lodash';
+import _ from 'lodash';
 
 import { Container } from 'aurelia-dependency-injection';
 import { json } from 'aurelia-fetch-client';
@@ -175,14 +175,20 @@ export class Collection {
    * [_getById description]
    * @param  {[type]} id    [description]
    * @param  {[type]} force [description]
+   * @param  {[type]} route [description]
    * @return {[type]}       [description]
    */
-  _getById(id, force) {
+  _getById(id, force, route) {
     let model = this._getFromCollection(id);
+
+    let apiRoute = this.defaultRoute + id;
+    if (!_.isNil(route)) {
+      apiRoute = this.defaultRoute + route;
+    }
 
     if (_.isUndefined(model) || !this.isComplete(model) || force) {
       return this._httpClient
-        .fetch(this.defaultRoute + id)
+        .fetch(apiRoute)
         .then(response => response.json())
         .then(data => {
           return this.fromJSON(data, { force: force });
@@ -258,10 +264,10 @@ export class Collection {
       modelPromise = this.fromJSON(data);
     } else { // If we end up here, then data is string. We'd better test whether it is an id, but we consider a string as a type of an id.
       if (!options._child) { // we are the root level, we want the model no matter what.
-        modelPromise = this._getById(data, options.force);
+        modelPromise = this._getById(data, options.force, options.route);
       } else {
         if (options.populate === true) { // we are a child, so populate means we want the model level root + 1
-          modelPromise = this._getById(data, options.force);
+          modelPromise = this._getById(data, options.force, options.route);
         } else { // otherwise, we want to keep the backend data (the reference IDs)
           modelPromise = Promise.resolve(null);
         }
