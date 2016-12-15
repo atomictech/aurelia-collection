@@ -654,6 +654,19 @@ describe('Collection', () => {
           done();
         });
     });
+
+    it('Should call the overload route when route parameter is specified', done => {
+      fakeFetch.respondWith('{ "_id": "myId", "wheels": 5 }');
+      spyOn(collection._httpClient, 'fetch').and.callThrough();
+
+      collection.update(model, { wheels: 5 }, model._id + '/other/path')
+        .then(updatedModel => {
+          expect(updatedModel).toBe(model);
+          expect(updatedModel.wheels).toBe(5);
+          expect(collection._httpClient.fetch).toHaveBeenCalledWith('/default/route/myId/other/path', jasmine.objectContaining({ method: 'put' }));
+          done();
+        });
+    });
   });
 
   describe('._frontToBackend()', () => {

@@ -247,11 +247,16 @@ var Collection = exports.Collection = function () {
     });
   };
 
-  Collection.prototype.update = function update(model, attr) {
+  Collection.prototype.update = function update(model, attr, route) {
     var _this4 = this;
 
+    var apiRoute = this.defaultRoute + model[this.modelid];
+    if (!_lodash2.default.isNil(route)) {
+      apiRoute = this.defaultRoute + route;
+    }
+
     return this._frontToBackend(attr).then(function (backAttr) {
-      return _this4._httpClient.fetch(_this4.defaultRoute + model[_this4.modelid], {
+      return _this4._httpClient.fetch(apiRoute, {
         method: 'put',
         headers: { 'Content-Type': 'application/json' },
         body: (0, _aureliaFetchClient.json)(backAttr)

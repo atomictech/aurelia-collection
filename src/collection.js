@@ -343,11 +343,16 @@ export class Collection {
    * @param  {[type]} attr  [description]
    * @return {[type]}       [description]
    */
-  update(model, attr) {
+  update(model, attr, route) {
+    let apiRoute = this.defaultRoute + model[this.modelid];
+    if (!_.isNil(route)) {
+      apiRoute = this.defaultRoute + route;
+    }
+
     return this._frontToBackend(attr)
       .then(backAttr => {
         return this._httpClient
-          .fetch(this.defaultRoute + model[this.modelid], {
+          .fetch(apiRoute, {
             method: 'put',
             headers: { 'Content-Type': 'application/json' },
             body: json(backAttr)
