@@ -1,4 +1,4 @@
-import { _ } from 'lodash';
+import _ from 'lodash';
 
 import { Aurelia, inject } from 'aurelia-framework';
 import { Container } from 'aurelia-dependency-injection';
