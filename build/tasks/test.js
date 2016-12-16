@@ -20,11 +20,38 @@ gulp.task('test', function(done) {
 });
 
 /**
+ * Run test once on Chrome and exit
+ */
+gulp.task('test-chrome', function(done) {
+  new Karma({
+    configFile: __dirname + '/../../karma.conf.js',
+    singleRun: true,
+    jspm: {
+      loadFiles: ['test/setup.js', 'test/unit/**/*.js']
+    },
+    browsers: ['Chrome']
+  }, done).start();
+});
+
+/**
  * Watch for file changes and re-run tests on each change
  */
 gulp.task('tdd', function(done) {
   new Karma({
     configFile: __dirname + '/../../karma.conf.js'
+  }, done).start();
+});
+
+/**
+ * Run test once on Chrome and exit
+ */
+gulp.task('tdd-chrome', function(done) {
+  new Karma({
+    configFile: __dirname + '/../../karma.conf.js',
+    jspm: {
+      loadFiles: ['test/setup.js', 'test/unit/**/*.js']
+    },
+    browsers: ['Chrome']
   }, done).start();
 });
 
@@ -35,10 +62,6 @@ gulp.task('coveralls', function(done) { // 2nd arg is a dependency: 'karma' must
     configFile: __dirname + '/../../karma.conf.js',
     singleRun: true,
     reporters: ['coverage'],
-    preprocessors: {
-      'test/**/*.js': ['babel'],
-      'src/**/*.js': ['babel']
-    },
     coverageReporter: {
       type: 'lcov',
       dir: 'coverage/coveralls',
@@ -63,10 +86,6 @@ gulp.task('cover', function(done) {
     configFile: __dirname + '/../../karma.conf.js',
     singleRun: true,
     reporters: ['coverage'],
-    preprocessors: {
-      'test/**/*.js': ['babel'],
-      'src/**/*.js': ['babel']
-    },
     coverageReporter: {
       includeAllSources: true,
       reporters: [
