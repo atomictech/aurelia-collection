@@ -206,6 +206,8 @@ System.register(['lodash', 'aurelia-dependency-injection', 'aurelia-fetch-client
             }
 
             var childOpt = _.cloneDeep(options);
+            childOpt = _.omit(childOpt, 'route');
+
             if (childOpt._child) {
               childOpt.populate = childOpt.recursive = childOpt.recursive === true;
             }
@@ -253,11 +255,16 @@ System.register(['lodash', 'aurelia-dependency-injection', 'aurelia-fetch-client
           });
         };
 
-        Collection.prototype.update = function update(model, attr, route) {
+        Collection.prototype.update = function update(model, attr, options) {
           var _this4 = this;
 
+          var route = '';
+          if (!_.isNil(options)) {
+            route = options.route || route;
+          }
+
           var apiRoute = this.defaultRoute + model[this.modelid];
-          if (!_.isNil(route)) {
+          if (!_.isEmpty(route)) {
             apiRoute = this.defaultRoute + route;
           }
 

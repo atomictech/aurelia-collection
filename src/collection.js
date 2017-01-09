@@ -283,6 +283,8 @@ export class Collection {
 
         // if we are a grand child or more, we suppose that recursive take ownership of population for all the decendants levels
         let childOpt = _.cloneDeep(options);
+        childOpt = _.omit(childOpt, 'route');
+
         if (childOpt._child) {
           childOpt.populate = childOpt.recursive = (childOpt.recursive === true);
         }
@@ -339,13 +341,18 @@ export class Collection {
 
   /**
    * [update description]
-   * @param  {[type]} model [description]
-   * @param  {[type]} attr  [description]
-   * @return {[type]}       [description]
+   * @param  {[type]} model   [description]
+   * @param  {[type]} attr    [description]
+   * @return {[type]} options [description]
    */
-  update(model, attr, route) {
+  update(model, attr, options) {
+    let route = '';
+    if (!_.isNil(options)) {
+      route = options.route || route;
+    }
+
     let apiRoute = this.defaultRoute + model[this.modelid];
-    if (!_.isNil(route)) {
+    if (!_.isEmpty(route)) {
       apiRoute = this.defaultRoute + route;
     }
 

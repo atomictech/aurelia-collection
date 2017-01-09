@@ -200,6 +200,8 @@ var Collection = exports.Collection = function () {
       }
 
       var childOpt = _lodash2.default.cloneDeep(options);
+      childOpt = _lodash2.default.omit(childOpt, 'route');
+
       if (childOpt._child) {
         childOpt.populate = childOpt.recursive = childOpt.recursive === true;
       }
@@ -247,11 +249,16 @@ var Collection = exports.Collection = function () {
     });
   };
 
-  Collection.prototype.update = function update(model, attr, route) {
+  Collection.prototype.update = function update(model, attr, options) {
     var _this4 = this;
 
+    var route = '';
+    if (!_lodash2.default.isNil(options)) {
+      route = options.route || route;
+    }
+
     var apiRoute = this.defaultRoute + model[this.modelid];
-    if (!_lodash2.default.isNil(route)) {
+    if (!_lodash2.default.isEmpty(route)) {
       apiRoute = this.defaultRoute + route;
     }
 

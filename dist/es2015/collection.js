@@ -164,6 +164,8 @@ export let Collection = class Collection {
       }
 
       let childOpt = _.cloneDeep(options);
+      childOpt = _.omit(childOpt, 'route');
+
       if (childOpt._child) {
         childOpt.populate = childOpt.recursive = childOpt.recursive === true;
       }
@@ -209,9 +211,14 @@ export let Collection = class Collection {
     });
   }
 
-  update(model, attr, route) {
+  update(model, attr, options) {
+    let route = '';
+    if (!_.isNil(options)) {
+      route = options.route || route;
+    }
+
     let apiRoute = this.defaultRoute + model[this.modelid];
-    if (!_.isNil(route)) {
+    if (!_.isEmpty(route)) {
       apiRoute = this.defaultRoute + route;
     }
 

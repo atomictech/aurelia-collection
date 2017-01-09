@@ -659,7 +659,7 @@ describe('Collection', () => {
       fakeFetch.respondWith('{ "_id": "myId", "wheels": 5 }');
       spyOn(collection._httpClient, 'fetch').and.callThrough();
 
-      collection.update(model, { wheels: 5 }, model._id + '/other/path')
+      collection.update(model, { wheels: 5 }, { route: model._id + '/other/path' })
         .then(updatedModel => {
           expect(updatedModel).toBe(model);
           expect(updatedModel.wheels).toBe(5);
