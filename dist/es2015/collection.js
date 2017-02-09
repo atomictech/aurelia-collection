@@ -85,29 +85,23 @@ export let Collection = class Collection {
     _.remove(this.collection, obj);
   }
 
-  _getById(id, force, route) {
+  _getById(id, options) {
+    const opts = options || {};
+    const apiRoute = opts.route || this.defaultRoute + id;
     let model = this._getFromCollection(id);
 
-    let apiRoute = this.defaultRoute + id;
-    if (!_.isNil(route)) {
-      apiRoute = this.defaultRoute + route;
-    }
-
-    if (_.isUndefined(model) || !this.isComplete(model) || force) {
+    if (_.isUndefined(model) || !this.isComplete(model) || opts.force) {
       return this._httpClient.fetch(apiRoute).then(response => response.json()).then(data => {
-        return this.fromJSON(data, { force: force });
+        return this.fromJSON(data, { force: opts.force });
       });
     }
 
     return Promise.resolve(model);
   }
 
-  create(jsonModel, route) {
-    let apiRoute = this.defaultRoute.slice(0, -1);
-
-    if (!_.isNil(route)) {
-      apiRoute = route;
-    }
+  create(jsonModel, options) {
+    const opts = options || {};
+    const apiRoute = opts.route || this.defaultRoute.slice(0, -1);
 
     return this._httpClient.fetch(apiRoute, {
       method: 'post',
@@ -115,14 +109,9 @@ export let Collection = class Collection {
     }).then(response => response.json()).then(data => this.get(data));
   }
 
-  destroy(id, route) {
-    let apiRoute = this.defaultRoute;
-
-    if (!_.isNil(route)) {
-      apiRoute += route;
-    } else {
-      apiRoute += id;
-    }
+  destroy(id, options) {
+    const opts = options || {};
+    const apiRoute = opts.route || this.defaultRoute + id;
 
     this._removeFromCollection(id);
     return this._httpClient.fetch(apiRoute, {
@@ -148,10 +137,10 @@ export let Collection = class Collection {
       modelPromise = this.fromJSON(data);
     } else {
       if (!options._child) {
-        modelPromise = this._getById(data, options.force, options.route);
+        modelPromise = this._getById(data, options);
       } else {
         if (options.populate === true) {
-          modelPromise = this._getById(data, options.force, options.route);
+          modelPromise = this._getById(data, options);
         } else {
           modelPromise = Promise.resolve(null);
         }
@@ -212,15 +201,8 @@ export let Collection = class Collection {
   }
 
   update(model, attr, options) {
-    let route = '';
-    if (!_.isNil(options)) {
-      route = options.route || route;
-    }
-
-    let apiRoute = this.defaultRoute + model[this.modelid];
-    if (!_.isEmpty(route)) {
-      apiRoute = this.defaultRoute + route;
-    }
+    const opts = options || {};
+    const apiRoute = opts.route || this.defaultRoute + model[this.modelid];
 
     return this._frontToBackend(attr).then(backAttr => {
       return this._httpClient.fetch(apiRoute, {

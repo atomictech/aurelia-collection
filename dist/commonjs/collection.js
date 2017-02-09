@@ -105,35 +105,29 @@ var Collection = exports.Collection = function () {
     _lodash2.default.remove(this.collection, obj);
   };
 
-  Collection.prototype._getById = function _getById(id, force, route) {
+  Collection.prototype._getById = function _getById(id, options) {
     var _this = this;
 
+    var opts = options || {};
+    var apiRoute = opts.route || this.defaultRoute + id;
     var model = this._getFromCollection(id);
 
-    var apiRoute = this.defaultRoute + id;
-    if (!_lodash2.default.isNil(route)) {
-      apiRoute = this.defaultRoute + route;
-    }
-
-    if (_lodash2.default.isUndefined(model) || !this.isComplete(model) || force) {
+    if (_lodash2.default.isUndefined(model) || !this.isComplete(model) || opts.force) {
       return this._httpClient.fetch(apiRoute).then(function (response) {
         return response.json();
       }).then(function (data) {
-        return _this.fromJSON(data, { force: force });
+        return _this.fromJSON(data, { force: opts.force });
       });
     }
 
     return Promise.resolve(model);
   };
 
-  Collection.prototype.create = function create(jsonModel, route) {
+  Collection.prototype.create = function create(jsonModel, options) {
     var _this2 = this;
 
-    var apiRoute = this.defaultRoute.slice(0, -1);
-
-    if (!_lodash2.default.isNil(route)) {
-      apiRoute = route;
-    }
+    var opts = options || {};
+    var apiRoute = opts.route || this.defaultRoute.slice(0, -1);
 
     return this._httpClient.fetch(apiRoute, {
       method: 'post',
@@ -145,14 +139,9 @@ var Collection = exports.Collection = function () {
     });
   };
 
-  Collection.prototype.destroy = function destroy(id, route) {
-    var apiRoute = this.defaultRoute;
-
-    if (!_lodash2.default.isNil(route)) {
-      apiRoute += route;
-    } else {
-      apiRoute += id;
-    }
+  Collection.prototype.destroy = function destroy(id, options) {
+    var opts = options || {};
+    var apiRoute = opts.route || this.defaultRoute + id;
 
     this._removeFromCollection(id);
     return this._httpClient.fetch(apiRoute, {
@@ -184,10 +173,10 @@ var Collection = exports.Collection = function () {
       modelPromise = this.fromJSON(data);
     } else {
       if (!options._child) {
-        modelPromise = this._getById(data, options.force, options.route);
+        modelPromise = this._getById(data, options);
       } else {
         if (options.populate === true) {
-          modelPromise = this._getById(data, options.force, options.route);
+          modelPromise = this._getById(data, options);
         } else {
           modelPromise = Promise.resolve(null);
         }
@@ -252,15 +241,8 @@ var Collection = exports.Collection = function () {
   Collection.prototype.update = function update(model, attr, options) {
     var _this4 = this;
 
-    var route = '';
-    if (!_lodash2.default.isNil(options)) {
-      route = options.route || route;
-    }
-
-    var apiRoute = this.defaultRoute + model[this.modelid];
-    if (!_lodash2.default.isEmpty(route)) {
-      apiRoute = this.defaultRoute + route;
-    }
+    var opts = options || {};
+    var apiRoute = opts.route || this.defaultRoute + model[this.modelid];
 
     return this._frontToBackend(attr).then(function (backAttr) {
       return _this4._httpClient.fetch(apiRoute, {
