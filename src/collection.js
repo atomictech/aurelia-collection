@@ -175,23 +175,20 @@ export class Collection {
    * [_getById description]
    * @param  {[type]} id    [description]
    * @param  {[type]} force [description]
-   * @param  {[type]} route [description]
+   * @param  {[type]} options [description]
    * @return {[type]}       [description]
    */
-  _getById(id, force, route) {
+  _getById(id, options) {
+    const opts = options || {};
+    const apiRoute = opts.route || this.defaultRoute + id;
     let model = this._getFromCollection(id);
 
-    let apiRoute = this.defaultRoute + id;
-    if (!_.isNil(route)) {
-      apiRoute = this.defaultRoute + route;
-    }
-
-    if (_.isUndefined(model) || !this.isComplete(model) || force) {
+    if (_.isUndefined(model) || !this.isComplete(model) || opts.force) {
       return this._httpClient
         .fetch(apiRoute)
         .then(response => response.json())
         .then(data => {
-          return this.fromJSON(data, { force: force });
+          return this.fromJSON(data, { force: opts.force });
         });
     }
 
@@ -201,15 +198,12 @@ export class Collection {
   /**
    * [create description]
    * @param  {[type]} jsonModel [description]
-   * @param  {[type]} route     [description]
+   * @param  {[type]} options   [description]
    * @return {[type]}           [description]
    */
-  create(jsonModel, route) {
-    let apiRoute = this.defaultRoute.slice(0, -1);
-
-    if (!_.isNil(route)) {
-      apiRoute = route;
-    }
+  create(jsonModel, options) {
+    const opts = options || {};
+    const apiRoute = opts.route || this.defaultRoute.slice(0, -1);
 
     return this._httpClient
       .fetch(apiRoute, {
@@ -225,14 +219,9 @@ export class Collection {
    * @param  {[type]} route [description]
    * @return {[type]}       [description]
    */
-  destroy(id, route) {
-    let apiRoute = this.defaultRoute;
-
-    if (!_.isNil(route)) {
-      apiRoute += route;
-    } else {
-      apiRoute += id;
-    }
+  destroy(id, options) {
+    const opts = options || {};
+    const apiRoute = opts.route || this.defaultRoute + id;
 
     this._removeFromCollection(id);
     return this._httpClient.fetch(apiRoute, {
@@ -264,10 +253,10 @@ export class Collection {
       modelPromise = this.fromJSON(data);
     } else { // If we end up here, then data is string. We'd better test whether it is an id, but we consider a string as a type of an id.
       if (!options._child) { // we are the root level, we want the model no matter what.
-        modelPromise = this._getById(data, options.force, options.route);
+        modelPromise = this._getById(data, options);
       } else {
         if (options.populate === true) { // we are a child, so populate means we want the model level root + 1
-          modelPromise = this._getById(data, options.force, options.route);
+          modelPromise = this._getById(data, options);
         } else { // otherwise, we want to keep the backend data (the reference IDs)
           modelPromise = Promise.resolve(null);
         }
@@ -346,15 +335,8 @@ export class Collection {
    * @return {[type]} options [description]
    */
   update(model, attr, options) {
-    let route = '';
-    if (!_.isNil(options)) {
-      route = options.route || route;
-    }
-
-    let apiRoute = this.defaultRoute + model[this.modelid];
-    if (!_.isEmpty(route)) {
-      apiRoute = this.defaultRoute + route;
-    }
+    const opts = options || {};
+    const apiRoute = opts.route || this.defaultRoute + model[this.modelid];
 
     return this._frontToBackend(attr)
       .then(backAttr => {
