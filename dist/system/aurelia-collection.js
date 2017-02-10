@@ -1,6 +1,6 @@
 'use strict';
 
-System.register(['fetch', './use-collection', './collection', './config'], function (_export, _context) {
+System.register(['whatwg-fetch', './use-collection', './collection', './config'], function (_export, _context) {
   "use strict";
 
   var UseCollection, Collection, Config;
@@ -18,7 +18,7 @@ System.register(['fetch', './use-collection', './collection', './config'], funct
   _export('configure', configure);
 
   return {
-    setters: [function (_fetch) {}, function (_useCollection) {
+    setters: [function (_whatwgFetch) {}, function (_useCollection) {
       UseCollection = _useCollection.UseCollection;
     }, function (_collection) {
       Collection = _collection.Collection;

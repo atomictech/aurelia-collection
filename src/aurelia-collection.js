@@ -1,4 +1,4 @@
-import 'fetch';
+import 'whatwg-fetch';
 import { UseCollection } from './use-collection';
 import { Collection } from './collection';
 import { Config } from './config';

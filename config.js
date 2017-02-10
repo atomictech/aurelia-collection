@@ -16,8 +16,8 @@ System.config({
     "aurelia-polyfills": "npm:aurelia-polyfills@1.1.1",
     "aurelia-testing": "npm:aurelia-testing@1.0.0-beta.2.0.1",
     "fake-fetch": "npm:fake-fetch@1.0.0",
-    "fetch": "github:github/fetch@1.1.1",
     "lodash": "npm:lodash@4.17.4",
+    "whatwg-fetch": "npm:whatwg-fetch@2.0.2",
     "github:jspm/nodelibs-assert@0.1.0": {
       "assert": "npm:assert@1.4.1"
     },

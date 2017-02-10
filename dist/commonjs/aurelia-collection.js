@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", {
 exports.Config = exports.Collection = exports.UseCollection = undefined;
 exports.configure = configure;
 
-require('fetch');
+require('whatwg-fetch');
 
 var _useCollection = require('./use-collection');
 

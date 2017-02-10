@@ -1,4 +1,4 @@
-define(['exports', './use-collection', './collection', './config', 'fetch'], function (exports, _useCollection, _collection, _config) {
+define(['exports', './use-collection', './collection', './config', 'whatwg-fetch'], function (exports, _useCollection, _collection, _config) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
