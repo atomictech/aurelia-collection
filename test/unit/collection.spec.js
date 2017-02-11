@@ -1,4 +1,4 @@
-import { _ } from 'lodash';
+import _ from 'lodash';
 import fakeFetch from 'fake-fetch';
 import { Container } from 'aurelia-dependency-injection';
 import { StageComponent } from 'aurelia-testing';
@@ -128,7 +128,7 @@ describe('Collection', () => {
           collection.flush();
           expect(collection.collection).toEqual([]);
           done();
-        }).catch(done);
+        });
     });
   });
 
@@ -155,7 +155,7 @@ describe('Collection', () => {
       collection.sync('myId').then(res => {
         expect(res).toEqual({ _id: 'myId', foo: 'bar' });
         done();
-      }).catch(done);
+      });
     });
 
     it('Should return the synced model when given json data of the model', done => {
@@ -163,7 +163,7 @@ describe('Collection', () => {
       collection.sync({ _id: 'myId' }).then(res => {
         expect(res).toEqual({ _id: 'myId', foo: 'bar' });
         done();
-      }).catch(done);
+      });
     });
   });
 
@@ -278,7 +278,7 @@ describe('Collection', () => {
         .then(foundModel => {
           expect(foundModel).toBe(model);
           done();
-        }).catch(done);
+        });
     });
 
     it('Should return a model when it is not already a known model', done => {
@@ -293,7 +293,7 @@ describe('Collection', () => {
         expect(foundModel).toEqual(model);
         expect(collection._httpClient.fetch).toHaveBeenCalledWith('default/route/myId/myOther/path');
         done();
-      }).catch(done);
+      });
     });
 
     it('Should return the model by calling the fetch method when forcing it', done => {
@@ -307,7 +307,7 @@ describe('Collection', () => {
           expect(foundModel).toEqual(model);
           expect(collection._httpClient.fetch).toHaveBeenCalled();
           done();
-        }).catch(done);
+        });
     });
 
     it('Should return the model by calling the fetch method is the model is not complete', done => {
@@ -322,7 +322,7 @@ describe('Collection', () => {
           expect(foundModel).toEqual(model);
           expect(collection._httpClient.fetch).toHaveBeenCalled();
           done();
-        }).catch(done);
+        });
     });
   });
 
@@ -349,7 +349,7 @@ describe('Collection', () => {
           expect(createdModel).toEqual(model);
           expect(collection._httpClient.fetch).toHaveBeenCalledWith('default/route', jasmine.objectContaining({ method: 'post' }));
           done();
-        }).catch(done);
+        });
     });
 
     it('Should return the created model on a dedicated route', done => {
@@ -363,7 +363,7 @@ describe('Collection', () => {
           expect(createdModel).toEqual(model);
           expect(collection._httpClient.fetch).toHaveBeenCalledWith(('default/route/creation'), jasmine.objectContaining({ method: 'post' }));
           done();
-        }).catch(done);
+        });
     });
 
     it('Should return the model and leave the submodel id', done => {
@@ -382,7 +382,7 @@ describe('Collection', () => {
           expect(createdModel.wheels).toEqual(4);
           expect(createdModel._ref_driver).toEqual(driver._id);
           done();
-        }).catch(done);
+        });
     });
 
     it('Should return the model and replace the submodel id by its model when the backend populate its data', done => {
@@ -401,7 +401,7 @@ describe('Collection', () => {
           expect(createdModel.wheels).toEqual(4);
           expect(createdModel.driver).toBe(driver);
           done();
-        }).catch(done);
+        });
     });
   });
 
@@ -426,7 +426,7 @@ describe('Collection', () => {
           expect(collection.collection).toEqual([]);
           expect(collection._httpClient.fetch).toHaveBeenCalledWith('default/route/' + model._id, { method: 'delete' });
           done();
-        }).catch(done);
+        });
     });
 
     it('Should remove the model and call the fetch method on a dedicated route', done => {
@@ -435,7 +435,7 @@ describe('Collection', () => {
           expect(collection.collection).toEqual([]);
           expect(collection._httpClient.fetch).toHaveBeenCalledWith('destroy/' + model._id, { method: 'delete' });
           done();
-        }).catch(done);
+        });
     });
   });
 
@@ -475,7 +475,7 @@ describe('Collection', () => {
         .then(data => {
           expect(data).toBeUndefined();
           done();
-        }).catch(done);
+        });
     });
 
     it('Should return the parameters when calling with null', done => {
@@ -483,7 +483,7 @@ describe('Collection', () => {
         .then(data => {
           expect(data).toBeNull();
           done();
-        }).catch(done);
+        });
     });
 
     it('Should return a model according to its id.', done => {
@@ -491,7 +491,7 @@ describe('Collection', () => {
         .then(foundModel => {
           expect(foundModel).toBe(model);
           done();
-        }).catch(done);
+        });
     });
 
     it('Should return a model according to its attributes containg an id.', done => {
@@ -499,7 +499,7 @@ describe('Collection', () => {
         .then(foundModel => {
           expect(foundModel).toBe(model);
           done();
-        }).catch(done);
+        });
     });
 
     it('Should return the models according to the ids array.', done => {
@@ -511,7 +511,7 @@ describe('Collection', () => {
           expect(modelArray).toContain(model);
           expect(modelArray).toContain(model2);
           done();
-        }).catch(done);
+        });
     });
 
     it('Should return a model by calling the fetch api when using force parameter', done => {
@@ -523,7 +523,7 @@ describe('Collection', () => {
           expect(foundModel).toEqual(model);
           expect(collection._httpClient.fetch).toHaveBeenCalledWith(jasmine.stringMatching('default/route/' + model._id));
           done();
-        }).catch(done);
+        });
     });
 
     it('Should populate the child when forcing it', done => {
@@ -533,7 +533,7 @@ describe('Collection', () => {
           expect(foundModel.wheels).toBe(4);
           expect(foundModel.driver).toEqual({ _id: 'fakeId', name: 'Fake Name', _ref_phones: ['phone1'] });
           done();
-        }).catch(done);
+        });
     });
 
     it('Should leave the reference key unmodified when the collection has not been registered', done => {
@@ -546,7 +546,7 @@ describe('Collection', () => {
           expect(foundModel._ref_driver).toBe('fakeId');
           expect(foundModel.driver).toBeUndefined();
           done();
-        }).catch(done);
+        });
     });
 
     it('Should populate the child and its grand child when using recursive and populate options', done => {
@@ -558,7 +558,7 @@ describe('Collection', () => {
           expect(foundModel.driver.name).toBe('Fake Name');
           expect(foundModel.driver.phones).toContain(phone);
           done();
-        }).catch(done);
+        });
     });
 
     it('Should leave the reference key unmodified when no backendKey has been defined', done => {
@@ -570,7 +570,7 @@ describe('Collection', () => {
           expect(foundModel.wheels).toBe(4);
           expect(foundModel._ref_driver).toEqual('fakeId');
           done();
-        }).catch(done);
+        });
     });
 
     it('Should not modyfing the key used for references when no frontendKey has been defined', done => {
@@ -582,7 +582,7 @@ describe('Collection', () => {
           expect(foundModel.wheels).toBe(4);
           expect(foundModel._ref_driver).toEqual({ _id: 'fakeId', name: 'Fake Name', _ref_phones: ['phone1'] });
           done();
-        }).catch(done);
+        });
     });
 
     it('Should keep the JSON data when no collection has been set', done => {
@@ -594,7 +594,7 @@ describe('Collection', () => {
           expect(foundModel.wheels).toBe(4);
           expect(foundModel.driver).toEqual('fakeId');
           done();
-        }).catch(done);
+        });
     });
 
     it('Should populate the child when forcing it', done => {
@@ -607,7 +607,7 @@ describe('Collection', () => {
           expect(foundModel._ref_driver).toBe('fakeId');
           expect(foundModel.driver).toEqual({ _id: 'fakeId', name: 'Fake Name', _ref_phones: ['phone1'] });
           done();
-        }).catch(done);
+        });
     });
 
     it('Should create all the models accoordingly', done => {
@@ -627,7 +627,7 @@ describe('Collection', () => {
           expect(collection2.collection).toContain(foundModel.driver);
           expect(collection3.collection).toContain(foundModel.driver.phones[0]);
           done();
-        }).catch(done);
+        });
     });
   });
 
@@ -654,7 +654,7 @@ describe('Collection', () => {
           expect(updatedModel.wheels).toBe(5);
           expect(collection._httpClient.fetch).toHaveBeenCalledWith('/default/route/myId', jasmine.objectContaining({ method: 'put' }));
           done();
-        }).catch(done);
+        });
     });
 
     it('Should call the overload route when route parameter is specified', done => {
@@ -667,7 +667,7 @@ describe('Collection', () => {
           expect(updatedModel.wheels).toBe(5);
           expect(collection._httpClient.fetch).toHaveBeenCalledWith('/default/route/myId/other/path', jasmine.objectContaining({ method: 'put' }));
           done();
-        }).catch(done);
+        });
     });
   });
 
@@ -691,7 +691,7 @@ describe('Collection', () => {
         .then(attributes => {
           expect(attributes).toEqual({ wheels: 5, driver: driver });
           done();
-        }).catch(done);
+        });
     });
 
     it('Should replace a refkey\'d attribute by its id', done => {
@@ -701,7 +701,7 @@ describe('Collection', () => {
           expect(attributes.driver).toBeUndefined();
           expect(attributes._ref_driver).toBe(driver._id);
           done();
-        }).catch(done);
+        });
     });
 
     it('Should not delete the frontendKey if backendKeyDeletion is true', done => {
@@ -713,7 +713,7 @@ describe('Collection', () => {
           expect(attributes.driver).toBe(driver);
           expect(attributes._ref_driver).toBe(driver._id);
           done();
-        }).catch(done);
+        });
     });
 
     it('Should support the use of an array of references', done => {
@@ -726,7 +726,7 @@ describe('Collection', () => {
           expect(attributes._ref_driver).toContain(driver._id);
           expect(attributes._ref_driver).toContain(driver2._id);
           done();
-        }).catch(done);
+        });
     });
 
     it('Should support the use of an id for reference', done => {
@@ -736,7 +736,7 @@ describe('Collection', () => {
           expect(attributes.driver).toBeUndefined();
           expect(attributes._ref_driver).toBe(driver._id);
           done();
-        }).catch(done);
+        });
     });
 
     it('Should convert the backend key to null if the frontend key is not of supported type', done => {
@@ -746,7 +746,7 @@ describe('Collection', () => {
           expect(attributes.driver).toBeUndefined();
           expect(attributes._ref_driver).toBeNull();
           done();
-        }).catch(done);
+        });
     });
 
     it('Should convert the backend key to null if the value is an object without its id value', done => {
@@ -756,7 +756,7 @@ describe('Collection', () => {
           expect(attributes.driver).toBeUndefined();
           expect(attributes._ref_driver).toBeNull();
           done();
-        }).catch(done);
+        });
     });
   });
 
@@ -796,7 +796,7 @@ describe('Collection', () => {
           expect(model.doors).toBeUndefined();
           expect(model.driver).toBe(driver._id);
           done();
-        }).catch(done);
+        });
     });
 
     it('Should not convert any key when no collection have been specified', done => {
@@ -810,7 +810,7 @@ describe('Collection', () => {
           expect(model.doors).toBeUndefined();
           expect(model.driver).toBe(driver);
           done();
-        }).catch(done);
+        });
     });
 
     it('Should replace a refkey\'d attribute by its value', done => {
@@ -822,7 +822,7 @@ describe('Collection', () => {
           expect(model.doors).toBeUndefined();
           expect(model._ref_driver).toBeUndefined();
           done();
-        }).catch(done);
+        });
     });
   });
 });
