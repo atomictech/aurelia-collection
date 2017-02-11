@@ -190,7 +190,8 @@ define(['exports', 'lodash', 'aurelia-dependency-injection', 'aurelia-fetch-clie
         }
 
         var childOpt = _lodash2.default.cloneDeep(options);
-        childOpt = _lodash2.default.omit(childOpt, 'route');
+
+        delete childOpt.route;
 
         if (childOpt._child) {
           childOpt.populate = childOpt.recursive = childOpt.recursive === true;

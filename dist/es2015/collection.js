@@ -153,7 +153,8 @@ export let Collection = class Collection {
       }
 
       let childOpt = _.cloneDeep(options);
-      childOpt = _.omit(childOpt, 'route');
+
+      delete childOpt.route;
 
       if (childOpt._child) {
         childOpt.populate = childOpt.recursive = childOpt.recursive === true;

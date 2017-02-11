@@ -272,7 +272,9 @@ export class Collection {
 
         // if we are a grand child or more, we suppose that recursive take ownership of population for all the decendants levels
         let childOpt = _.cloneDeep(options);
-        childOpt = _.omit(childOpt, 'route');
+
+        // Removal of the route options since it is not supposed to be relevant for children paths.
+        delete childOpt.route;
 
         if (childOpt._child) {
           childOpt.populate = childOpt.recursive = (childOpt.recursive === true);
