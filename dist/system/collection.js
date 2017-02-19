@@ -255,7 +255,7 @@ System.register(['lodash', 'aurelia-dependency-injection', 'aurelia-fetch-client
             return Promise.resolve(attr);
           }
 
-          return this._frontToBackend(attr).then(function (backAttr) {
+          return this._frontToBackend(attr, opts).then(function (backAttr) {
             return _this4._httpClient.fetch(apiRoute, {
               method: 'put',
               headers: { 'Content-Type': 'application/json' },
@@ -263,7 +263,7 @@ System.register(['lodash', 'aurelia-dependency-injection', 'aurelia-fetch-client
             }).then(function (response) {
               return response.json();
             }).then(function (attributes) {
-              return _this4._backToFrontend(attributes, backAttr, model);
+              return _this4._backToFrontend(attributes, backAttr, model, opts);
             });
           }).then(function () {
             return model;
@@ -313,6 +313,7 @@ System.register(['lodash', 'aurelia-dependency-injection', 'aurelia-fetch-client
         Collection.prototype._backToFrontend = function _backToFrontend(attributes, backAttr, model, options) {
           var _this6 = this;
 
+          var opts = options || {};
           var refKeys = this.refKeys();
 
           return Promise.all(_.map(backAttr, function (value, field) {
@@ -338,9 +339,9 @@ System.register(['lodash', 'aurelia-dependency-injection', 'aurelia-fetch-client
             }
 
             return frontendValue.then(function (result) {
-              if (!_.has(options.mergeStrategy) || options.mergeStrategy === 'replace') {
+              if (!_.has(opts.mergeStrategy) || opts.mergeStrategy === 'replace') {
                 model[frontendKey] = result;
-              } else if (options.mergeStrategy === 'array') {
+              } else if (opts.mergeStrategy === 'array') {
                 if (_.isArray(model[frontendKey])) {
                   model[frontendKey] = _.union(model[frontendKey], result);
                 } else {

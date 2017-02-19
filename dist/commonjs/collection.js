@@ -249,7 +249,7 @@ var Collection = exports.Collection = function () {
       return Promise.resolve(attr);
     }
 
-    return this._frontToBackend(attr).then(function (backAttr) {
+    return this._frontToBackend(attr, opts).then(function (backAttr) {
       return _this4._httpClient.fetch(apiRoute, {
         method: 'put',
         headers: { 'Content-Type': 'application/json' },
@@ -257,7 +257,7 @@ var Collection = exports.Collection = function () {
       }).then(function (response) {
         return response.json();
       }).then(function (attributes) {
-        return _this4._backToFrontend(attributes, backAttr, model);
+        return _this4._backToFrontend(attributes, backAttr, model, opts);
       });
     }).then(function () {
       return model;
@@ -307,6 +307,7 @@ var Collection = exports.Collection = function () {
   Collection.prototype._backToFrontend = function _backToFrontend(attributes, backAttr, model, options) {
     var _this6 = this;
 
+    var opts = options || {};
     var refKeys = this.refKeys();
 
     return Promise.all(_lodash2.default.map(backAttr, function (value, field) {
@@ -332,9 +333,9 @@ var Collection = exports.Collection = function () {
       }
 
       return frontendValue.then(function (result) {
-        if (!_lodash2.default.has(options.mergeStrategy) || options.mergeStrategy === 'replace') {
+        if (!_lodash2.default.has(opts.mergeStrategy) || opts.mergeStrategy === 'replace') {
           model[frontendKey] = result;
-        } else if (options.mergeStrategy === 'array') {
+        } else if (opts.mergeStrategy === 'array') {
           if (_lodash2.default.isArray(model[frontendKey])) {
             model[frontendKey] = _lodash2.default.union(model[frontendKey], result);
           } else {

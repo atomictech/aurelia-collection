@@ -250,7 +250,7 @@ define(['exports', 'lodash', 'aurelia-dependency-injection', 'aurelia-fetch-clie
         return Promise.resolve(attr);
       }
 
-      return this._frontToBackend(attr).then(function (backAttr) {
+      return this._frontToBackend(attr, opts).then(function (backAttr) {
         return _this4._httpClient.fetch(apiRoute, {
           method: 'put',
           headers: { 'Content-Type': 'application/json' },
@@ -258,7 +258,7 @@ define(['exports', 'lodash', 'aurelia-dependency-injection', 'aurelia-fetch-clie
         }).then(function (response) {
           return response.json();
         }).then(function (attributes) {
-          return _this4._backToFrontend(attributes, backAttr, model);
+          return _this4._backToFrontend(attributes, backAttr, model, opts);
         });
       }).then(function () {
         return model;
@@ -308,6 +308,7 @@ define(['exports', 'lodash', 'aurelia-dependency-injection', 'aurelia-fetch-clie
     Collection.prototype._backToFrontend = function _backToFrontend(attributes, backAttr, model, options) {
       var _this6 = this;
 
+      var opts = options || {};
       var refKeys = this.refKeys();
 
       return Promise.all(_lodash2.default.map(backAttr, function (value, field) {
@@ -333,9 +334,9 @@ define(['exports', 'lodash', 'aurelia-dependency-injection', 'aurelia-fetch-clie
         }
 
         return frontendValue.then(function (result) {
-          if (!_lodash2.default.has(options.mergeStrategy) || options.mergeStrategy === 'replace') {
+          if (!_lodash2.default.has(opts.mergeStrategy) || opts.mergeStrategy === 'replace') {
             model[frontendKey] = result;
-          } else if (options.mergeStrategy === 'array') {
+          } else if (opts.mergeStrategy === 'array') {
             if (_lodash2.default.isArray(model[frontendKey])) {
               model[frontendKey] = _lodash2.default.union(model[frontendKey], result);
             } else {

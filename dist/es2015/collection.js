@@ -209,12 +209,12 @@ export let Collection = class Collection {
       return Promise.resolve(attr);
     }
 
-    return this._frontToBackend(attr).then(backAttr => {
+    return this._frontToBackend(attr, opts).then(backAttr => {
       return this._httpClient.fetch(apiRoute, {
         method: 'put',
         headers: { 'Content-Type': 'application/json' },
         body: json(backAttr)
-      }).then(response => response.json()).then(attributes => this._backToFrontend(attributes, backAttr, model));
+      }).then(response => response.json()).then(attributes => this._backToFrontend(attributes, backAttr, model, opts));
     }).then(() => model);
   }
 
@@ -257,6 +257,7 @@ export let Collection = class Collection {
   }
 
   _backToFrontend(attributes, backAttr, model, options) {
+    const opts = options || {};
     const refKeys = this.refKeys();
 
     return Promise.all(_.map(backAttr, (value, field) => {
@@ -282,9 +283,9 @@ export let Collection = class Collection {
       }
 
       return frontendValue.then(result => {
-        if (!_.has(options.mergeStrategy) || options.mergeStrategy === 'replace') {
+        if (!_.has(opts.mergeStrategy) || opts.mergeStrategy === 'replace') {
           model[frontendKey] = result;
-        } else if (options.mergeStrategy === 'array') {
+        } else if (opts.mergeStrategy === 'array') {
           if (_.isArray(model[frontendKey])) {
             model[frontendKey] = _.union(model[frontendKey], result);
           } else {
