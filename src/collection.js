@@ -341,10 +341,6 @@ export class Collection {
     const opts = options || {};
     const apiRoute = opts.route || this.defaultRoute + model[this.modelid];
 
-    if (_.has(options, 'fireAndForget') && options.fireAndForget) {
-      return Promise.resolve(attr);
-    }
-
     return this._frontToBackend(attr, opts)
       .then(backAttr => {
         return this._httpClient
@@ -442,6 +438,8 @@ export class Collection {
       return frontendValue.then(result => {
         if (!_.has(opts.mergeStrategy) || opts.mergeStrategy === 'replace') {
           model[frontendKey] = result;
+        } else if (opts.mergeStrategy === 'ignore') {
+          return Promise.resolve(model);
         } else if (opts.mergeStrategy === 'array') {
           if (_.isArray(model[frontendKey])) {
             model[frontendKey] = _.union(model[frontendKey], result);
