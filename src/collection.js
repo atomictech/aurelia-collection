@@ -334,7 +334,7 @@ export class Collection {
    * Allow to send a PUT method to the backend to update the model, and expect a response with the updated model.
    * @param  {[type]} model   [The model instance to update]
    * @param  {[type]} attr    [A literal object of attribute that should be updated]
-   * @param  {[type]} options [{fireAndForget: boolean, mergeStrategy: 'replace|array|all'}, fireAndForget to ignore json response from the server, mergeStrategy to correctly merge data recieved]
+   * @param  {[type]} options [{mergeStrategy: 'replace|array|all|ignore'}, mergeStrategy to correctly merge data recieved]
    * @return {[type]}         [A Promise resolving with the updated model instance]
    */
   update(model, attr, options) {
@@ -345,7 +345,7 @@ export class Collection {
       return Promise.resolve(attr);
     }
 
-    return this._frontToBackend(attr)
+    return this._frontToBackend(attr, opts)
       .then(backAttr => {
         return this._httpClient
           .fetch(apiRoute, {
@@ -353,7 +353,7 @@ export class Collection {
             headers: { 'Content-Type': 'application/json' },
             body: json(backAttr)
           }).then(response => response.json())
-          .then(attributes => this._backToFrontend(attributes, backAttr, model));
+          .then(attributes => this._backToFrontend(attributes, backAttr, model, opts));
       }).then(() => model);
   }
 
@@ -411,6 +411,7 @@ export class Collection {
    * @return {[type]}            [description]
    */
   _backToFrontend(attributes, backAttr, model, options) {
+    const opts = options || {};
     const refKeys = this.refKeys();
 
     return Promise.all(_.map(backAttr, (value, field) => {
@@ -439,9 +440,9 @@ export class Collection {
 
       // Update the right key in the model, with updateStrategy to replace, merge only arrays or merge all the attribute.
       return frontendValue.then(result => {
-        if (!_.has(options.mergeStrategy) || options.mergeStrategy === 'replace') {
+        if (!_.has(opts.mergeStrategy) || opts.mergeStrategy === 'replace') {
           model[frontendKey] = result;
-        } else if (options.mergeStrategy === 'array') {
+        } else if (opts.mergeStrategy === 'array') {
           if (_.isArray(model[frontendKey])) {
             model[frontendKey] = _.union(model[frontendKey], result);
           } else {
