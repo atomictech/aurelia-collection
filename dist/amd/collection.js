@@ -246,6 +246,10 @@ define(['exports', 'lodash', 'aurelia-dependency-injection', 'aurelia-fetch-clie
       var opts = options || {};
       var apiRoute = opts.route || this.defaultRoute + model[this.modelid];
 
+      if (_lodash2.default.has(options, 'fireAndForget') && options.fireAndForget) {
+        return Promise.resolve(attr);
+      }
+
       return this._frontToBackend(attr).then(function (backAttr) {
         return _this4._httpClient.fetch(apiRoute, {
           method: 'put',
@@ -261,7 +265,7 @@ define(['exports', 'lodash', 'aurelia-dependency-injection', 'aurelia-fetch-clie
       });
     };
 
-    Collection.prototype._frontToBackend = function _frontToBackend(attributes) {
+    Collection.prototype._frontToBackend = function _frontToBackend(attributes, options) {
       var _this5 = this;
 
       var refKeys = this.refKeys();
@@ -301,7 +305,7 @@ define(['exports', 'lodash', 'aurelia-dependency-injection', 'aurelia-fetch-clie
       return Promise.resolve(attributes);
     };
 
-    Collection.prototype._backToFrontend = function _backToFrontend(attributes, backAttr, model) {
+    Collection.prototype._backToFrontend = function _backToFrontend(attributes, backAttr, model, options) {
       var _this6 = this;
 
       var refKeys = this.refKeys();
@@ -329,7 +333,18 @@ define(['exports', 'lodash', 'aurelia-dependency-injection', 'aurelia-fetch-clie
         }
 
         return frontendValue.then(function (result) {
-          return model[frontendKey] = result;
+          if (!_lodash2.default.has(options.mergeStrategy) || options.mergeStrategy === 'replace') {
+            model[frontendKey] = result;
+          } else if (options.mergeStrategy === 'array') {
+            if (_lodash2.default.isArray(model[frontendKey])) {
+              model[frontendKey] = _lodash2.default.union(model[frontendKey], result);
+            } else {
+              model[frontendKey] = result;
+            }
+          } else {
+            model[frontendKey] = _lodash2.default.merge(model[frontendKey], result);
+          }
+          return Promise.resolve(model);
         });
       }));
     };

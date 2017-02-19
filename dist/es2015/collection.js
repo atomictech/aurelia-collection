@@ -205,6 +205,10 @@ export let Collection = class Collection {
     const opts = options || {};
     const apiRoute = opts.route || this.defaultRoute + model[this.modelid];
 
+    if (_.has(options, 'fireAndForget') && options.fireAndForget) {
+      return Promise.resolve(attr);
+    }
+
     return this._frontToBackend(attr).then(backAttr => {
       return this._httpClient.fetch(apiRoute, {
         method: 'put',
@@ -214,7 +218,7 @@ export let Collection = class Collection {
     }).then(() => model);
   }
 
-  _frontToBackend(attributes) {
+  _frontToBackend(attributes, options) {
     const refKeys = this.refKeys();
 
     let _getIdFromData = data => {
@@ -252,7 +256,7 @@ export let Collection = class Collection {
     return Promise.resolve(attributes);
   }
 
-  _backToFrontend(attributes, backAttr, model) {
+  _backToFrontend(attributes, backAttr, model, options) {
     const refKeys = this.refKeys();
 
     return Promise.all(_.map(backAttr, (value, field) => {
@@ -277,7 +281,20 @@ export let Collection = class Collection {
         }
       }
 
-      return frontendValue.then(result => model[frontendKey] = result);
+      return frontendValue.then(result => {
+        if (!_.has(options.mergeStrategy) || options.mergeStrategy === 'replace') {
+          model[frontendKey] = result;
+        } else if (options.mergeStrategy === 'array') {
+          if (_.isArray(model[frontendKey])) {
+            model[frontendKey] = _.union(model[frontendKey], result);
+          } else {
+            model[frontendKey] = result;
+          }
+        } else {
+          model[frontendKey] = _.merge(model[frontendKey], result);
+        }
+        return Promise.resolve(model);
+      });
     }));
   }
 

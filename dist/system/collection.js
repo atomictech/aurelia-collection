@@ -251,6 +251,10 @@ System.register(['lodash', 'aurelia-dependency-injection', 'aurelia-fetch-client
           var opts = options || {};
           var apiRoute = opts.route || this.defaultRoute + model[this.modelid];
 
+          if (_.has(options, 'fireAndForget') && options.fireAndForget) {
+            return Promise.resolve(attr);
+          }
+
           return this._frontToBackend(attr).then(function (backAttr) {
             return _this4._httpClient.fetch(apiRoute, {
               method: 'put',
@@ -266,7 +270,7 @@ System.register(['lodash', 'aurelia-dependency-injection', 'aurelia-fetch-client
           });
         };
 
-        Collection.prototype._frontToBackend = function _frontToBackend(attributes) {
+        Collection.prototype._frontToBackend = function _frontToBackend(attributes, options) {
           var _this5 = this;
 
           var refKeys = this.refKeys();
@@ -306,7 +310,7 @@ System.register(['lodash', 'aurelia-dependency-injection', 'aurelia-fetch-client
           return Promise.resolve(attributes);
         };
 
-        Collection.prototype._backToFrontend = function _backToFrontend(attributes, backAttr, model) {
+        Collection.prototype._backToFrontend = function _backToFrontend(attributes, backAttr, model, options) {
           var _this6 = this;
 
           var refKeys = this.refKeys();
@@ -334,7 +338,18 @@ System.register(['lodash', 'aurelia-dependency-injection', 'aurelia-fetch-client
             }
 
             return frontendValue.then(function (result) {
-              return model[frontendKey] = result;
+              if (!_.has(options.mergeStrategy) || options.mergeStrategy === 'replace') {
+                model[frontendKey] = result;
+              } else if (options.mergeStrategy === 'array') {
+                if (_.isArray(model[frontendKey])) {
+                  model[frontendKey] = _.union(model[frontendKey], result);
+                } else {
+                  model[frontendKey] = result;
+                }
+              } else {
+                model[frontendKey] = _.merge(model[frontendKey], result);
+              }
+              return Promise.resolve(model);
             });
           }));
         };
