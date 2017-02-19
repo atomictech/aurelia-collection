@@ -283,62 +283,67 @@ export class Collection {
 
         // each reference attribute (described by the model class) is replaced by the matching model instance if we ask for population
         return Promise.all(
-            _.map(this.refKeys(model), item => {
-              item = _.defaults(item, {
-                backendKey: null,
-                collection: null,
-                frontendKey: null,
-                backendKeyDeletion: true
-              });
+          _.map(this.refKeys(model), item => {
+            item = _.defaults(item, {
+              backendKey: null,
+              collection: null,
+              frontendKey: null,
+              backendKeyDeletion: true
+            });
 
-              // collection and backendKey have to be defined.
-              let collection = this.container.get(Config).getCollection(item.collection);
-              if (_.isNil(item.backendKey)) {
-                return;
-              }
+            // collection and backendKey have to be defined.
+            let collection = this.container.get(Config).getCollection(item.collection);
+            if (_.isNil(item.backendKey)) {
+              return;
+            }
 
-              // If frontendKey has not been specified,
-              // we consider it as equal to backendKey
-              if (_.isNil(item.frontendKey)) {
-                item.frontendKey = item.backendKey;
-              }
+            // If frontendKey has not been specified,
+            // we consider it as equal to backendKey
+            if (_.isNil(item.frontendKey)) {
+              item.frontendKey = item.backendKey;
+            }
 
-              let itemData = model[item.backendKey];
+            let itemData = model[item.backendKey];
 
-              let itemDataPromise = Promise.resolve(null);
+            let itemDataPromise = Promise.resolve(null);
 
-              // item.collection can be null if we want to keep JSON data.
-              if (_.isNull(item.collection)) {
-                itemDataPromise = Promise.resolve(itemData);
-              } else if (!_.isNil(collection)) {
-                itemDataPromise = collection.get(itemData, childOpt);
-              }
+            // item.collection can be null if we want to keep JSON data.
+            if (_.isNull(item.collection)) {
+              itemDataPromise = Promise.resolve(itemData);
+            } else if (!_.isNil(collection)) {
+              itemDataPromise = collection.get(itemData, childOpt);
+            }
 
-              return itemDataPromise
-                .then(childrenItems => {
-                  // Replace the model key if necessary.
-                  if (!_.isNil(childrenItems) && isNotNullArray(childrenItems)) {
-                    if (item.backendKeyDeletion === true) {
-                      delete model[item.backendKey];
-                    }
-
-                    return model[item.frontendKey] = _.pull(childrenItems, null, undefined);
+            return itemDataPromise
+              .then(childrenItems => {
+                // Replace the model key if necessary.
+                if (!_.isNil(childrenItems) && isNotNullArray(childrenItems)) {
+                  if (item.backendKeyDeletion === true) {
+                    delete model[item.backendKey];
                   }
-                });
-            }))
+
+                  return model[item.frontendKey] = _.pull(childrenItems, null, undefined);
+                }
+              });
+          }))
           .then(() => model);
       });
   }
 
   /**
-   * [update description]
-   * @param  {[type]} model   [description]
-   * @param  {[type]} attr    [description]
-   * @return {[type]} options [description]
+   * Allow to send a PUT method to the backend to update the model, and expect a response with the updated model.
+   * @param  {[type]} model   [The model instance to update]
+   * @param  {[type]} attr    [A literal object of attribute that should be updated]
+   * @param  {[type]} options [{fireAndForget: boolean, mergeStrategy: 'replace|array|all'}, fireAndForget to ignore json response from the server, mergeStrategy to correctly merge data recieved]
+   * @return {[type]}         [A Promise resolving with the updated model instance]
    */
   update(model, attr, options) {
     const opts = options || {};
     const apiRoute = opts.route || this.defaultRoute + model[this.modelid];
+
+    if (_.has(options, 'fireAndForget') && options.fireAndForget) {
+      return Promise.resolve(attr);
+    }
 
     return this._frontToBackend(attr)
       .then(backAttr => {
@@ -355,9 +360,10 @@ export class Collection {
   /**
    * [_frontToBackend description]
    * @param  {[type]} attributes [description]
+   * @param  {[type]} options    [description]
    * @return {[type]}            [description]
    */
-  _frontToBackend(attributes) {
+  _frontToBackend(attributes, options) {
     const refKeys = this.refKeys();
 
     let _getIdFromData = (data) => {
@@ -401,9 +407,10 @@ export class Collection {
    * @param  {[type]} attributes [description]
    * @param  {[type]} backAttr   [description]
    * @param  {[type]} model      [description]
+   * @param  {[type]} options    [description]
    * @return {[type]}            [description]
    */
-  _backToFrontend(attributes, backAttr, model) {
+  _backToFrontend(attributes, backAttr, model, options) {
     const refKeys = this.refKeys();
 
     return Promise.all(_.map(backAttr, (value, field) => {
@@ -430,8 +437,21 @@ export class Collection {
         }
       }
 
-      // Update the right key in the model.
-      return frontendValue.then(result => model[frontendKey] = result);
+      // Update the right key in the model, with updateStrategy to replace, merge only arrays or merge all the attribute.
+      return frontendValue.then(result => {
+        if (!_.has(options.mergeStrategy) || options.mergeStrategy === 'replace') {
+          model[frontendKey] = result;
+        } else if (options.mergeStrategy === 'array') {
+          if (_.isArray(model[frontendKey])) {
+            model[frontendKey] = _.union(model[frontendKey], result);
+          } else {
+            model[frontendKey] = result;
+          }
+        } else {
+          model[frontendKey] = _.merge(model[frontendKey], result);
+        }
+        return Promise.resolve(model);
+      });
     }));
   }
 
