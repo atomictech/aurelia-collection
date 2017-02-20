@@ -436,7 +436,7 @@ export class Collection {
 
       // Update the right key in the model, with updateStrategy to replace, merge only arrays or merge all the attribute.
       return frontendValue.then(result => {
-        if (!_.has(opts.mergeStrategy) || opts.mergeStrategy === 'replace') {
+        if (!_.has(opts, 'mergeStrategy') || opts.mergeStrategy === 'replace') {
           model[frontendKey] = result;
         } else if (opts.mergeStrategy === 'ignore') {
           return Promise.resolve(model);
