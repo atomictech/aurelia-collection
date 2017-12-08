@@ -19,7 +19,7 @@ The pluing itself can handle multiple collections at the same time, that themsel
 
 ## Documentation
 
-You can find the complete API documentation at [aurelia-collection-doc](http://aurelia-collection-doc.atomictech.io).
+You can find the complete API documentation at [aurelia-collection-doc](https://aurelia-collection.readme.io).
 
 There also is a sample repository that show how to use aurelia-collection plugin in advanced use cases at [aurelia-collection-sample](http://github.com/atomictech/aurelia-collection-sample/).
 
@@ -111,7 +111,7 @@ class MyCollection extends Collection {
 
 ## Collection API overview 
 
-Here is a quick api overview of the Collection class. More can be found in the complete [documentation](http://aurelia-collection-doc.atomictech.io).
+Here is a quick api overview of the Collection class. More can be found in the complete [documentation](https://aurelia-collection.readme.io).
 
 ```js
 Collection
