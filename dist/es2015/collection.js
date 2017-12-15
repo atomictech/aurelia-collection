@@ -1,327 +1,424 @@
-import _ from 'lodash';
+"use strict";
 
-import { Container } from 'aurelia-dependency-injection';
-import { json } from 'aurelia-fetch-client';
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Collection = void 0;
 
-import { Config } from './config';
+var _lodash = _interopRequireDefault(require("lodash"));
 
-export let Collection = class Collection {
-  configure(key, modelClass, defaultRoute, modelid = '_id') {
-    this.container = Container.instance;
+var _aureliaDependencyInjection = require("aurelia-dependency-injection");
 
-    if (_.isUndefined(defaultRoute)) {
-      defaultRoute = '/api/' + key + '/';
-    }
+var _aureliaFetchClient = require("aurelia-fetch-client");
 
-    this.modelid = modelid;
-    this.defaultRoute = defaultRoute;
-    this.modelClass = modelClass;
-    this.collection = [];
+var _config = require("./config");
 
-    this._httpClient = null;
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+var Collection = function () {
+  function Collection() {
+    _classCallCheck(this, Collection);
   }
 
-  fromJSON(data, options) {
-    if (_.isNil(data)) {
-      return Promise.resolve(null);
-    }
+  _createClass(Collection, [{
+    key: "configure",
+    value: function configure(key, modelClass, defaultRoute) {
+      var modelid = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : '_id';
+      this.container = _aureliaDependencyInjection.Container.instance;
 
-    options = _.defaults(options, {
-      ignoreCollection: false,
-      force: false
-    });
-
-    let model = this._getFromCollection(data[this.modelid]);
-
-    if (_.isUndefined(model)) {
-      model = this.container.invoke(this.modelClass, data);
-
-      if (!options.ignoreCollection) {
-        this.collection.push(model);
+      if (_lodash.default.isUndefined(defaultRoute)) {
+        defaultRoute = '/api/' + key + '/';
       }
-    } else if (!this.isComplete(model) || options.force) {
-      this._syncFrom(model, data);
+
+      this.modelid = modelid;
+      this.defaultRoute = defaultRoute;
+      this.modelClass = modelClass;
+      this.collection = [];
+      this._httpClient = null;
     }
-    return Promise.resolve(model);
-  }
+  }, {
+    key: "fromJSON",
+    value: function fromJSON(data, options) {
+      if (_lodash.default.isNil(data)) {
+        return Promise.resolve(null);
+      }
 
-  toJSON(model, options) {
-    return _.isFunction(model.toJSON) ? model.toJSON() : model;
-  }
+      options = _lodash.default.defaults(options, {
+        ignoreCollection: false,
+        force: false
+      });
 
-  flush() {
-    this.collection = [];
-  }
+      var model = this._getFromCollection(data[this.modelid]);
 
-  isComplete(model) {
-    return true;
-  }
+      if (_lodash.default.isUndefined(model)) {
+        model = this.container.invoke(this.modelClass, data);
 
-  sync(model, options) {
-    return this.get(_.isString(model) ? model : model[this.modelid], _.merge({}, options, { force: true }));
-  }
+        if (!options.ignoreCollection) {
+          this.collection.push(model);
+        }
+      } else if (!this.isComplete(model) || options.force) {
+        this._syncFrom(model, data);
+      }
 
-  refKeys() {
-    return [];
-  }
+      return Promise.resolve(model);
+    }
+  }, {
+    key: "toJSON",
+    value: function toJSON(model, options) {
+      return _lodash.default.isFunction(model.toJSON) ? model.toJSON() : model;
+    }
+  }, {
+    key: "flush",
+    value: function flush() {
+      this.collection = [];
+    }
+  }, {
+    key: "isComplete",
+    value: function isComplete(model) {
+      return true;
+    }
+  }, {
+    key: "sync",
+    value: function sync(model, options) {
+      return this.get(_lodash.default.isString(model) ? model : model[this.modelid], _lodash.default.merge({}, options, {
+        force: true
+      }));
+    }
+  }, {
+    key: "refKeys",
+    value: function refKeys() {
+      return [];
+    }
+  }, {
+    key: "_setHttpClient",
+    value: function _setHttpClient(httpClient) {
+      this._httpClient = httpClient;
+    }
+  }, {
+    key: "_syncFrom",
+    value: function _syncFrom(model, data) {
+      _lodash.default.merge(model, data);
+    }
+  }, {
+    key: "_getFromCollection",
+    value: function _getFromCollection(id) {
+      var obj = {};
+      obj[this.modelid] = id;
+      return _lodash.default.find(this.collection, obj);
+    }
+  }, {
+    key: "_removeFromCollection",
+    value: function _removeFromCollection(id) {
+      var obj = {};
+      obj[this.modelid] = id;
 
-  _setHttpClient(httpClient) {
-    this._httpClient = httpClient;
-  }
+      _lodash.default.remove(this.collection, obj);
+    }
+  }, {
+    key: "_getById",
+    value: function _getById(id, options) {
+      var _this = this;
 
-  _syncFrom(model, data) {
-    _.merge(model, data);
-  }
+      var opts = options || {};
+      var apiRoute = opts.route || this.defaultRoute + id;
 
-  _getFromCollection(id) {
-    let obj = {};
-    obj[this.modelid] = id;
-    return _.find(this.collection, obj);
-  }
+      var model = this._getFromCollection(id);
 
-  _removeFromCollection(id) {
-    let obj = {};
-    obj[this.modelid] = id;
-    _.remove(this.collection, obj);
-  }
+      if (_lodash.default.isUndefined(model) || !this.isComplete(model) || opts.force) {
+        return this._httpClient.fetch(apiRoute).then(function (response) {
+          return response.json();
+        }).then(function (data) {
+          return _this.fromJSON(data, {
+            force: opts.force
+          });
+        });
+      }
 
-  _getById(id, options) {
-    const opts = options || {};
-    const apiRoute = opts.route || this.defaultRoute + id;
-    let model = this._getFromCollection(id);
+      return Promise.resolve(model);
+    }
+  }, {
+    key: "create",
+    value: function create(jsonModel, options) {
+      var _this2 = this;
 
-    if (_.isUndefined(model) || !this.isComplete(model) || opts.force) {
-      return this._httpClient.fetch(apiRoute).then(response => response.json()).then(data => {
-        return this.fromJSON(data, { force: opts.force });
+      var opts = options || {};
+      var apiRoute = opts.route || this.defaultRoute.slice(0, -1);
+      return this._httpClient.fetch(apiRoute, {
+        method: 'post',
+        body: (0, _aureliaFetchClient.json)(jsonModel)
+      }).then(function (response) {
+        return response.json();
+      }).then(function (data) {
+        return _this2.get(data);
       });
     }
+  }, {
+    key: "destroy",
+    value: function destroy(id, options) {
+      var opts = options || {};
+      var apiRoute = opts.route || this.defaultRoute + id;
 
-    return Promise.resolve(model);
-  }
+      this._removeFromCollection(id);
 
-  create(jsonModel, options) {
-    const opts = options || {};
-    const apiRoute = opts.route || this.defaultRoute.slice(0, -1);
+      return this._httpClient.fetch(apiRoute, {
+        method: 'delete'
+      }).then(function (response) {
+        return response.json();
+      });
+    }
+  }, {
+    key: "all",
+    value: function all() {
+      var _this3 = this;
 
-    return this._httpClient.fetch(apiRoute, {
-      method: 'post',
-      body: json(jsonModel)
-    }).then(response => response.json()).then(data => this.get(data));
-  }
+      return this._httpClient.fetch(this.defaultRoute).then(function (response) {
+        return response.json();
+      }).then(function (data) {
+        return _this3.get(data, options);
+      });
+    }
+  }, {
+    key: "get",
+    value: function get(data, options) {
+      var _this4 = this;
 
-  destroy(id, options) {
-    const opts = options || {};
-    const apiRoute = opts.route || this.defaultRoute + id;
+      options = _lodash.default.defaults(options, {
+        _child: false,
+        force: false,
+        recursive: false,
+        populate: false
+      });
+      var modelPromise = null;
 
-    this._removeFromCollection(id);
-    return this._httpClient.fetch(apiRoute, {
-      method: 'delete'
-    }).then(response => response.json());
-  }
-
-  all() {
-    return this._httpClient.fetch(this.defaultRoute).then(response => response.json()).then(data => {
-      return this.get(data, options);
-    });
-  }
-
-  get(data, options) {
-    options = _.defaults(options, {
-      _child: false,
-      force: false,
-      recursive: false,
-      populate: false
-    });
-
-    let modelPromise = null;
-
-    if (_.isEmpty(data) || _.isUndefined(data)) {
-      return Promise.resolve(data);
-    } else if (_.isArray(data)) {
-      return modelPromise = Promise.all(_.map(data, item => this.get(item, options)));
-    } else if (_.isObject(data)) {
-      modelPromise = this.fromJSON(data);
-    } else {
-      if (!options._child) {
-        modelPromise = this._getById(data, options);
+      if (_lodash.default.isEmpty(data) || _lodash.default.isUndefined(data)) {
+        return Promise.resolve(data);
+      } else if (_lodash.default.isArray(data)) {
+        return modelPromise = Promise.all(_lodash.default.map(data, function (item) {
+          return _this4.get(item, options);
+        }));
+      } else if (_lodash.default.isObject(data)) {
+        modelPromise = this.fromJSON(data);
       } else {
-        if (options.populate === true) {
+        if (!options._child) {
           modelPromise = this._getById(data, options);
         } else {
-          modelPromise = Promise.resolve(null);
+          if (options.populate === true) {
+            modelPromise = this._getById(data, options);
+          } else {
+            modelPromise = Promise.resolve(null);
+          }
         }
       }
+
+      return modelPromise.then(function (model) {
+        if (_lodash.default.isNil(model)) {
+          return model;
+        }
+
+        var childOpt = _lodash.default.cloneDeep(options);
+
+        delete childOpt.route;
+
+        if (childOpt._child) {
+          childOpt.populate = childOpt.recursive = childOpt.recursive === true;
+        }
+
+        childOpt._child = true;
+        return Promise.all(_lodash.default.map(_this4.refKeys(model), function (item) {
+          item = _lodash.default.defaults(item, {
+            backendKey: null,
+            collection: null,
+            frontendKey: null,
+            backendKeyDeletion: true
+          });
+
+          var collection = _this4.container.get(_config.Config).getCollection(item.collection);
+
+          if (_lodash.default.isNil(item.backendKey)) {
+            return;
+          }
+
+          if (_lodash.default.isNil(item.frontendKey)) {
+            item.frontendKey = item.backendKey;
+          }
+
+          var itemData = model[item.backendKey];
+          var itemDataPromise = Promise.resolve(null);
+
+          if (_lodash.default.isNull(item.collection)) {
+            itemDataPromise = Promise.resolve(itemData);
+          } else if (!_lodash.default.isNil(collection)) {
+            itemDataPromise = collection.get(itemData, childOpt);
+          }
+
+          return itemDataPromise.then(function (childrenItems) {
+            if (!_lodash.default.isNil(childrenItems) && isNotNullArray(childrenItems)) {
+              if (item.backendKeyDeletion === true) {
+                delete model[item.backendKey];
+              }
+
+              return model[item.frontendKey] = _lodash.default.pull(childrenItems, null, undefined);
+            }
+          });
+        })).then(function () {
+          return model;
+        });
+      });
     }
+  }, {
+    key: "find",
+    value: function find(predicate, fallbackUrl) {
+      var _this5 = this;
 
-    return modelPromise.then(model => {
-      if (_.isNil(model)) {
+      return new Promise(function (resolve, reject) {
+        var res = _lodash.default.find(_this5.collection, predicate);
+
+        if (_lodash.default.isUndefined(res)) {
+          if (_lodash.default.isUndefined(fallbackUrl)) {
+            return resolve();
+          }
+
+          return _this5._httpClient.fetch(fallbackUrl).then(function (response) {
+            return response.json();
+          }).then(function (data) {
+            return _this5.get(data, options);
+          });
+        }
+
+        return resolve(res);
+      });
+    }
+  }, {
+    key: "update",
+    value: function update(model, attr, options) {
+      var _this6 = this;
+
+      var opts = options || {};
+      var apiRoute = opts.route || this.defaultRoute + model[this.modelid];
+      return this._frontToBackend(attr, opts).then(function (backAttr) {
+        return _this6._httpClient.fetch(apiRoute, {
+          method: 'put',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: (0, _aureliaFetchClient.json)(backAttr)
+        }).then(function (response) {
+          return response.json();
+        }).then(function (attributes) {
+          return _this6._backToFrontend(attributes, backAttr, model, opts);
+        });
+      }).then(function () {
         return model;
-      }
+      });
+    }
+  }, {
+    key: "_frontToBackend",
+    value: function _frontToBackend(attributes, options) {
+      var _this7 = this;
 
-      let childOpt = _.cloneDeep(options);
+      var refKeys = this.refKeys();
 
-      delete childOpt.route;
+      var _getIdFromData = function _getIdFromData(data) {
+        if (_lodash.default.isString(data)) {
+          return data;
+        } else if (_lodash.default.isArray(data)) {
+          return _lodash.default.map(data, _getIdFromData);
+        } else if (_lodash.default.isObject(data)) {
+          return data[_this7.modelid];
+        }
 
-      if (childOpt._child) {
-        childOpt.populate = childOpt.recursive = childOpt.recursive === true;
-      }
-      childOpt._child = true;
+        return null;
+      };
 
-      return Promise.all(_.map(this.refKeys(model), item => {
-        item = _.defaults(item, {
-          backendKey: null,
-          collection: null,
-          frontendKey: null,
-          backendKeyDeletion: true
+      _lodash.default.each(attributes, function (value, field) {
+        var item = _lodash.default.find(refKeys, {
+          frontendKey: field
         });
 
-        let collection = this.container.get(Config).getCollection(item.collection);
-        if (_.isNil(item.backendKey)) {
+        if (_lodash.default.isUndefined(item)) {
           return;
         }
 
-        if (_.isNil(item.frontendKey)) {
-          item.frontendKey = item.backendKey;
-        }
-
-        let itemData = model[item.backendKey];
-
-        let itemDataPromise = Promise.resolve(null);
-
-        if (_.isNull(item.collection)) {
-          itemDataPromise = Promise.resolve(itemData);
-        } else if (!_.isNil(collection)) {
-          itemDataPromise = collection.get(itemData, childOpt);
-        }
-
-        return itemDataPromise.then(childrenItems => {
-          if (!_.isNil(childrenItems) && isNotNullArray(childrenItems)) {
-            if (item.backendKeyDeletion === true) {
-              delete model[item.backendKey];
-            }
-
-            return model[item.frontendKey] = _.pull(childrenItems, null, undefined);
-          }
-        });
-      })).then(() => model);
-    });
-  }
-
-  find(predicate, fallbackUrl) {
-    return new Promise((resolve, reject) => {
-      let res = _.find(this.collection, predicate);
-      if (_.isUndefined(res)) {
-        if (_.isUndefined(fallbackUrl)) {
-          return resolve();
-        }
-
-        return this._httpClient.fetch(fallbackUrl).then(response => response.json()).then(data => {
-          return this.get(data, options);
-        });
-      }
-
-      return resolve(res);
-    });
-  }
-
-  update(model, attr, options) {
-    const opts = options || {};
-    const apiRoute = opts.route || this.defaultRoute + model[this.modelid];
-
-    return this._frontToBackend(attr, opts).then(backAttr => {
-      return this._httpClient.fetch(apiRoute, {
-        method: 'put',
-        headers: { 'Content-Type': 'application/json' },
-        body: json(backAttr)
-      }).then(response => response.json()).then(attributes => this._backToFrontend(attributes, backAttr, model, opts));
-    }).then(() => model);
-  }
-
-  _frontToBackend(attributes, options) {
-    const refKeys = this.refKeys();
-
-    let _getIdFromData = data => {
-      if (_.isString(data)) {
-        return data;
-      } else if (_.isArray(data)) {
-        return _.map(data, _getIdFromData);
-      } else if (_.isObject(data)) {
-        return data[this.modelid];
-      }
-      return null;
-    };
-
-    _.each(attributes, (value, field) => {
-      let item = _.find(refKeys, { frontendKey: field });
-
-      if (_.isUndefined(item)) {
-        return;
-      }
-
-      item = _.defaults(item, {
-        backendKey: null,
-        frontendKey: null,
-        backendKeyDeletion: true
-      });
-
-      if (item.backendKeyDeletion) {
-        delete attributes[item.frontendKey];
-      }
-
-      let id = _getIdFromData(value);
-      attributes[item.backendKey] = _.isUndefined(id) ? null : id;
-    });
-
-    return Promise.resolve(attributes);
-  }
-
-  _backToFrontend(attributes, backAttr, model, options) {
-    const opts = options || {};
-    const refKeys = this.refKeys();
-
-    return Promise.all(_.map(backAttr, (value, field) => {
-      let frontendKey = field;
-      let backendKey = field;
-      let frontendValue = Promise.resolve(attributes[backendKey]);
-
-      let item = _.find(refKeys, { backendKey: field });
-      if (!_.isUndefined(item)) {
-        item = _.defaults(item, {
+        item = _lodash.default.defaults(item, {
           backendKey: null,
           frontendKey: null,
-          collection: null,
           backendKeyDeletion: true
         });
 
-        frontendKey = item.frontendKey;
-        backendKey = item.backendKey;
-
-        if (!_.isNull(item.collection)) {
-          frontendValue = this.container.get(Config).getCollection(item.collection).get(attributes[backendKey]);
+        if (item.backendKeyDeletion) {
+          delete attributes[item.frontendKey];
         }
-      }
 
-      return frontendValue.then(result => {
-        if (!_.has(opts, 'mergeStrategy') || opts.mergeStrategy === 'replace') {
-          model[frontendKey] = result;
-        } else if (opts.mergeStrategy === 'ignore') {
-          return Promise.resolve(model);
-        } else if (opts.mergeStrategy === 'array') {
-          if (_.isArray(model[frontendKey])) {
-            model[frontendKey] = _.union(model[frontendKey], result);
-          } else {
-            model[frontendKey] = result;
-          }
-        } else {
-          model[frontendKey] = _.merge(model[frontendKey], result);
-        }
-        return Promise.resolve(model);
+        var id = _getIdFromData(value);
+
+        attributes[item.backendKey] = _lodash.default.isUndefined(id) ? null : id;
       });
-    }));
-  }
 
-};
+      return Promise.resolve(attributes);
+    }
+  }, {
+    key: "_backToFrontend",
+    value: function _backToFrontend(attributes, backAttr, model, options) {
+      var _this8 = this;
+
+      var opts = options || {};
+      var refKeys = this.refKeys();
+      return Promise.all(_lodash.default.map(backAttr, function (value, field) {
+        var frontendKey = field;
+        var backendKey = field;
+        var frontendValue = Promise.resolve(attributes[backendKey]);
+
+        var item = _lodash.default.find(refKeys, {
+          backendKey: field
+        });
+
+        if (!_lodash.default.isUndefined(item)) {
+          item = _lodash.default.defaults(item, {
+            backendKey: null,
+            frontendKey: null,
+            collection: null,
+            backendKeyDeletion: true
+          });
+          frontendKey = item.frontendKey;
+          backendKey = item.backendKey;
+
+          if (!_lodash.default.isNull(item.collection)) {
+            frontendValue = _this8.container.get(_config.Config).getCollection(item.collection).get(attributes[backendKey]);
+          }
+        }
+
+        return frontendValue.then(function (result) {
+          if (!_lodash.default.has(opts, 'mergeStrategy') || opts.mergeStrategy === 'replace') {
+            model[frontendKey] = result;
+          } else if (opts.mergeStrategy === 'ignore') {
+            return Promise.resolve(model);
+          } else if (opts.mergeStrategy === 'array') {
+            if (_lodash.default.isArray(model[frontendKey])) {
+              model[frontendKey] = _lodash.default.union(model[frontendKey], result);
+            } else {
+              model[frontendKey] = result;
+            }
+          } else {
+            model[frontendKey] = _lodash.default.merge(model[frontendKey], result);
+          }
+
+          return Promise.resolve(model);
+        });
+      }));
+    }
+  }]);
+
+  return Collection;
+}();
+
+exports.Collection = Collection;
 
 function isNotNullArray(arr) {
-  return !_.isArray(arr) || _.isEmpty(arr) || _.some(arr, _.negate(_.isNil));
+  return !_lodash.default.isArray(arr) || _lodash.default.isEmpty(arr) || _lodash.default.some(arr, _lodash.default.negate(_lodash.default.isNil));
 }

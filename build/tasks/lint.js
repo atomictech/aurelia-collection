@@ -1,11 +1,15 @@
-var gulp = require('gulp');
-var paths = require('../paths');
-var eslint = require('gulp-eslint');
+import gulp from 'gulp';
+import eslint from 'gulp-eslint';
+
+import paths from '../paths';
 
 // runs eslint on all .js files
-gulp.task('lint', function() {
+function lint() {
   return gulp.src(paths.source)
     .pipe(eslint())
     .pipe(eslint.format())
     .pipe(eslint.failOnError());
-});
+}
+export { lint };
+
+gulp.task(lint);

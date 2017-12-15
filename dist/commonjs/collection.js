@@ -1,386 +1,424 @@
-'use strict';
+"use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.Collection = undefined;
+exports.Collection = void 0;
 
-var _lodash = require('lodash');
+var _lodash = _interopRequireDefault(require("lodash"));
 
-var _lodash2 = _interopRequireDefault(_lodash);
+var _aureliaDependencyInjection = require("aurelia-dependency-injection");
 
-var _aureliaDependencyInjection = require('aurelia-dependency-injection');
+var _aureliaFetchClient = require("aurelia-fetch-client");
 
-var _aureliaFetchClient = require('aurelia-fetch-client');
-
-var _config = require('./config');
+var _config = require("./config");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var Collection = exports.Collection = function () {
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+var Collection = function () {
   function Collection() {
     _classCallCheck(this, Collection);
   }
 
-  Collection.prototype.configure = function configure(key, modelClass, defaultRoute) {
-    var modelid = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : '_id';
+  _createClass(Collection, [{
+    key: "configure",
+    value: function configure(key, modelClass, defaultRoute) {
+      var modelid = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : '_id';
+      this.container = _aureliaDependencyInjection.Container.instance;
 
-    this.container = _aureliaDependencyInjection.Container.instance;
-
-    if (_lodash2.default.isUndefined(defaultRoute)) {
-      defaultRoute = '/api/' + key + '/';
-    }
-
-    this.modelid = modelid;
-    this.defaultRoute = defaultRoute;
-    this.modelClass = modelClass;
-    this.collection = [];
-
-    this._httpClient = null;
-  };
-
-  Collection.prototype.fromJSON = function fromJSON(data, options) {
-    if (_lodash2.default.isNil(data)) {
-      return Promise.resolve(null);
-    }
-
-    options = _lodash2.default.defaults(options, {
-      ignoreCollection: false,
-      force: false
-    });
-
-    var model = this._getFromCollection(data[this.modelid]);
-
-    if (_lodash2.default.isUndefined(model)) {
-      model = this.container.invoke(this.modelClass, data);
-
-      if (!options.ignoreCollection) {
-        this.collection.push(model);
+      if (_lodash.default.isUndefined(defaultRoute)) {
+        defaultRoute = '/api/' + key + '/';
       }
-    } else if (!this.isComplete(model) || options.force) {
-      this._syncFrom(model, data);
+
+      this.modelid = modelid;
+      this.defaultRoute = defaultRoute;
+      this.modelClass = modelClass;
+      this.collection = [];
+      this._httpClient = null;
     }
-    return Promise.resolve(model);
-  };
+  }, {
+    key: "fromJSON",
+    value: function fromJSON(data, options) {
+      if (_lodash.default.isNil(data)) {
+        return Promise.resolve(null);
+      }
 
-  Collection.prototype.toJSON = function toJSON(model, options) {
-    return _lodash2.default.isFunction(model.toJSON) ? model.toJSON() : model;
-  };
+      options = _lodash.default.defaults(options, {
+        ignoreCollection: false,
+        force: false
+      });
 
-  Collection.prototype.flush = function flush() {
-    this.collection = [];
-  };
+      var model = this._getFromCollection(data[this.modelid]);
 
-  Collection.prototype.isComplete = function isComplete(model) {
-    return true;
-  };
+      if (_lodash.default.isUndefined(model)) {
+        model = this.container.invoke(this.modelClass, data);
 
-  Collection.prototype.sync = function sync(model, options) {
-    return this.get(_lodash2.default.isString(model) ? model : model[this.modelid], _lodash2.default.merge({}, options, { force: true }));
-  };
+        if (!options.ignoreCollection) {
+          this.collection.push(model);
+        }
+      } else if (!this.isComplete(model) || options.force) {
+        this._syncFrom(model, data);
+      }
 
-  Collection.prototype.refKeys = function refKeys() {
-    return [];
-  };
+      return Promise.resolve(model);
+    }
+  }, {
+    key: "toJSON",
+    value: function toJSON(model, options) {
+      return _lodash.default.isFunction(model.toJSON) ? model.toJSON() : model;
+    }
+  }, {
+    key: "flush",
+    value: function flush() {
+      this.collection = [];
+    }
+  }, {
+    key: "isComplete",
+    value: function isComplete(model) {
+      return true;
+    }
+  }, {
+    key: "sync",
+    value: function sync(model, options) {
+      return this.get(_lodash.default.isString(model) ? model : model[this.modelid], _lodash.default.merge({}, options, {
+        force: true
+      }));
+    }
+  }, {
+    key: "refKeys",
+    value: function refKeys() {
+      return [];
+    }
+  }, {
+    key: "_setHttpClient",
+    value: function _setHttpClient(httpClient) {
+      this._httpClient = httpClient;
+    }
+  }, {
+    key: "_syncFrom",
+    value: function _syncFrom(model, data) {
+      _lodash.default.merge(model, data);
+    }
+  }, {
+    key: "_getFromCollection",
+    value: function _getFromCollection(id) {
+      var obj = {};
+      obj[this.modelid] = id;
+      return _lodash.default.find(this.collection, obj);
+    }
+  }, {
+    key: "_removeFromCollection",
+    value: function _removeFromCollection(id) {
+      var obj = {};
+      obj[this.modelid] = id;
 
-  Collection.prototype._setHttpClient = function _setHttpClient(httpClient) {
-    this._httpClient = httpClient;
-  };
+      _lodash.default.remove(this.collection, obj);
+    }
+  }, {
+    key: "_getById",
+    value: function _getById(id, options) {
+      var _this = this;
 
-  Collection.prototype._syncFrom = function _syncFrom(model, data) {
-    _lodash2.default.merge(model, data);
-  };
+      var opts = options || {};
+      var apiRoute = opts.route || this.defaultRoute + id;
 
-  Collection.prototype._getFromCollection = function _getFromCollection(id) {
-    var obj = {};
-    obj[this.modelid] = id;
-    return _lodash2.default.find(this.collection, obj);
-  };
+      var model = this._getFromCollection(id);
 
-  Collection.prototype._removeFromCollection = function _removeFromCollection(id) {
-    var obj = {};
-    obj[this.modelid] = id;
-    _lodash2.default.remove(this.collection, obj);
-  };
+      if (_lodash.default.isUndefined(model) || !this.isComplete(model) || opts.force) {
+        return this._httpClient.fetch(apiRoute).then(function (response) {
+          return response.json();
+        }).then(function (data) {
+          return _this.fromJSON(data, {
+            force: opts.force
+          });
+        });
+      }
 
-  Collection.prototype._getById = function _getById(id, options) {
-    var _this = this;
+      return Promise.resolve(model);
+    }
+  }, {
+    key: "create",
+    value: function create(jsonModel, options) {
+      var _this2 = this;
 
-    var opts = options || {};
-    var apiRoute = opts.route || this.defaultRoute + id;
-    var model = this._getFromCollection(id);
-
-    if (_lodash2.default.isUndefined(model) || !this.isComplete(model) || opts.force) {
-      return this._httpClient.fetch(apiRoute).then(function (response) {
+      var opts = options || {};
+      var apiRoute = opts.route || this.defaultRoute.slice(0, -1);
+      return this._httpClient.fetch(apiRoute, {
+        method: 'post',
+        body: (0, _aureliaFetchClient.json)(jsonModel)
+      }).then(function (response) {
         return response.json();
       }).then(function (data) {
-        return _this.fromJSON(data, { force: opts.force });
+        return _this2.get(data);
       });
     }
+  }, {
+    key: "destroy",
+    value: function destroy(id, options) {
+      var opts = options || {};
+      var apiRoute = opts.route || this.defaultRoute + id;
 
-    return Promise.resolve(model);
-  };
+      this._removeFromCollection(id);
 
-  Collection.prototype.create = function create(jsonModel, options) {
-    var _this2 = this;
+      return this._httpClient.fetch(apiRoute, {
+        method: 'delete'
+      }).then(function (response) {
+        return response.json();
+      });
+    }
+  }, {
+    key: "all",
+    value: function all() {
+      var _this3 = this;
 
-    var opts = options || {};
-    var apiRoute = opts.route || this.defaultRoute.slice(0, -1);
+      return this._httpClient.fetch(this.defaultRoute).then(function (response) {
+        return response.json();
+      }).then(function (data) {
+        return _this3.get(data, options);
+      });
+    }
+  }, {
+    key: "get",
+    value: function get(data, options) {
+      var _this4 = this;
 
-    return this._httpClient.fetch(apiRoute, {
-      method: 'post',
-      body: (0, _aureliaFetchClient.json)(jsonModel)
-    }).then(function (response) {
-      return response.json();
-    }).then(function (data) {
-      return _this2.get(data);
-    });
-  };
+      options = _lodash.default.defaults(options, {
+        _child: false,
+        force: false,
+        recursive: false,
+        populate: false
+      });
+      var modelPromise = null;
 
-  Collection.prototype.destroy = function destroy(id, options) {
-    var opts = options || {};
-    var apiRoute = opts.route || this.defaultRoute + id;
-
-    this._removeFromCollection(id);
-    return this._httpClient.fetch(apiRoute, {
-      method: 'delete'
-    }).then(function (response) {
-      return response.json();
-    });
-  };
-
-  Collection.prototype.all = function all() {
-    var _this3 = this;
-
-    return this._httpClient.fetch(this.defaultRoute).then(function (response) {
-      return response.json();
-    }).then(function (data) {
-      return _this3.get(data, options);
-    });
-  };
-
-  Collection.prototype.get = function get(data, options) {
-    var _this4 = this;
-
-    options = _lodash2.default.defaults(options, {
-      _child: false,
-      force: false,
-      recursive: false,
-      populate: false
-    });
-
-    var modelPromise = null;
-
-    if (_lodash2.default.isEmpty(data) || _lodash2.default.isUndefined(data)) {
-      return Promise.resolve(data);
-    } else if (_lodash2.default.isArray(data)) {
-      return modelPromise = Promise.all(_lodash2.default.map(data, function (item) {
-        return _this4.get(item, options);
-      }));
-    } else if (_lodash2.default.isObject(data)) {
-      modelPromise = this.fromJSON(data);
-    } else {
-      if (!options._child) {
-        modelPromise = this._getById(data, options);
+      if (_lodash.default.isEmpty(data) || _lodash.default.isUndefined(data)) {
+        return Promise.resolve(data);
+      } else if (_lodash.default.isArray(data)) {
+        return modelPromise = Promise.all(_lodash.default.map(data, function (item) {
+          return _this4.get(item, options);
+        }));
+      } else if (_lodash.default.isObject(data)) {
+        modelPromise = this.fromJSON(data);
       } else {
-        if (options.populate === true) {
+        if (!options._child) {
           modelPromise = this._getById(data, options);
         } else {
-          modelPromise = Promise.resolve(null);
+          if (options.populate === true) {
+            modelPromise = this._getById(data, options);
+          } else {
+            modelPromise = Promise.resolve(null);
+          }
         }
       }
+
+      return modelPromise.then(function (model) {
+        if (_lodash.default.isNil(model)) {
+          return model;
+        }
+
+        var childOpt = _lodash.default.cloneDeep(options);
+
+        delete childOpt.route;
+
+        if (childOpt._child) {
+          childOpt.populate = childOpt.recursive = childOpt.recursive === true;
+        }
+
+        childOpt._child = true;
+        return Promise.all(_lodash.default.map(_this4.refKeys(model), function (item) {
+          item = _lodash.default.defaults(item, {
+            backendKey: null,
+            collection: null,
+            frontendKey: null,
+            backendKeyDeletion: true
+          });
+
+          var collection = _this4.container.get(_config.Config).getCollection(item.collection);
+
+          if (_lodash.default.isNil(item.backendKey)) {
+            return;
+          }
+
+          if (_lodash.default.isNil(item.frontendKey)) {
+            item.frontendKey = item.backendKey;
+          }
+
+          var itemData = model[item.backendKey];
+          var itemDataPromise = Promise.resolve(null);
+
+          if (_lodash.default.isNull(item.collection)) {
+            itemDataPromise = Promise.resolve(itemData);
+          } else if (!_lodash.default.isNil(collection)) {
+            itemDataPromise = collection.get(itemData, childOpt);
+          }
+
+          return itemDataPromise.then(function (childrenItems) {
+            if (!_lodash.default.isNil(childrenItems) && isNotNullArray(childrenItems)) {
+              if (item.backendKeyDeletion === true) {
+                delete model[item.backendKey];
+              }
+
+              return model[item.frontendKey] = _lodash.default.pull(childrenItems, null, undefined);
+            }
+          });
+        })).then(function () {
+          return model;
+        });
+      });
     }
+  }, {
+    key: "find",
+    value: function find(predicate, fallbackUrl) {
+      var _this5 = this;
 
-    return modelPromise.then(function (model) {
-      if (_lodash2.default.isNil(model)) {
+      return new Promise(function (resolve, reject) {
+        var res = _lodash.default.find(_this5.collection, predicate);
+
+        if (_lodash.default.isUndefined(res)) {
+          if (_lodash.default.isUndefined(fallbackUrl)) {
+            return resolve();
+          }
+
+          return _this5._httpClient.fetch(fallbackUrl).then(function (response) {
+            return response.json();
+          }).then(function (data) {
+            return _this5.get(data, options);
+          });
+        }
+
+        return resolve(res);
+      });
+    }
+  }, {
+    key: "update",
+    value: function update(model, attr, options) {
+      var _this6 = this;
+
+      var opts = options || {};
+      var apiRoute = opts.route || this.defaultRoute + model[this.modelid];
+      return this._frontToBackend(attr, opts).then(function (backAttr) {
+        return _this6._httpClient.fetch(apiRoute, {
+          method: 'put',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: (0, _aureliaFetchClient.json)(backAttr)
+        }).then(function (response) {
+          return response.json();
+        }).then(function (attributes) {
+          return _this6._backToFrontend(attributes, backAttr, model, opts);
+        });
+      }).then(function () {
         return model;
-      }
+      });
+    }
+  }, {
+    key: "_frontToBackend",
+    value: function _frontToBackend(attributes, options) {
+      var _this7 = this;
 
-      var childOpt = _lodash2.default.cloneDeep(options);
+      var refKeys = this.refKeys();
 
-      delete childOpt.route;
+      var _getIdFromData = function _getIdFromData(data) {
+        if (_lodash.default.isString(data)) {
+          return data;
+        } else if (_lodash.default.isArray(data)) {
+          return _lodash.default.map(data, _getIdFromData);
+        } else if (_lodash.default.isObject(data)) {
+          return data[_this7.modelid];
+        }
 
-      if (childOpt._child) {
-        childOpt.populate = childOpt.recursive = childOpt.recursive === true;
-      }
-      childOpt._child = true;
+        return null;
+      };
 
-      return Promise.all(_lodash2.default.map(_this4.refKeys(model), function (item) {
-        item = _lodash2.default.defaults(item, {
-          backendKey: null,
-          collection: null,
-          frontendKey: null,
-          backendKeyDeletion: true
+      _lodash.default.each(attributes, function (value, field) {
+        var item = _lodash.default.find(refKeys, {
+          frontendKey: field
         });
 
-        var collection = _this4.container.get(_config.Config).getCollection(item.collection);
-        if (_lodash2.default.isNil(item.backendKey)) {
+        if (_lodash.default.isUndefined(item)) {
           return;
         }
 
-        if (_lodash2.default.isNil(item.frontendKey)) {
-          item.frontendKey = item.backendKey;
-        }
-
-        var itemData = model[item.backendKey];
-
-        var itemDataPromise = Promise.resolve(null);
-
-        if (_lodash2.default.isNull(item.collection)) {
-          itemDataPromise = Promise.resolve(itemData);
-        } else if (!_lodash2.default.isNil(collection)) {
-          itemDataPromise = collection.get(itemData, childOpt);
-        }
-
-        return itemDataPromise.then(function (childrenItems) {
-          if (!_lodash2.default.isNil(childrenItems) && isNotNullArray(childrenItems)) {
-            if (item.backendKeyDeletion === true) {
-              delete model[item.backendKey];
-            }
-
-            return model[item.frontendKey] = _lodash2.default.pull(childrenItems, null, undefined);
-          }
-        });
-      })).then(function () {
-        return model;
-      });
-    });
-  };
-
-  Collection.prototype.find = function find(predicate, fallbackUrl) {
-    var _this5 = this;
-
-    return new Promise(function (resolve, reject) {
-      var res = _lodash2.default.find(_this5.collection, predicate);
-      if (_lodash2.default.isUndefined(res)) {
-        if (_lodash2.default.isUndefined(fallbackUrl)) {
-          return resolve();
-        }
-
-        return _this5._httpClient.fetch(fallbackUrl).then(function (response) {
-          return response.json();
-        }).then(function (data) {
-          return _this5.get(data, options);
-        });
-      }
-
-      return resolve(res);
-    });
-  };
-
-  Collection.prototype.update = function update(model, attr, options) {
-    var _this6 = this;
-
-    var opts = options || {};
-    var apiRoute = opts.route || this.defaultRoute + model[this.modelid];
-
-    return this._frontToBackend(attr, opts).then(function (backAttr) {
-      return _this6._httpClient.fetch(apiRoute, {
-        method: 'put',
-        headers: { 'Content-Type': 'application/json' },
-        body: (0, _aureliaFetchClient.json)(backAttr)
-      }).then(function (response) {
-        return response.json();
-      }).then(function (attributes) {
-        return _this6._backToFrontend(attributes, backAttr, model, opts);
-      });
-    }).then(function () {
-      return model;
-    });
-  };
-
-  Collection.prototype._frontToBackend = function _frontToBackend(attributes, options) {
-    var _this7 = this;
-
-    var refKeys = this.refKeys();
-
-    var _getIdFromData = function _getIdFromData(data) {
-      if (_lodash2.default.isString(data)) {
-        return data;
-      } else if (_lodash2.default.isArray(data)) {
-        return _lodash2.default.map(data, _getIdFromData);
-      } else if (_lodash2.default.isObject(data)) {
-        return data[_this7.modelid];
-      }
-      return null;
-    };
-
-    _lodash2.default.each(attributes, function (value, field) {
-      var item = _lodash2.default.find(refKeys, { frontendKey: field });
-
-      if (_lodash2.default.isUndefined(item)) {
-        return;
-      }
-
-      item = _lodash2.default.defaults(item, {
-        backendKey: null,
-        frontendKey: null,
-        backendKeyDeletion: true
-      });
-
-      if (item.backendKeyDeletion) {
-        delete attributes[item.frontendKey];
-      }
-
-      var id = _getIdFromData(value);
-      attributes[item.backendKey] = _lodash2.default.isUndefined(id) ? null : id;
-    });
-
-    return Promise.resolve(attributes);
-  };
-
-  Collection.prototype._backToFrontend = function _backToFrontend(attributes, backAttr, model, options) {
-    var _this8 = this;
-
-    var opts = options || {};
-    var refKeys = this.refKeys();
-
-    return Promise.all(_lodash2.default.map(backAttr, function (value, field) {
-      var frontendKey = field;
-      var backendKey = field;
-      var frontendValue = Promise.resolve(attributes[backendKey]);
-
-      var item = _lodash2.default.find(refKeys, { backendKey: field });
-      if (!_lodash2.default.isUndefined(item)) {
-        item = _lodash2.default.defaults(item, {
+        item = _lodash.default.defaults(item, {
           backendKey: null,
           frontendKey: null,
-          collection: null,
           backendKeyDeletion: true
         });
 
-        frontendKey = item.frontendKey;
-        backendKey = item.backendKey;
-
-        if (!_lodash2.default.isNull(item.collection)) {
-          frontendValue = _this8.container.get(_config.Config).getCollection(item.collection).get(attributes[backendKey]);
+        if (item.backendKeyDeletion) {
+          delete attributes[item.frontendKey];
         }
-      }
 
-      return frontendValue.then(function (result) {
-        if (!_lodash2.default.has(opts, 'mergeStrategy') || opts.mergeStrategy === 'replace') {
-          model[frontendKey] = result;
-        } else if (opts.mergeStrategy === 'ignore') {
-          return Promise.resolve(model);
-        } else if (opts.mergeStrategy === 'array') {
-          if (_lodash2.default.isArray(model[frontendKey])) {
-            model[frontendKey] = _lodash2.default.union(model[frontendKey], result);
-          } else {
-            model[frontendKey] = result;
-          }
-        } else {
-          model[frontendKey] = _lodash2.default.merge(model[frontendKey], result);
-        }
-        return Promise.resolve(model);
+        var id = _getIdFromData(value);
+
+        attributes[item.backendKey] = _lodash.default.isUndefined(id) ? null : id;
       });
-    }));
-  };
+
+      return Promise.resolve(attributes);
+    }
+  }, {
+    key: "_backToFrontend",
+    value: function _backToFrontend(attributes, backAttr, model, options) {
+      var _this8 = this;
+
+      var opts = options || {};
+      var refKeys = this.refKeys();
+      return Promise.all(_lodash.default.map(backAttr, function (value, field) {
+        var frontendKey = field;
+        var backendKey = field;
+        var frontendValue = Promise.resolve(attributes[backendKey]);
+
+        var item = _lodash.default.find(refKeys, {
+          backendKey: field
+        });
+
+        if (!_lodash.default.isUndefined(item)) {
+          item = _lodash.default.defaults(item, {
+            backendKey: null,
+            frontendKey: null,
+            collection: null,
+            backendKeyDeletion: true
+          });
+          frontendKey = item.frontendKey;
+          backendKey = item.backendKey;
+
+          if (!_lodash.default.isNull(item.collection)) {
+            frontendValue = _this8.container.get(_config.Config).getCollection(item.collection).get(attributes[backendKey]);
+          }
+        }
+
+        return frontendValue.then(function (result) {
+          if (!_lodash.default.has(opts, 'mergeStrategy') || opts.mergeStrategy === 'replace') {
+            model[frontendKey] = result;
+          } else if (opts.mergeStrategy === 'ignore') {
+            return Promise.resolve(model);
+          } else if (opts.mergeStrategy === 'array') {
+            if (_lodash.default.isArray(model[frontendKey])) {
+              model[frontendKey] = _lodash.default.union(model[frontendKey], result);
+            } else {
+              model[frontendKey] = result;
+            }
+          } else {
+            model[frontendKey] = _lodash.default.merge(model[frontendKey], result);
+          }
+
+          return Promise.resolve(model);
+        });
+      }));
+    }
+  }]);
 
   return Collection;
 }();
 
+exports.Collection = Collection;
+
 function isNotNullArray(arr) {
-  return !_lodash2.default.isArray(arr) || _lodash2.default.isEmpty(arr) || _lodash2.default.some(arr, _lodash2.default.negate(_lodash2.default.isNil));
+  return !_lodash.default.isArray(arr) || _lodash.default.isEmpty(arr) || _lodash.default.some(arr, _lodash.default.negate(_lodash.default.isNil));
 }

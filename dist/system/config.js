@@ -1,15 +1,13 @@
-'use strict';
-
-System.register(['lodash', 'aurelia-framework', 'aurelia-dependency-injection', 'aurelia-fetch-client', './collection'], function (_export, _context) {
+System.register(["lodash", "aurelia-framework", "aurelia-dependency-injection", "aurelia-fetch-client", "./collection"], function (_export, _context) {
   "use strict";
 
   var _, Aurelia, inject, Container, HttpClient, Collection, _dec, _class, Config;
 
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+  function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+  function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
   function ObjectCreator(data) {
     return _.cloneDeep(data);
@@ -29,54 +27,67 @@ System.register(['lodash', 'aurelia-framework', 'aurelia-dependency-injection', 
       Collection = _collection.Collection;
     }],
     execute: function () {
-      _export('Config', Config = (_dec = inject(Aurelia, HttpClient), _dec(_class = function () {
+      _export("Config", Config = (_dec = inject(Aurelia, HttpClient), _dec(_class = function () {
         function Config(aurelia, httpClient) {
           _classCallCheck(this, Config);
 
-          this.collections = {};
-          this.defaultCollection = null;
-
+          Object.defineProperty(this, "collections", {
+            configurable: true,
+            enumerable: true,
+            writable: true,
+            value: {}
+          });
+          Object.defineProperty(this, "defaultCollection", {
+            configurable: true,
+            enumerable: true,
+            writable: true,
+            value: null
+          });
           this.aurelia = aurelia;
           this.container = Container.instance;
           this.httpClient = httpClient;
         }
 
-        Config.prototype.registerCollection = function registerCollection(key, defaultRoute) {
-          var collection = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : Collection;
-          var modelClass = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : ObjectCreator;
-          var modelid = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : '_id';
+        _createClass(Config, [{
+          key: "registerCollection",
+          value: function registerCollection(key, defaultRoute) {
+            var collection = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : Collection;
+            var modelClass = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : ObjectCreator;
+            var modelid = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : '_id';
+            var c = this.container.invoke(collection);
+            this.collections[key] = c;
+            c.configure(key, modelClass, defaultRoute, modelid);
 
-          var c = this.container.invoke(collection);
-          this.collections[key] = c;
-          c.configure(key, modelClass, defaultRoute, modelid);
+            this.collections[key]._setHttpClient(this.httpClient);
 
-          this.collections[key]._setHttpClient(this.httpClient);
-
-          return c;
-        };
-
-        Config.prototype.getCollection = function getCollection(key) {
-          if (!key) {
-            return this.defaultCollection || null;
+            return c;
           }
+        }, {
+          key: "getCollection",
+          value: function getCollection(key) {
+            if (!key) {
+              return this.defaultCollection || null;
+            }
 
-          return this.collections[key] || null;
-        };
-
-        Config.prototype.collectionExists = function collectionExists(key) {
-          return !!this.collections[key];
-        };
-
-        Config.prototype.setDefaultCollection = function setDefaultCollection(key) {
-          this.defaultCollection = this.getCollection(key);
-
-          return this;
-        };
+            return this.collections[key] || null;
+          }
+        }, {
+          key: "collectionExists",
+          value: function collectionExists(key) {
+            return !!this.collections[key];
+          }
+        }, {
+          key: "setDefaultCollection",
+          value: function setDefaultCollection(key) {
+            this.defaultCollection = this.getCollection(key);
+            return this;
+          }
+        }]);
 
         return Config;
       }()) || _class));
 
-      _export('Config', Config);
+      _export("Config", Config);
     }
   };
 });

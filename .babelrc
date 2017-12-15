@@ -1,8 +1,24 @@
 {
+  "presets": [
+    [
+      "@babel/env",
+      {
+        "targets": {
+          "browsers": "last 2 versions"
+        }
+      }
+    ]
+  ],
+  "plugins": [
+    "@babel/syntax-flow",
+    "@babel/proposal-decorators",
+    "@babel/transform-flow-strip-types"
+  ],
   "env": {
     "test": {
-        "presets": ['es2015'],
-        "plugins": [ "istanbul" ]
+      "plugins": [
+        "istanbul"
+      ]
     }
   }
 }

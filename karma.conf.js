@@ -38,11 +38,11 @@ module.exports = function(config) {
     'babelPreprocessor': {
       options: {
         sourceMap: 'inline',
-        presets: [ ['es2015', { loose: true }], 'stage-1'],
+        presets: [['@babel/env', { targets: { browsers: ['last 2 versions'] } }], '@babel/stage-1'],
         plugins: [
-          'syntax-flow',
-          'transform-decorators-legacy',
-          'transform-flow-strip-types'
+          '@babel/syntax-flow',
+          '@babel/proposal-decorators',
+          '@babel/transform-flow-strip-types'
         ]
       }
     },

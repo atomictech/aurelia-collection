@@ -33,7 +33,7 @@ describe('testing aurelia configure routine', () => {
     spyOn(foo, 'bar').and.callThrough();
 
     configure(frameworkConfig, foo.bar);
-    expect(callback).toHaveBeenCalledOnce();
+    expect(foo.bar).toHaveBeenCalled();
   });
 
   it('should throw custom error message if no callback is provided', () => {

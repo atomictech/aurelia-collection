@@ -1,14 +1,21 @@
-var gulp = require('gulp');
-var tools = require('aurelia-tools');
-var paths = require('../paths');
-var yuidoc = require('gulp-yuidoc');
+import gulp from 'gulp';
+import tools  from 'aurelia-tools';
+import yuidoc from 'gulp-yuidoc';
 
-gulp.task('doc-generate', function(){
+import paths from '../paths';
+
+function generateDoc() {
   return gulp.src(paths.source)
     .pipe(yuidoc.parser(null, 'api.json'))
     .pipe(gulp.dest(paths.doc));
-});
+}
 
-gulp.task('doc', ['doc-generate'], function(){
-  tools.transformAPIModel(paths.doc);
-});
+function transformAPI() {
+  return tools.transformAPIModel(paths.doc);
+}
+
+const doc = gulp.series(generateDoc, transformAPI);
+
+export { doc };
+gulp.task('doc-generate', generateDoc);
+gulp.task('doc', doc);

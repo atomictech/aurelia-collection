@@ -1,9 +1,8 @@
-'use strict';
-
-System.register(['whatwg-fetch', './use-collection', './collection', './config'], function (_export, _context) {
+System.register(["whatwg-fetch", "./use-collection", "./collection", "./config"], function (_export, _context) {
   "use strict";
 
   var UseCollection, Collection, Config;
+
   function configure(aurelia, configCallback) {
     var config = aurelia.container.get(Config);
 
@@ -15,7 +14,7 @@ System.register(['whatwg-fetch', './use-collection', './collection', './config']
     configCallback(config);
   }
 
-  _export('configure', configure);
+  _export("configure", configure);
 
   return {
     setters: [function (_whatwgFetch) {}, function (_useCollection) {
@@ -26,11 +25,11 @@ System.register(['whatwg-fetch', './use-collection', './collection', './config']
       Config = _config.Config;
     }],
     execute: function () {
-      _export('UseCollection', UseCollection);
+      _export("UseCollection", UseCollection);
 
-      _export('Collection', Collection);
+      _export("Collection", Collection);
 
-      _export('Config', Config);
+      _export("Config", Config);
     }
   };
 });

@@ -1,28 +1,23 @@
-var gulp = require('gulp');
-var Karma = require('karma').Server;
-var shell = require('gulp-shell');
-var path = require('path');
-
-gulp.task('coveralls', ['test'], function() { // 2nd arg is a dependency: 'karma' must be finished first.  
-  // Send results of istanbul's test coverage to coveralls.io.
-  return gulp.src('gulpfile.js', { read: false }) // You have to give it a file, but you don't have to read it.
-    .pipe(shell('cat coverage/lcov.info | node_modules/coveralls/bin/coveralls.js'));
-});
+import gulp from 'gulp';
+import { Server as Karma } from 'karma';
+import shell from 'gulp-shell';
+import path from 'path';
 
 /**
  * Run test once and exit
  */
-gulp.task('test', function(done) {
+function test(done) {
   new Karma({
     configFile: __dirname + '/../../karma.conf.js',
     singleRun: true
   }, done).start();
-});
+}
+gulp.task(test);
 
 /**
  * Run test once on Chrome and exit
  */
-gulp.task('test-chrome', function(done) {
+function testChrome(done) {
   new Karma({
     configFile: __dirname + '/../../karma.conf.js',
     singleRun: true,
@@ -31,21 +26,23 @@ gulp.task('test-chrome', function(done) {
     },
     browsers: ['Chrome']
   }, done).start();
-});
+}
+gulp.task('test-chrome', testChrome);
 
 /**
  * Watch for file changes and re-run tests on each change
  */
-gulp.task('tdd', function(done) {
+function tdd(done) {
   new Karma({
     configFile: __dirname + '/../../karma.conf.js'
   }, done).start();
-});
+}
+gulp.task(tdd);
 
 /**
  * Run test once on Chrome and exit
  */
-gulp.task('tdd-chrome', function(done) {
+function tddChrome(done) {
   new Karma({
     configFile: __dirname + '/../../karma.conf.js',
     jspm: {
@@ -53,9 +50,10 @@ gulp.task('tdd-chrome', function(done) {
     },
     browsers: ['Chrome']
   }, done).start();
-});
+}
+gulp.task('tdd-chrome', tddChrome);
 
-gulp.task('coveralls', function(done) { // 2nd arg is a dependency: 'karma' must be finished first.
+function coveralls(done) {
   process.env.NODE_ENV = 'test';
 
   new Karma({
@@ -74,12 +72,13 @@ gulp.task('coveralls', function(done) { // 2nd arg is a dependency: 'karma' must
       .pipe(shell('cat ' + coverOutputPath + ' | ' + coverallsPath));
     done();
   }).start();
-});
+}
+gulp.task(coveralls);
 
 /**
  * Run test once with code coverage and exit
  */
-gulp.task('cover', function(done) {
+function cover(done) {
   process.env.NODE_ENV = 'test';
 
   new Karma({
@@ -94,4 +93,5 @@ gulp.task('cover', function(done) {
       ]
     }
   }, done).start();
-});
+}
+gulp.task('cover', cover);

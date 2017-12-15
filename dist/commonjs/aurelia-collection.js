@@ -1,18 +1,35 @@
-'use strict';
+"use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.Config = exports.Collection = exports.UseCollection = undefined;
 exports.configure = configure;
+Object.defineProperty(exports, "UseCollection", {
+  enumerable: true,
+  get: function get() {
+    return _useCollection.UseCollection;
+  }
+});
+Object.defineProperty(exports, "Collection", {
+  enumerable: true,
+  get: function get() {
+    return _collection.Collection;
+  }
+});
+Object.defineProperty(exports, "Config", {
+  enumerable: true,
+  get: function get() {
+    return _config.Config;
+  }
+});
 
-require('whatwg-fetch');
+require("whatwg-fetch");
 
-var _useCollection = require('./use-collection');
+var _useCollection = require("./use-collection");
 
-var _collection = require('./collection');
+var _collection = require("./collection");
 
-var _config = require('./config');
+var _config = require("./config");
 
 function configure(aurelia, configCallback) {
   var config = aurelia.container.get(_config.Config);
@@ -24,7 +41,3 @@ function configure(aurelia, configCallback) {
 
   configCallback(config);
 }
-
-exports.UseCollection = _useCollection.UseCollection;
-exports.Collection = _collection.Collection;
-exports.Config = _config.Config;

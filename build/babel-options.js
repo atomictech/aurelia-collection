@@ -1,7 +1,7 @@
-var path = require('path');
-var paths = require('./paths');
+import path from 'path';
+import paths from './paths';
 
-exports.base = function() {
+function base() {
   return {
     filename: '',
     filenameRelative: '',
@@ -12,35 +12,37 @@ exports.base = function() {
     comments: false,
     compact: false,
     code: true,
-    presets: [ ['es2015', { loose: true}], 'stage-1'],
+    presets: [['@babel/env', { targets: { browsers: ['last 2 versions'] } }], '@babel/stage-1'],
     plugins: [
-      'syntax-flow',
-      'transform-decorators-legacy',
-      'transform-flow-strip-types'
+      '@babel/syntax-flow',
+      '@babel/proposal-decorators',
+      '@babel/transform-flow-strip-types'
     ]
   };
 }
 
-exports.commonjs = function() {
-  var options = exports.base();
-  options.plugins.push('transform-es2015-modules-commonjs');
+function commonjs() {
+  const options = base();
+  options.plugins.push('@babel/transform-modules-commonjs');
   return options;
-};
+}
 
-exports.amd = function() {
-  var options = exports.base();
-  options.plugins.push('transform-es2015-modules-amd');
+function amd() {
+  const options = base();
+  options.plugins.push('@babel/transform-modules-amd');
   return options;
-};
+}
 
-exports.system = function() {
-  var options = exports.base();
-  options.plugins.push('transform-es2015-modules-systemjs');
+function system() {
+  const options = base();
+  options.plugins.push('@babel/transform-modules-systemjs');
   return options;
-};
+}
 
-exports.es2015 = function() {
-  var options = exports.base();
-  options.presets = ['stage-1']
+function es2015() {
+  const options = base();
+  options.presets = ['@babel/stage-1'];
   return options;
-};
+}
+
+export { base, commonjs, amd, system, es2015 };

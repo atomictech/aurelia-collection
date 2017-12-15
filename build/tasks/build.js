@@ -1,46 +1,46 @@
-var gulp = require('gulp');
-var runSequence = require('run-sequence');
-var to5 = require('gulp-babel');
-var paths = require('../paths');
-var compilerOptions = require('../babel-options');
-var assign = Object.assign || require('object.assign');
+import gulp from 'gulp';
+import to5 from 'gulp-babel';
+import oa from 'object.assign';
 
-gulp.task('build-html', function () {
+import paths from '../paths';
+import * as compilerOptions from '../babel-options';
+import { clean } from './clean';
+const assign = Object.assign || oa;
+
+function buildHtml() {
   return gulp.src(paths.html)
     .pipe(gulp.dest(paths.output + 'es2015'))
     .pipe(gulp.dest(paths.output + 'commonjs'))
     .pipe(gulp.dest(paths.output + 'amd'))
     .pipe(gulp.dest(paths.output + 'system'));
-});
+}
 
-gulp.task('build-es2015', function () {
+function buildEs2015() {
   return gulp.src(paths.source)
     .pipe(to5(assign({}, compilerOptions.es2015())))
     .pipe(gulp.dest(paths.output + 'es2015'));
-});
+}
 
-gulp.task('build-commonjs', function () {
+function buildCommonjs() {
   return gulp.src(paths.source)
     .pipe(to5(assign({}, compilerOptions.commonjs())))
     .pipe(gulp.dest(paths.output + 'commonjs'));
-});
+}
 
-gulp.task('build-amd', function () {
+function buildAmd() {
   return gulp.src(paths.source)
     .pipe(to5(assign({}, compilerOptions.amd())))
     .pipe(gulp.dest(paths.output + 'amd'));
-});
+}
 
-gulp.task('build-system', function () {
+function buildSystem() {
   return gulp.src(paths.source)
     .pipe(to5(assign({}, compilerOptions.system())))
     .pipe(gulp.dest(paths.output + 'system'));
-});
+}
 
-gulp.task('build', function(callback) {
-  return runSequence(
-    'clean',
-    ['build-html', 'build-es2015', 'build-commonjs', 'build-amd', 'build-system'],
-    callback
-  );
-});
+const buildtasks = gulp.parallel(buildHtml, buildEs2015, buildCommonjs, buildAmd, buildSystem);
+const build = gulp.series(clean, buildtasks);
+
+export { build };
+gulp.task('build', build);
