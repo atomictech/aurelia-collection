@@ -31,5 +31,4 @@ export class UseCollection {
   static of(key) {
     return new UseCollection(key);
   }
-
 }

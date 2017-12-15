@@ -14,7 +14,6 @@ function ObjectCreator(data) {
  */
 @inject(Aurelia, HttpClient)
 export class Config {
-
   /**
    * Config constructor.
    * @param  {Aurelia} aurelia : the aurelia object containing all containers.

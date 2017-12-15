@@ -10,7 +10,6 @@ import { Config } from './config';
  * related to a backend data store and accessible through REST API.
  */
 export class Collection {
-
   /**
    * Configure the collection.
    * @param  {String} key : the key provided when the collection has been
@@ -494,7 +493,6 @@ export class Collection {
       });
     }));
   }
-
 }
 
 /**
