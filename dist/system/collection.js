@@ -245,21 +245,42 @@ System.register(['lodash', 'aurelia-dependency-injection', 'aurelia-fetch-client
           });
         };
 
-        Collection.prototype.update = function update(model, attr, options) {
+        Collection.prototype.find = function find(predicate, fallbackUrl) {
           var _this4 = this;
+
+          return new Promise(function (resolve, reject) {
+            var res = _.find(_this4.collection, predicate);
+            if (_.isUndefined(res)) {
+              if (_.isUndefined(fallbackUrl)) {
+                return resolve();
+              }
+
+              return _this4._httpClient.fetch(fallbackUrl).then(function (response) {
+                return response.json();
+              }).then(function (data) {
+                return _this4.get(data, options);
+              });
+            }
+
+            return resolve(res);
+          });
+        };
+
+        Collection.prototype.update = function update(model, attr, options) {
+          var _this5 = this;
 
           var opts = options || {};
           var apiRoute = opts.route || this.defaultRoute + model[this.modelid];
 
           return this._frontToBackend(attr, opts).then(function (backAttr) {
-            return _this4._httpClient.fetch(apiRoute, {
+            return _this5._httpClient.fetch(apiRoute, {
               method: 'put',
               headers: { 'Content-Type': 'application/json' },
               body: json(backAttr)
             }).then(function (response) {
               return response.json();
             }).then(function (attributes) {
-              return _this4._backToFrontend(attributes, backAttr, model, opts);
+              return _this5._backToFrontend(attributes, backAttr, model, opts);
             });
           }).then(function () {
             return model;
@@ -267,7 +288,7 @@ System.register(['lodash', 'aurelia-dependency-injection', 'aurelia-fetch-client
         };
 
         Collection.prototype._frontToBackend = function _frontToBackend(attributes, options) {
-          var _this5 = this;
+          var _this6 = this;
 
           var refKeys = this.refKeys();
 
@@ -277,7 +298,7 @@ System.register(['lodash', 'aurelia-dependency-injection', 'aurelia-fetch-client
             } else if (_.isArray(data)) {
               return _.map(data, _getIdFromData);
             } else if (_.isObject(data)) {
-              return data[_this5.modelid];
+              return data[_this6.modelid];
             }
             return null;
           };
@@ -307,7 +328,7 @@ System.register(['lodash', 'aurelia-dependency-injection', 'aurelia-fetch-client
         };
 
         Collection.prototype._backToFrontend = function _backToFrontend(attributes, backAttr, model, options) {
-          var _this6 = this;
+          var _this7 = this;
 
           var opts = options || {};
           var refKeys = this.refKeys();
@@ -330,7 +351,7 @@ System.register(['lodash', 'aurelia-dependency-injection', 'aurelia-fetch-client
               backendKey = item.backendKey;
 
               if (!_.isNull(item.collection)) {
-                frontendValue = _this6.container.get(Config).getCollection(item.collection).get(attributes[backendKey]);
+                frontendValue = _this7.container.get(Config).getCollection(item.collection).get(attributes[backendKey]);
               }
             }
 

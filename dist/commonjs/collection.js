@@ -239,21 +239,42 @@ var Collection = exports.Collection = function () {
     });
   };
 
-  Collection.prototype.update = function update(model, attr, options) {
+  Collection.prototype.find = function find(predicate, fallbackUrl) {
     var _this4 = this;
+
+    return new Promise(function (resolve, reject) {
+      var res = _lodash2.default.find(_this4.collection, predicate);
+      if (_lodash2.default.isUndefined(res)) {
+        if (_lodash2.default.isUndefined(fallbackUrl)) {
+          return resolve();
+        }
+
+        return _this4._httpClient.fetch(fallbackUrl).then(function (response) {
+          return response.json();
+        }).then(function (data) {
+          return _this4.get(data, options);
+        });
+      }
+
+      return resolve(res);
+    });
+  };
+
+  Collection.prototype.update = function update(model, attr, options) {
+    var _this5 = this;
 
     var opts = options || {};
     var apiRoute = opts.route || this.defaultRoute + model[this.modelid];
 
     return this._frontToBackend(attr, opts).then(function (backAttr) {
-      return _this4._httpClient.fetch(apiRoute, {
+      return _this5._httpClient.fetch(apiRoute, {
         method: 'put',
         headers: { 'Content-Type': 'application/json' },
         body: (0, _aureliaFetchClient.json)(backAttr)
       }).then(function (response) {
         return response.json();
       }).then(function (attributes) {
-        return _this4._backToFrontend(attributes, backAttr, model, opts);
+        return _this5._backToFrontend(attributes, backAttr, model, opts);
       });
     }).then(function () {
       return model;
@@ -261,7 +282,7 @@ var Collection = exports.Collection = function () {
   };
 
   Collection.prototype._frontToBackend = function _frontToBackend(attributes, options) {
-    var _this5 = this;
+    var _this6 = this;
 
     var refKeys = this.refKeys();
 
@@ -271,7 +292,7 @@ var Collection = exports.Collection = function () {
       } else if (_lodash2.default.isArray(data)) {
         return _lodash2.default.map(data, _getIdFromData);
       } else if (_lodash2.default.isObject(data)) {
-        return data[_this5.modelid];
+        return data[_this6.modelid];
       }
       return null;
     };
@@ -301,7 +322,7 @@ var Collection = exports.Collection = function () {
   };
 
   Collection.prototype._backToFrontend = function _backToFrontend(attributes, backAttr, model, options) {
-    var _this6 = this;
+    var _this7 = this;
 
     var opts = options || {};
     var refKeys = this.refKeys();
@@ -324,7 +345,7 @@ var Collection = exports.Collection = function () {
         backendKey = item.backendKey;
 
         if (!_lodash2.default.isNull(item.collection)) {
-          frontendValue = _this6.container.get(_config.Config).getCollection(item.collection).get(attributes[backendKey]);
+          frontendValue = _this7.container.get(_config.Config).getCollection(item.collection).get(attributes[backendKey]);
         }
       }
 

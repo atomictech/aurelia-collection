@@ -331,6 +331,35 @@ export class Collection {
   }
 
   /**
+   * Try to find a model that match `predicate` attributes.
+   * If no such model is found, try to use given fallbackUrl to retrieve it and return it.
+   * Otherwise return `undefined`.
+   *
+   * @param {Object} predicate Attributes to find in collection.
+   * @param {[String]} fallbackUrl A GET url endpoint where the model can be retrieved.
+   * @returns Model found, otherwise `undefined`.
+   * @memberof Collection
+   */
+  find(predicate, fallbackUrl) {
+    return new Promise((resolve, reject) => {
+      let res = _.find(this.collection, predicate);
+      if (_.isUndefined(res)) {
+        if (_.isUndefined(fallbackUrl)) {
+          return resolve();
+        }
+
+        return this._httpClient.fetch(fallbackUrl)
+          .then(response => response.json())
+          .then(data => {
+            return this.get(data, options);
+          });
+      }
+
+      return resolve(res);
+    });
+  }
+
+  /**
    * Allow to send a PUT method to the backend to update the model, and expect a response with the updated model.
    * @param  {[type]} model   [The model instance to update]
    * @param  {[type]} attr    [A literal object of attribute that should be updated]

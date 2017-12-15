@@ -201,6 +201,23 @@ export let Collection = class Collection {
     });
   }
 
+  find(predicate, fallbackUrl) {
+    return new Promise((resolve, reject) => {
+      let res = _.find(this.collection, predicate);
+      if (_.isUndefined(res)) {
+        if (_.isUndefined(fallbackUrl)) {
+          return resolve();
+        }
+
+        return this._httpClient.fetch(fallbackUrl).then(response => response.json()).then(data => {
+          return this.get(data, options);
+        });
+      }
+
+      return resolve(res);
+    });
+  }
+
   update(model, attr, options) {
     const opts = options || {};
     const apiRoute = opts.route || this.defaultRoute + model[this.modelid];
