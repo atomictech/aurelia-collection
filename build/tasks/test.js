@@ -68,7 +68,7 @@ function coveralls(done) {
   }, function() {
     let coverallsPath = path.join('node_modules', 'coveralls', 'bin', 'coveralls.js');
     let coverOutputPath = path.join('coverage', 'coveralls', 'lcov.info');
-    gulp.src('gulpfile.js', { read: false }) // You have to give it a file, but you don't have to read it.
+    gulp.src('gulpfile.babel.js', { read: false }) // You have to give it a file, but you don't have to read it.
       .pipe(shell('cat ' + coverOutputPath + ' | ' + coverallsPath));
     done();
   }).start();
