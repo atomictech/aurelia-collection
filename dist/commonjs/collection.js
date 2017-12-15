@@ -151,8 +151,18 @@ var Collection = exports.Collection = function () {
     });
   };
 
-  Collection.prototype.get = function get(data, options) {
+  Collection.prototype.all = function all() {
     var _this3 = this;
+
+    return this._httpClient.fetch(this.defaultRoute).then(function (response) {
+      return response.json();
+    }).then(function (data) {
+      return _this3.get(data, options);
+    });
+  };
+
+  Collection.prototype.get = function get(data, options) {
+    var _this4 = this;
 
     options = _lodash2.default.defaults(options, {
       _child: false,
@@ -167,7 +177,7 @@ var Collection = exports.Collection = function () {
       return Promise.resolve(data);
     } else if (_lodash2.default.isArray(data)) {
       return modelPromise = Promise.all(_lodash2.default.map(data, function (item) {
-        return _this3.get(item, options);
+        return _this4.get(item, options);
       }));
     } else if (_lodash2.default.isObject(data)) {
       modelPromise = this.fromJSON(data);
@@ -197,7 +207,7 @@ var Collection = exports.Collection = function () {
       }
       childOpt._child = true;
 
-      return Promise.all(_lodash2.default.map(_this3.refKeys(model), function (item) {
+      return Promise.all(_lodash2.default.map(_this4.refKeys(model), function (item) {
         item = _lodash2.default.defaults(item, {
           backendKey: null,
           collection: null,
@@ -205,7 +215,7 @@ var Collection = exports.Collection = function () {
           backendKeyDeletion: true
         });
 
-        var collection = _this3.container.get(_config.Config).getCollection(item.collection);
+        var collection = _this4.container.get(_config.Config).getCollection(item.collection);
         if (_lodash2.default.isNil(item.backendKey)) {
           return;
         }
@@ -240,19 +250,19 @@ var Collection = exports.Collection = function () {
   };
 
   Collection.prototype.find = function find(predicate, fallbackUrl) {
-    var _this4 = this;
+    var _this5 = this;
 
     return new Promise(function (resolve, reject) {
-      var res = _lodash2.default.find(_this4.collection, predicate);
+      var res = _lodash2.default.find(_this5.collection, predicate);
       if (_lodash2.default.isUndefined(res)) {
         if (_lodash2.default.isUndefined(fallbackUrl)) {
           return resolve();
         }
 
-        return _this4._httpClient.fetch(fallbackUrl).then(function (response) {
+        return _this5._httpClient.fetch(fallbackUrl).then(function (response) {
           return response.json();
         }).then(function (data) {
-          return _this4.get(data, options);
+          return _this5.get(data, options);
         });
       }
 
@@ -261,20 +271,20 @@ var Collection = exports.Collection = function () {
   };
 
   Collection.prototype.update = function update(model, attr, options) {
-    var _this5 = this;
+    var _this6 = this;
 
     var opts = options || {};
     var apiRoute = opts.route || this.defaultRoute + model[this.modelid];
 
     return this._frontToBackend(attr, opts).then(function (backAttr) {
-      return _this5._httpClient.fetch(apiRoute, {
+      return _this6._httpClient.fetch(apiRoute, {
         method: 'put',
         headers: { 'Content-Type': 'application/json' },
         body: (0, _aureliaFetchClient.json)(backAttr)
       }).then(function (response) {
         return response.json();
       }).then(function (attributes) {
-        return _this5._backToFrontend(attributes, backAttr, model, opts);
+        return _this6._backToFrontend(attributes, backAttr, model, opts);
       });
     }).then(function () {
       return model;
@@ -282,7 +292,7 @@ var Collection = exports.Collection = function () {
   };
 
   Collection.prototype._frontToBackend = function _frontToBackend(attributes, options) {
-    var _this6 = this;
+    var _this7 = this;
 
     var refKeys = this.refKeys();
 
@@ -292,7 +302,7 @@ var Collection = exports.Collection = function () {
       } else if (_lodash2.default.isArray(data)) {
         return _lodash2.default.map(data, _getIdFromData);
       } else if (_lodash2.default.isObject(data)) {
-        return data[_this6.modelid];
+        return data[_this7.modelid];
       }
       return null;
     };
@@ -322,7 +332,7 @@ var Collection = exports.Collection = function () {
   };
 
   Collection.prototype._backToFrontend = function _backToFrontend(attributes, backAttr, model, options) {
-    var _this7 = this;
+    var _this8 = this;
 
     var opts = options || {};
     var refKeys = this.refKeys();
@@ -345,7 +355,7 @@ var Collection = exports.Collection = function () {
         backendKey = item.backendKey;
 
         if (!_lodash2.default.isNull(item.collection)) {
-          frontendValue = _this7.container.get(_config.Config).getCollection(item.collection).get(attributes[backendKey]);
+          frontendValue = _this8.container.get(_config.Config).getCollection(item.collection).get(attributes[backendKey]);
         }
       }
 

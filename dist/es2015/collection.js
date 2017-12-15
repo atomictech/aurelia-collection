@@ -119,6 +119,12 @@ export let Collection = class Collection {
     }).then(response => response.json());
   }
 
+  all() {
+    return this._httpClient.fetch(this.defaultRoute).then(response => response.json()).then(data => {
+      return this.get(data, options);
+    });
+  }
+
   get(data, options) {
     options = _.defaults(options, {
       _child: false,
