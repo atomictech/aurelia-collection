@@ -230,6 +230,18 @@ export class Collection {
   }
 
   /**
+   * force fetch all models from a collection endpoint
+   * @return {[Promise]}         return a Promise that fullfill a get on all models fetched
+   */
+  all() {
+    return this._httpClient.fetch(this.defaultRoute)
+      .then(response => response.json())
+      .then(data => {
+        return this.get(data, options);
+      });
+  }
+
+  /**
    * [get description]
    * @param  {[type]} data    [description]
    * @param  {[type]} options [description]
