@@ -439,6 +439,31 @@ describe('Collection', () => {
     });
   });
 
+  describe('.all', () => {
+    let creator;
+    let models;
+    let collection;
+
+    beforeEach(() => {
+      creator = (data) => data;
+      models = [{ _id: 'myId', wheels: 4 }, { _id: 'myId2', wheels: 2 }];
+      collection = config.registerCollection('myKey', '/default/route', Collection, creator);
+      collection.collection = collection.collection.concat(models);
+    });
+
+    it('Should return a promise with all the collection models', done => {
+      fakeFetch.respondWith(JSON.stringify(models));
+      spyOn(collection._httpClient, 'fetch').and.callThrough();
+
+      collection.all()
+        .then(listModels => {
+          expect(listModels).toEqual(models);
+          expect(collection._httpClient.fetch).toHaveBeenCalledWith('/default/route');
+          done();
+        });
+    });
+  });
+
   describe('.get()', () => {
     let creator;
     let model;
@@ -631,6 +656,50 @@ describe('Collection', () => {
     });
   });
 
+  describe('.find()', () => {
+    let creator;
+    let modelCached;
+    let modelFetched;
+    let collection;
+
+    beforeEach(() => {
+      creator = (data) => data;
+      modelCached = { _id: 'myId', wheels: 42, predicate: 'foo' };
+      modelFetched = { _id: 'myId2', wheels: 2, predicate: 'bar' };
+      collection = config.registerCollection('myKey', '/default/route', Collection, creator);
+      collection.collection = collection.collection.push(modelCached);
+    });
+
+    it('Should return undefined if no model correspond to predicate and no fallback url', done => {
+      collection.find({ predicate: 'jumbo' })
+        .then(foundModel => {
+          expect(foundModel).toBeUndefined();
+          done();
+        });
+    });
+
+    it('Should return local cached model that match predicate if model is already in collection', done => {
+      collection.find({ predicate: 'foo' })
+        .then(foundModel => {
+          expect(foundModel).toBe(modelCached);
+          done();
+        });
+    });
+
+    it('Should return fetched model(s)', done => {
+      fakeFetch.respondWith(JSON.stringify(modelFetched));
+      spyOn(collection._httpClient, 'fetch').and.callThrough();
+
+      collection.find({ predicate: 'whatever' }, '/fallback/route/id')
+        .then(foundModel => {
+          expect(foundModel).toBe(modelFetched);
+          expect(collection._httpClient.fetch).toHaveBeenCalledWith('/fallback/route/id');
+
+          done();
+        });
+    });
+  });
+
   describe('.update()', () => {
     let creator;
     let model;
@@ -639,7 +708,6 @@ describe('Collection', () => {
     beforeEach(() => {
       creator = (data) => data;
       model = { _id: 'myId', wheels: 4 };
-      // collection = new Collection();
       collection = config.registerCollection('myKey', '/default/route/', Collection, creator);
       collection.collection.push(model);
     });
