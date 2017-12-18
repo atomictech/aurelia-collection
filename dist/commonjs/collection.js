@@ -174,7 +174,7 @@ var Collection = function () {
     }
   }, {
     key: "all",
-    value: function all() {
+    value: function all(options) {
       var _this3 = this;
 
       return this._httpClient.fetch(this.defaultRoute).then(function (response) {
