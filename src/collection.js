@@ -207,7 +207,7 @@ export class Collection {
     return this._httpClient
       .fetch(apiRoute, {
         method: 'post',
-        body: json(jsonModel)
+        body: options.notJson ? jsonModel : json(jsonModel)
       }).then(response => response.json())
       .then(data => this.get(data));
   }
@@ -387,7 +387,7 @@ export class Collection {
           .fetch(apiRoute, {
             method: 'put',
             headers: { 'Content-Type': 'application/json' },
-            body: json(backAttr)
+            body: options.notJson ? backAttr : json(backAttr)
           }).then(response => response.json())
           .then(attributes => this._backToFrontend(attributes, backAttr, model, opts));
       }).then(() => model);
