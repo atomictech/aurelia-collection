@@ -154,7 +154,7 @@ System.register(["lodash", "aurelia-dependency-injection", "aurelia-fetch-client
             var apiRoute = opts.route || this.defaultRoute.slice(0, -1);
             return this._httpClient.fetch(apiRoute, {
               method: 'post',
-              body: json(jsonModel)
+              body: options.notJson ? jsonModel : json(jsonModel)
             }).then(function (response) {
               return response.json();
             }).then(function (data) {
@@ -310,7 +310,7 @@ System.register(["lodash", "aurelia-dependency-injection", "aurelia-fetch-client
                 headers: {
                   'Content-Type': 'application/json'
                 },
-                body: json(backAttr)
+                body: options.notJson ? backAttr : json(backAttr)
               }).then(function (response) {
                 return response.json();
               }).then(function (attributes) {

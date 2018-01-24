@@ -151,7 +151,7 @@ var Collection = function () {
       var apiRoute = opts.route || this.defaultRoute.slice(0, -1);
       return this._httpClient.fetch(apiRoute, {
         method: 'post',
-        body: (0, _aureliaFetchClient.json)(jsonModel)
+        body: options.notJson ? jsonModel : (0, _aureliaFetchClient.json)(jsonModel)
       }).then(function (response) {
         return response.json();
       }).then(function (data) {
@@ -307,7 +307,7 @@ var Collection = function () {
           headers: {
             'Content-Type': 'application/json'
           },
-          body: (0, _aureliaFetchClient.json)(backAttr)
+          body: options.notJson ? backAttr : (0, _aureliaFetchClient.json)(backAttr)
         }).then(function (response) {
           return response.json();
         }).then(function (attributes) {
