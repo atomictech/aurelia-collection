@@ -203,7 +203,7 @@ var Collection = function () {
           return _this4.get(item, options);
         }));
       } else if (_lodash.default.isObject(data)) {
-        modelPromise = this.fromJSON(data);
+        modelPromise = this.fromJSON(data, options);
       } else {
         if (!options._child) {
           modelPromise = this._getById(data, options);
