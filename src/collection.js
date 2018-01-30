@@ -261,7 +261,7 @@ export class Collection {
     } else if (_.isArray(data)) { // you iterate on the array, and go one level deeper (for ID or JSON array)
       return modelPromise = Promise.all(_.map(data, item => this.get(item, options)));
     } else if (_.isObject(data)) { // you already have the json data, just instanciate the model
-      modelPromise = this.fromJSON(data);
+      modelPromise = this.fromJSON(data, options);
     } else { // If we end up here, then data is string. We'd better test whether it is an id, but we consider a string as a type of an id.
       if (!options._child) { // we are the root level, we want the model no matter what.
         modelPromise = this._getById(data, options);
