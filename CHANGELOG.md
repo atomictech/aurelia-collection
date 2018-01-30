@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.4.9"></a>
+## [0.4.9](https://github.com/atomictech/aurelia-collection/compare/v0.4.8...v0.4.9) (2018-01-30)
+
+
+### Bug Fixes
+
+* **collection:** added important option arg to fromJson call. was causing model to not update on a collection.all({force: true}) for example. ([6a51ffb](https://github.com/atomictech/aurelia-collection/commit/6a51ffb))
+
+
+
 <a name="0.4.7"></a>
 ## [0.4.7](https://github.com/atomictech/aurelia-collection/compare/v0.4.6...v0.4.7) (2017-12-18)
 
