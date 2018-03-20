@@ -318,7 +318,7 @@ export class Collection {
               item.frontendKey = item.backendKey;
             }
 
-            let itemData = model[item.backendKey];
+            let itemData = _.get(model, item.backendKey);
 
             let itemDataPromise = Promise.resolve(null);
 
@@ -334,10 +334,10 @@ export class Collection {
                 // Replace the model key if necessary.
                 if (!_.isNil(childrenItems) && isNotNullArray(childrenItems)) {
                   if (item.backendKeyDeletion === true) {
-                    delete model[item.backendKey];
+                    _.unset(model, item.backendKey)
                   }
 
-                  return model[item.frontendKey] = _.pull(childrenItems, null, undefined);
+                  return _.set(model, item.frontendKey, _.pull(childrenItems, null, undefined));
                 }
               });
           }))
@@ -431,12 +431,12 @@ export class Collection {
       });
 
       if (item.backendKeyDeletion) {
-        delete attributes[item.frontendKey];
+        _.unset(attributes, item.frontendKey)
       }
 
       // browser request filter undefined fields, we need to explicitely set it to null to be sent to the backend. (in case of reseting the field)
       let id = _getIdFromData(value);
-      attributes[item.backendKey] = _.isUndefined(id) ? null : id;
+      _.set(attributes, item.backendKey, _.isUndefined(id) ? null : id);
     });
 
     return Promise.resolve(attributes);
@@ -457,7 +457,7 @@ export class Collection {
     return Promise.all(_.map(backAttr, (value, field) => {
       let frontendKey = field;
       let backendKey = field;
-      let frontendValue = Promise.resolve(attributes[backendKey]);
+      let frontendValue = Promise.resolve(_.get(attributes, backendKey));
 
       // The current field is a frontend type of key.
       let item = _.find(refKeys, { backendKey: field });
@@ -474,24 +474,25 @@ export class Collection {
 
         // item.collection can be null if we want to keep JSON data.
         if (!_.isNull(item.collection)) {
-          frontendValue = this.container.get(Config).getCollection(item.collection).get(attributes[backendKey]);
+          frontendValue = this.container.get(Config).getCollection(item.collection).get(_.get(attributes, backendKey));
         }
       }
 
       // Update the right key in the model, with updateStrategy to replace, merge only arrays or merge all the attribute.
       return frontendValue.then(result => {
         if (!_.has(opts, 'mergeStrategy') || opts.mergeStrategy === 'replace') {
-          model[frontendKey] = result;
+          _.set(model, frontendKey, result);
         } else if (opts.mergeStrategy === 'ignore') {
           return Promise.resolve(model);
         } else if (opts.mergeStrategy === 'array') {
-          if (_.isArray(model[frontendKey])) {
-            model[frontendKey] = _.union(model[frontendKey], result);
+          let currentFrontendValue = _.get(model, frontendKey);
+          if (_.isArray(currentFrontendValue)) {
+            _.set(model, frontendKey, _.union(currentFrontendValue, result));
           } else {
-            model[frontendKey] = result;
+            _.set(model, frontendKey, result);
           }
         } else {
-          model[frontendKey] = _.merge(model[frontendKey], result);
+          _.set(model, frontendKey, _.merge(_.get(model, frontendKey), result));
         }
         return Promise.resolve(model);
       });
