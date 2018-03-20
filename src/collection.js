@@ -146,7 +146,11 @@ export class Collection {
    * @param  {Object} data : the data to set to model.
    */
   _syncFrom(model, data) {
-    _.merge(model, data);
+    _.mergeWith(model, data, (objValue, srcValue) => {
+      if (_.isArray(objValue)) {
+        return objValue = srcValue;
+      }
+    });
   }
 
   /**
