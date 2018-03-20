@@ -334,7 +334,7 @@ export class Collection {
                 // Replace the model key if necessary.
                 if (!_.isNil(childrenItems) && isNotNullArray(childrenItems)) {
                   if (item.backendKeyDeletion === true) {
-                    _.unset(model, item.backendKey)
+                    _.unset(model, item.backendKey);
                   }
 
                   return _.set(model, item.frontendKey, _.pull(childrenItems, null, undefined));
@@ -429,7 +429,7 @@ export class Collection {
       });
 
       if (item.backendKeyDeletion) {
-        _.unset(attributes, item.frontendKey)
+        _.unset(attributes, item.frontendKey);
       }
 
       // browser request filter undefined fields, we need to explicitely set it to null to be sent to the backend. (in case of reseting the field)

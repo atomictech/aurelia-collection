@@ -44,6 +44,7 @@
     "gulp": "github:gulpjs/gulp#4.0",
     "gulp-babel": "^8.0.0-beta.0",
     "gulp-eslint": "^4.0.0",
+    "gulp-eslint-if-fixed": "^1.0.0",
     "gulp-shell": "^0.6.3",
     "gulp-yuidoc": "^0.1.2",
     "istanbul": "^1.0.0-alpha.2",
