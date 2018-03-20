@@ -211,7 +211,7 @@ export class Collection {
     return this._httpClient
       .fetch(apiRoute, {
         method: 'post',
-        body: options.notJson ? jsonModel : json(jsonModel)
+        body: opts.notJson ? jsonModel : json(jsonModel)
       }).then(response => response.json())
       .then(data => this.get(data));
   }
@@ -356,22 +356,20 @@ export class Collection {
    * @memberof Collection
    */
   find(predicate, fallbackUrl) {
-    return new Promise((resolve, reject) => {
-      let res = _.find(this.collection, predicate);
-      if (_.isUndefined(res)) {
-        if (_.isUndefined(fallbackUrl)) {
-          return resolve();
-        }
-
-        return this._httpClient.fetch(fallbackUrl)
-          .then(response => response.json())
-          .then(data => {
-            return this.get(data, options);
-          });
+    let res = _.find(this.collection, predicate);
+    if (_.isUndefined(res)) {
+      if (_.isUndefined(fallbackUrl)) {
+        return Promise.resolve();
       }
 
-      return resolve(res);
-    });
+      return this._httpClient.fetch(fallbackUrl)
+        .then(response => response.json())
+        .then(data => {
+          return this.get(data);
+        });
+    }
+
+    return Promise.resolve(res);
   }
 
   /**
@@ -391,7 +389,7 @@ export class Collection {
           .fetch(apiRoute, {
             method: 'put',
             headers: { 'Content-Type': 'application/json' },
-            body: options.notJson ? backAttr : json(backAttr)
+            body: opts.notJson ? backAttr : json(backAttr)
           }).then(response => response.json())
           .then(attributes => this._backToFrontend(attributes, backAttr, model, opts));
       }).then(() => model);

@@ -667,7 +667,7 @@ describe('Collection', () => {
       modelCached = { _id: 'myId', wheels: 42, predicate: 'foo' };
       modelFetched = { _id: 'myId2', wheels: 2, predicate: 'bar' };
       collection = config.registerCollection('myKey', '/default/route', Collection, creator);
-      collection.collection = collection.collection.push(modelCached);
+      collection.collection.push(modelCached);
     });
 
     it('Should return undefined if no model correspond to predicate and no fallback url', done => {
@@ -692,9 +692,8 @@ describe('Collection', () => {
 
       collection.find({ predicate: 'whatever' }, '/fallback/route/id')
         .then(foundModel => {
-          expect(foundModel).toBe(modelFetched);
+          expect(foundModel).toEqual(modelFetched);
           expect(collection._httpClient.fetch).toHaveBeenCalledWith('/fallback/route/id');
-
           done();
         });
     });

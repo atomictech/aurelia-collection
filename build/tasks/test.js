@@ -7,6 +7,8 @@ import path from 'path';
  * Run test once and exit
  */
 function test(done) {
+  process.env.NODE_ENV = 'test';
+
   new Karma({
     configFile: __dirname + '/../../karma.conf.js',
     singleRun: true

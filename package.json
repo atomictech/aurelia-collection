@@ -48,6 +48,7 @@
     "gulp-yuidoc": "^0.1.2",
     "istanbul": "^1.0.0-alpha.2",
     "jasmine-core": "^2.5.2",
+    "jspm": "^0.16.53",
     "karma": "^1.4.1",
     "karma-babel-preprocessor": "github:MattiasBuelens/karma-babel-preprocessor#use-@babel",
     "karma-chrome-launcher": "^2.0.0",
