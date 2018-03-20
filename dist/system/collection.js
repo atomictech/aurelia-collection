@@ -106,7 +106,11 @@ System.register(["lodash", "aurelia-dependency-injection", "aurelia-fetch-client
         }, {
           key: "_syncFrom",
           value: function _syncFrom(model, data) {
-            _.merge(model, data);
+            _.mergeWith(model, data, function (objValue, srcValue) {
+              if (_.isArray(objValue)) {
+                return objValue = srcValue;
+              }
+            });
           }
         }, {
           key: "_getFromCollection",
@@ -154,7 +158,7 @@ System.register(["lodash", "aurelia-dependency-injection", "aurelia-fetch-client
             var apiRoute = opts.route || this.defaultRoute.slice(0, -1);
             return this._httpClient.fetch(apiRoute, {
               method: 'post',
-              body: options.notJson ? jsonModel : json(jsonModel)
+              body: opts.notJson ? jsonModel : json(jsonModel)
             }).then(function (response) {
               return response.json();
             }).then(function (data) {
@@ -251,7 +255,8 @@ System.register(["lodash", "aurelia-dependency-injection", "aurelia-fetch-client
                   item.frontendKey = item.backendKey;
                 }
 
-                var itemData = model[item.backendKey];
+                var itemData = _.get(model, item.backendKey);
+
                 var itemDataPromise = Promise.resolve(null);
 
                 if (_.isNull(item.collection)) {
@@ -263,10 +268,10 @@ System.register(["lodash", "aurelia-dependency-injection", "aurelia-fetch-client
                 return itemDataPromise.then(function (childrenItems) {
                   if (!_.isNil(childrenItems) && isNotNullArray(childrenItems)) {
                     if (item.backendKeyDeletion === true) {
-                      delete model[item.backendKey];
+                      _.unset(model, item.backendKey);
                     }
 
-                    return model[item.frontendKey] = _.pull(childrenItems, null, undefined);
+                    return _.set(model, item.frontendKey, _.pull(childrenItems, null, undefined));
                   }
                 });
               })).then(function () {
@@ -279,23 +284,21 @@ System.register(["lodash", "aurelia-dependency-injection", "aurelia-fetch-client
           value: function find(predicate, fallbackUrl) {
             var _this5 = this;
 
-            return new Promise(function (resolve, reject) {
-              var res = _.find(_this5.collection, predicate);
+            var res = _.find(this.collection, predicate);
 
-              if (_.isUndefined(res)) {
-                if (_.isUndefined(fallbackUrl)) {
-                  return resolve();
-                }
-
-                return _this5._httpClient.fetch(fallbackUrl).then(function (response) {
-                  return response.json();
-                }).then(function (data) {
-                  return _this5.get(data, options);
-                });
+            if (_.isUndefined(res)) {
+              if (_.isUndefined(fallbackUrl)) {
+                return Promise.resolve();
               }
 
-              return resolve(res);
-            });
+              return this._httpClient.fetch(fallbackUrl).then(function (response) {
+                return response.json();
+              }).then(function (data) {
+                return _this5.get(data);
+              });
+            }
+
+            return Promise.resolve(res);
           }
         }, {
           key: "update",
@@ -310,7 +313,7 @@ System.register(["lodash", "aurelia-dependency-injection", "aurelia-fetch-client
                 headers: {
                   'Content-Type': 'application/json'
                 },
-                body: options.notJson ? backAttr : json(backAttr)
+                body: opts.notJson ? backAttr : json(backAttr)
               }).then(function (response) {
                 return response.json();
               }).then(function (attributes) {
@@ -355,12 +358,12 @@ System.register(["lodash", "aurelia-dependency-injection", "aurelia-fetch-client
               });
 
               if (item.backendKeyDeletion) {
-                delete attributes[item.frontendKey];
+                _.unset(attributes, item.frontendKey);
               }
 
               var id = _getIdFromData(value);
 
-              attributes[item.backendKey] = _.isUndefined(id) ? null : id;
+              _.set(attributes, item.backendKey, _.isUndefined(id) ? null : id);
             });
 
             return Promise.resolve(attributes);
@@ -375,7 +378,7 @@ System.register(["lodash", "aurelia-dependency-injection", "aurelia-fetch-client
             return Promise.all(_.map(backAttr, function (value, field) {
               var frontendKey = field;
               var backendKey = field;
-              var frontendValue = Promise.resolve(attributes[backendKey]);
+              var frontendValue = Promise.resolve(_.get(attributes, backendKey));
 
               var item = _.find(refKeys, {
                 backendKey: field
@@ -392,23 +395,25 @@ System.register(["lodash", "aurelia-dependency-injection", "aurelia-fetch-client
                 backendKey = item.backendKey;
 
                 if (!_.isNull(item.collection)) {
-                  frontendValue = _this8.container.get(Config).getCollection(item.collection).get(attributes[backendKey]);
+                  frontendValue = _this8.container.get(Config).getCollection(item.collection).get(_.get(attributes, backendKey));
                 }
               }
 
               return frontendValue.then(function (result) {
                 if (!_.has(opts, 'mergeStrategy') || opts.mergeStrategy === 'replace') {
-                  model[frontendKey] = result;
+                  _.set(model, frontendKey, result);
                 } else if (opts.mergeStrategy === 'ignore') {
                   return Promise.resolve(model);
                 } else if (opts.mergeStrategy === 'array') {
-                  if (_.isArray(model[frontendKey])) {
-                    model[frontendKey] = _.union(model[frontendKey], result);
+                  var currentFrontendValue = _.get(model, frontendKey);
+
+                  if (_.isArray(currentFrontendValue)) {
+                    _.set(model, frontendKey, _.union(currentFrontendValue, result));
                   } else {
-                    model[frontendKey] = result;
+                    _.set(model, frontendKey, result);
                   }
                 } else {
-                  model[frontendKey] = _.merge(model[frontendKey], result);
+                  _.set(model, frontendKey, _.merge(_.get(model, frontendKey), result));
                 }
 
                 return Promise.resolve(model);

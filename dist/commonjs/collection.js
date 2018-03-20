@@ -103,7 +103,11 @@ var Collection = function () {
   }, {
     key: "_syncFrom",
     value: function _syncFrom(model, data) {
-      _lodash.default.merge(model, data);
+      _lodash.default.mergeWith(model, data, function (objValue, srcValue) {
+        if (_lodash.default.isArray(objValue)) {
+          return objValue = srcValue;
+        }
+      });
     }
   }, {
     key: "_getFromCollection",
@@ -151,7 +155,7 @@ var Collection = function () {
       var apiRoute = opts.route || this.defaultRoute.slice(0, -1);
       return this._httpClient.fetch(apiRoute, {
         method: 'post',
-        body: options.notJson ? jsonModel : (0, _aureliaFetchClient.json)(jsonModel)
+        body: opts.notJson ? jsonModel : (0, _aureliaFetchClient.json)(jsonModel)
       }).then(function (response) {
         return response.json();
       }).then(function (data) {
@@ -248,7 +252,8 @@ var Collection = function () {
             item.frontendKey = item.backendKey;
           }
 
-          var itemData = model[item.backendKey];
+          var itemData = _lodash.default.get(model, item.backendKey);
+
           var itemDataPromise = Promise.resolve(null);
 
           if (_lodash.default.isNull(item.collection)) {
@@ -260,10 +265,10 @@ var Collection = function () {
           return itemDataPromise.then(function (childrenItems) {
             if (!_lodash.default.isNil(childrenItems) && isNotNullArray(childrenItems)) {
               if (item.backendKeyDeletion === true) {
-                delete model[item.backendKey];
+                _lodash.default.unset(model, item.backendKey);
               }
 
-              return model[item.frontendKey] = _lodash.default.pull(childrenItems, null, undefined);
+              return _lodash.default.set(model, item.frontendKey, _lodash.default.pull(childrenItems, null, undefined));
             }
           });
         })).then(function () {
@@ -276,23 +281,21 @@ var Collection = function () {
     value: function find(predicate, fallbackUrl) {
       var _this5 = this;
 
-      return new Promise(function (resolve, reject) {
-        var res = _lodash.default.find(_this5.collection, predicate);
+      var res = _lodash.default.find(this.collection, predicate);
 
-        if (_lodash.default.isUndefined(res)) {
-          if (_lodash.default.isUndefined(fallbackUrl)) {
-            return resolve();
-          }
-
-          return _this5._httpClient.fetch(fallbackUrl).then(function (response) {
-            return response.json();
-          }).then(function (data) {
-            return _this5.get(data, options);
-          });
+      if (_lodash.default.isUndefined(res)) {
+        if (_lodash.default.isUndefined(fallbackUrl)) {
+          return Promise.resolve();
         }
 
-        return resolve(res);
-      });
+        return this._httpClient.fetch(fallbackUrl).then(function (response) {
+          return response.json();
+        }).then(function (data) {
+          return _this5.get(data);
+        });
+      }
+
+      return Promise.resolve(res);
     }
   }, {
     key: "update",
@@ -307,7 +310,7 @@ var Collection = function () {
           headers: {
             'Content-Type': 'application/json'
           },
-          body: options.notJson ? backAttr : (0, _aureliaFetchClient.json)(backAttr)
+          body: opts.notJson ? backAttr : (0, _aureliaFetchClient.json)(backAttr)
         }).then(function (response) {
           return response.json();
         }).then(function (attributes) {
@@ -352,12 +355,12 @@ var Collection = function () {
         });
 
         if (item.backendKeyDeletion) {
-          delete attributes[item.frontendKey];
+          _lodash.default.unset(attributes, item.frontendKey);
         }
 
         var id = _getIdFromData(value);
 
-        attributes[item.backendKey] = _lodash.default.isUndefined(id) ? null : id;
+        _lodash.default.set(attributes, item.backendKey, _lodash.default.isUndefined(id) ? null : id);
       });
 
       return Promise.resolve(attributes);
@@ -372,7 +375,7 @@ var Collection = function () {
       return Promise.all(_lodash.default.map(backAttr, function (value, field) {
         var frontendKey = field;
         var backendKey = field;
-        var frontendValue = Promise.resolve(attributes[backendKey]);
+        var frontendValue = Promise.resolve(_lodash.default.get(attributes, backendKey));
 
         var item = _lodash.default.find(refKeys, {
           backendKey: field
@@ -389,23 +392,25 @@ var Collection = function () {
           backendKey = item.backendKey;
 
           if (!_lodash.default.isNull(item.collection)) {
-            frontendValue = _this8.container.get(_config.Config).getCollection(item.collection).get(attributes[backendKey]);
+            frontendValue = _this8.container.get(_config.Config).getCollection(item.collection).get(_lodash.default.get(attributes, backendKey));
           }
         }
 
         return frontendValue.then(function (result) {
           if (!_lodash.default.has(opts, 'mergeStrategy') || opts.mergeStrategy === 'replace') {
-            model[frontendKey] = result;
+            _lodash.default.set(model, frontendKey, result);
           } else if (opts.mergeStrategy === 'ignore') {
             return Promise.resolve(model);
           } else if (opts.mergeStrategy === 'array') {
-            if (_lodash.default.isArray(model[frontendKey])) {
-              model[frontendKey] = _lodash.default.union(model[frontendKey], result);
+            var currentFrontendValue = _lodash.default.get(model, frontendKey);
+
+            if (_lodash.default.isArray(currentFrontendValue)) {
+              _lodash.default.set(model, frontendKey, _lodash.default.union(currentFrontendValue, result));
             } else {
-              model[frontendKey] = result;
+              _lodash.default.set(model, frontendKey, result);
             }
           } else {
-            model[frontendKey] = _lodash.default.merge(model[frontendKey], result);
+            _lodash.default.set(model, frontendKey, _lodash.default.merge(_lodash.default.get(model, frontendKey), result));
           }
 
           return Promise.resolve(model);
