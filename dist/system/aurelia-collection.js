@@ -1,3 +1,5 @@
+"use strict";
+
 System.register(["whatwg-fetch", "./use-collection", "./collection", "./config"], function (_export, _context) {
   "use strict";
 

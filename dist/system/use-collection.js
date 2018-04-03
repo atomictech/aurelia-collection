@@ -1,3 +1,5 @@
+"use strict";
+
 System.register(["aurelia-dependency-injection", "./config"], function (_export, _context) {
   "use strict";
 

@@ -35,13 +35,13 @@
     "@babel/preset-env": "^7.0.0-beta.35",
     "@babel/preset-stage-1": "^7.0.0-beta.35",
     "@babel/register": "^7.0.0-beta.35",
-    "aurelia-tools": "^1.0.0",
+    "aurelia-tools": "^2.0.0",
     "babel-eslint": "^8.0.3",
     "babel-plugin-istanbul": "^4.0.0",
     "coveralls": "^3.0.0",
     "del": "^3.0.0",
     "eslint": "^4.13.1",
-    "gulp": "github:gulpjs/gulp#4.0",
+    "gulp": "^4.0.0",
     "gulp-babel": "^8.0.0-beta.0",
     "gulp-eslint": "^4.0.0",
     "gulp-eslint-if-fixed": "^1.0.0",
@@ -50,18 +50,18 @@
     "istanbul": "^1.0.0-alpha.2",
     "jasmine-core": "^2.5.2",
     "jspm": "^0.16.53",
-    "karma": "^1.4.1",
-    "karma-babel-preprocessor": "github:MattiasBuelens/karma-babel-preprocessor#use-@babel",
+    "karma": "^2.0.0",
+    "karma-babel-preprocessor": "8.0.0-beta.0",
     "karma-chrome-launcher": "^2.2.0",
     "karma-coverage": "^1.1.1",
     "karma-jasmine": "^1.1.0",
     "karma-jspm": "^2.2.1",
     "object.assign": "^4.0.4",
-    "require-dir": "^0.3.1",
+    "require-dir": "^1.0.0",
     "run-sequence": "^2.1.0",
     "standard-version": "^4.2.0",
     "vinyl-paths": "^2.1.0",
-    "yargs": "^10.0.3"
+    "yargs": "^11.0.0"
   },
   "jspm": {
     "registry": "npm",
@@ -87,8 +87,5 @@
       "fake-fetch": "^1.0.0"
     }
   },
-  "dependencies": {},
-  "resolutions": {
-    "gulp/**/interpret": "1.1.0"
-  }
+  "dependencies": {}
 }

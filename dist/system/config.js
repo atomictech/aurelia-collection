@@ -1,3 +1,5 @@
+"use strict";
+
 System.register(["lodash", "aurelia-framework", "aurelia-dependency-injection", "aurelia-fetch-client", "./collection"], function (_export, _context) {
   "use strict";
 
