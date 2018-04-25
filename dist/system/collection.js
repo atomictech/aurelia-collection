@@ -64,6 +64,10 @@ System.register(["lodash", "aurelia-dependency-injection", "aurelia-fetch-client
             if (_.isUndefined(model)) {
               model = this.container.invoke(this.modelClass, data);
 
+              _.each(data, function (value, key) {
+                model[key] = value;
+              });
+
               if (!options.ignoreCollection) {
                 this.collection.push(model);
               }
@@ -380,7 +384,7 @@ System.register(["lodash", "aurelia-dependency-injection", "aurelia-fetch-client
             return Promise.all(_.map(backAttr, function (value, field) {
               var frontendKey = field;
               var backendKey = field;
-              var frontendValue = Promise.resolve(_.get(attributes, backendKey));
+              var frontendValue = Promise.resolve(value);
 
               var item = _.find(refKeys, {
                 backendKey: field

@@ -53,6 +53,10 @@ define(["exports", "lodash", "aurelia-dependency-injection", "aurelia-fetch-clie
         if (_lodash.default.isUndefined(model)) {
           model = this.container.invoke(this.modelClass, data);
 
+          _lodash.default.each(data, function (value, key) {
+            model[key] = value;
+          });
+
           if (!options.ignoreCollection) {
             this.collection.push(model);
           }
@@ -369,7 +373,7 @@ define(["exports", "lodash", "aurelia-dependency-injection", "aurelia-fetch-clie
         return Promise.all(_lodash.default.map(backAttr, function (value, field) {
           var frontendKey = field;
           var backendKey = field;
-          var frontendValue = Promise.resolve(_lodash.default.get(attributes, backendKey));
+          var frontendValue = Promise.resolve(value);
 
           var item = _lodash.default.find(refKeys, {
             backendKey: field
