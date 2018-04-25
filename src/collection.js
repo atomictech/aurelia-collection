@@ -64,6 +64,12 @@ export class Collection {
     if (_.isUndefined(model)) {
       model = this.container.invoke(this.modelClass, data);
 
+      // affect model attribute based on what the backend is sending, this avoid the need of constructor in models
+      _.each(data, (value, key) => {
+        model[key] = value;
+      });
+
+      // do not store the model in the collection flag
       if (!options.ignoreCollection) {
         this.collection.push(model);
       }
@@ -455,7 +461,7 @@ export class Collection {
     return Promise.all(_.map(backAttr, (value, field) => {
       let frontendKey = field;
       let backendKey = field;
-      let frontendValue = Promise.resolve(_.get(attributes, backendKey));
+      let frontendValue = Promise.resolve(value);
 
       // The current field is a frontend type of key.
       let item = _.find(refKeys, { backendKey: field });
