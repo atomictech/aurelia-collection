@@ -205,6 +205,32 @@ export class Collection {
   }
 
   /**
+   * Walk through `pointer` in order to execute `leafProcessor` on all leafs of `remainingPath`.
+   * NB: This method iterate over encountered arrays.
+   * @param {Object} pointer : current pointer inside the walked object.
+   * @param {Array} remainingPath : array of the remaining child path to walk.
+   * @param {Function} leafProcessor : function to execute on leafs. Prototype is `leafProcessor(pointer, key) => Promise` where `pointer` is the last node and `key` the leaf key in that node.
+   * @return {Promise} a promise that resolves when all execution of `leafProcessor` has ended.
+   */
+  _walk(pointer, remainingPath, leafProcessor) {
+    if (_.isNil(pointer)) {
+      return Promise.resolve(null);
+    }
+
+    let key = remainingPath.shift();
+
+    if (remainingPath.length > 0) {
+      if (_.isArray(pointer[key])) {
+        return Promise.all(_.map(pointer[key], element => this._walk(element, remainingPath, leafProcessor)));
+      }
+      return this._walk(pointer[key], remainingPath, leafProcessor);
+    }
+
+    // We have reach the leaf
+    return leafProcessor(pointer, key);
+  }
+
+  /**
    * [create description]
    * @param  {[type]} jsonModel [description]
    * @param  {[type]} options   [description]
@@ -304,7 +330,7 @@ export class Collection {
 
         // each reference attribute (described by the model class) is replaced by the matching model instance if we ask for population
         return Promise.all(
-          _.map(this.refKeys(model), item => {
+          _.map(this.refKeys(), item => {
             item = _.defaults(item, {
               backendKey: null,
               collection: null,
@@ -324,28 +350,30 @@ export class Collection {
               item.frontendKey = item.backendKey;
             }
 
-            let itemData = _.get(model, item.backendKey);
+            return this._walk(model, item.backendKey.split('.'), (pointer, key) => {
+              let itemData = _.get(pointer, key);
 
-            let itemDataPromise = Promise.resolve(null);
+              let itemDataPromise = Promise.resolve(null);
 
-            // item.collection can be null if we want to keep JSON data.
-            if (_.isNull(item.collection)) {
-              itemDataPromise = Promise.resolve(itemData);
-            } else if (!_.isNil(collection)) {
-              itemDataPromise = collection.get(itemData, childOpt);
-            }
+              // item.collection can be null if we want to keep JSON data.
+              if (_.isNull(item.collection)) {
+                itemDataPromise = Promise.resolve(itemData);
+              } else if (!_.isNil(collection)) {
+                itemDataPromise = collection.get(itemData, childOpt);
+              }
 
-            return itemDataPromise
-              .then(childrenItems => {
-                // Replace the model key if necessary.
-                if (!_.isNil(childrenItems) && isNotNullArray(childrenItems)) {
-                  if (item.backendKeyDeletion === true) {
-                    _.unset(model, item.backendKey);
+              return itemDataPromise
+                .then(childrenItems => {
+                  // Replace the model key if necessary.
+                  if (!_.isNil(childrenItems) && isNotNullArray(childrenItems)) {
+                    if (item.backendKeyDeletion === true) {
+                      _.unset(pointer, key);
+                    }
+
+                    return _.set(pointer, item.frontendKey, _.pull(childrenItems, null, undefined));
                   }
-
-                  return _.set(model, item.frontendKey, _.pull(childrenItems, null, undefined));
-                }
-              });
+                });
+            });
           }))
           .then(() => model);
       });
@@ -434,13 +462,15 @@ export class Collection {
         backendKeyDeletion: true
       });
 
-      if (item.backendKeyDeletion) {
-        _.unset(attributes, item.frontendKey);
-      }
+      this._walk(attributes, item.backendKey.split('.'), (pointer, key) => {
+        if (item.backendKeyDeletion) {
+          _.unset(pointer, item.frontendKey);
+        }
 
-      // browser request filter undefined fields, we need to explicitely set it to null to be sent to the backend. (in case of reseting the field)
-      let id = _getIdFromData(value);
-      _.set(attributes, item.backendKey, _.isUndefined(id) ? null : id);
+        // browser request filter undefined fields, we need to explicitely set it to null to be sent to the backend. (in case of reseting the field)
+        let id = _getIdFromData(value);
+        _.set(pointer, key, _.isUndefined(id) ? null : id);
+      });
     });
 
     return Promise.resolve(attributes);
@@ -461,29 +491,9 @@ export class Collection {
     return Promise.all(_.map(backAttr, (value, field) => {
       let frontendKey = field;
       let backendKey = field;
-      let frontendValue = Promise.resolve(value);
-
-      // The current field is a frontend type of key.
-      let item = _.find(refKeys, { backendKey: field });
-      if (!_.isUndefined(item)) {
-        item = _.defaults(item, {
-          backendKey: null,
-          frontendKey: null,
-          collection: null,
-          backendKeyDeletion: true
-        });
-
-        frontendKey = item.frontendKey;
-        backendKey = item.backendKey;
-
-        // item.collection can be null if we want to keep JSON data.
-        if (!_.isNull(item.collection)) {
-          frontendValue = this.container.get(Config).getCollection(item.collection).get(_.get(attributes, backendKey));
-        }
-      }
 
       // Update the right key in the model, with updateStrategy to replace, merge only arrays or merge all the attribute.
-      return frontendValue.then(result => {
+      let updateModel = result => {
         if (!_.has(opts, 'mergeStrategy') || opts.mergeStrategy === 'replace') {
           _.set(model, frontendKey, result);
         } else if (opts.mergeStrategy === 'ignore') {
@@ -499,6 +509,33 @@ export class Collection {
           _.set(model, frontendKey, _.merge(_.get(model, frontendKey), result));
         }
         return Promise.resolve(model);
+      };
+
+      // The current field is a frontend type of key.
+      let item = _.find(refKeys, { backendKey: field });
+
+      if (_.isUndefined(item)) {
+        return updateModel(value);
+      }
+
+      item = _.defaults(item, {
+        backendKey: null,
+        frontendKey: null,
+        collection: null,
+        backendKeyDeletion: true
+      });
+
+      frontendKey = item.frontendKey;
+      backendKey = item.backendKey;
+
+      // item.collection can be null if we want to keep JSON data.
+      if (_.isNull(item.collection)) {
+        return updateModel(value);
+      }
+
+      return this._walk(attributes, backendKey.split('.'), (pointer, key) => {
+        return this.container.get(Config).getCollection(item.collection).get(_.get(pointer, key))
+          .then(updateModel);
       });
     }));
   }
