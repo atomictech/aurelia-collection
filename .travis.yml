@@ -5,8 +5,8 @@ node_js:
   - "6"
 cache:
   directories:
-    - node_modules
-    - jspm_packages
+    - $HOME/.npm
+    - $HOME/.jspm
 notifications:
   slack: atomictech:Y2CvOY8NZ6K1OOvw4vwZ4EXW
 addons:
