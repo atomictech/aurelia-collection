@@ -151,9 +151,32 @@ var Collection = function () {
       return Promise.resolve(model);
     }
   }, {
+    key: "_walk",
+    value: function _walk(pointer, remainingPath, leafProcessor) {
+      var _this2 = this;
+
+      if (_lodash.default.isNil(pointer)) {
+        return Promise.resolve(null);
+      }
+
+      var key = remainingPath.shift();
+
+      if (remainingPath.length > 0) {
+        if (_lodash.default.isArray(pointer[key])) {
+          return Promise.all(_lodash.default.map(pointer[key], function (element) {
+            return _this2._walk(element, remainingPath, leafProcessor);
+          }));
+        }
+
+        return this._walk(pointer[key], remainingPath, leafProcessor);
+      }
+
+      return leafProcessor(pointer, key);
+    }
+  }, {
     key: "create",
     value: function create(jsonModel, options) {
-      var _this2 = this;
+      var _this3 = this;
 
       var opts = options || {};
       var apiRoute = opts.route || this.defaultRoute.slice(0, -1);
@@ -163,7 +186,7 @@ var Collection = function () {
       }).then(function (response) {
         return response.json();
       }).then(function (data) {
-        return _this2.get(data);
+        return _this3.get(data);
       });
     }
   }, {
@@ -183,18 +206,18 @@ var Collection = function () {
   }, {
     key: "all",
     value: function all(options) {
-      var _this3 = this;
+      var _this4 = this;
 
       return this._httpClient.fetch(this.defaultRoute).then(function (response) {
         return response.json();
       }).then(function (data) {
-        return _this3.get(data, options);
+        return _this4.get(data, options);
       });
     }
   }, {
     key: "get",
     value: function get(data, options) {
-      var _this4 = this;
+      var _this5 = this;
 
       options = _lodash.default.defaults(options, {
         _child: false,
@@ -208,7 +231,7 @@ var Collection = function () {
         return Promise.resolve(data);
       } else if (_lodash.default.isArray(data)) {
         return modelPromise = Promise.all(_lodash.default.map(data, function (item) {
-          return _this4.get(item, options);
+          return _this5.get(item, options);
         }));
       } else if (_lodash.default.isObject(data)) {
         modelPromise = this.fromJSON(data, options);
@@ -238,7 +261,7 @@ var Collection = function () {
         }
 
         childOpt._child = true;
-        return Promise.all(_lodash.default.map(_this4.refKeys(model), function (item) {
+        return Promise.all(_lodash.default.map(_this5.refKeys(), function (item) {
           item = _lodash.default.defaults(item, {
             backendKey: null,
             collection: null,
@@ -246,7 +269,7 @@ var Collection = function () {
             backendKeyDeletion: true
           });
 
-          var collection = _this4.container.get(_config.Config).getCollection(item.collection);
+          var collection = _this5.container.get(_config.Config).getCollection(item.collection);
 
           if (_lodash.default.isNil(item.backendKey)) {
             return;
@@ -256,24 +279,26 @@ var Collection = function () {
             item.frontendKey = item.backendKey;
           }
 
-          var itemData = _lodash.default.get(model, item.backendKey);
+          return _this5._walk(model, item.backendKey.split('.'), function (pointer, key) {
+            var itemData = _lodash.default.get(pointer, key);
 
-          var itemDataPromise = Promise.resolve(null);
+            var itemDataPromise = Promise.resolve(null);
 
-          if (_lodash.default.isNull(item.collection)) {
-            itemDataPromise = Promise.resolve(itemData);
-          } else if (!_lodash.default.isNil(collection)) {
-            itemDataPromise = collection.get(itemData, childOpt);
-          }
-
-          return itemDataPromise.then(function (childrenItems) {
-            if (!_lodash.default.isNil(childrenItems) && isNotNullArray(childrenItems)) {
-              if (item.backendKeyDeletion === true) {
-                _lodash.default.unset(model, item.backendKey);
-              }
-
-              return _lodash.default.set(model, item.frontendKey, _lodash.default.pull(childrenItems, null, undefined));
+            if (_lodash.default.isNull(item.collection)) {
+              itemDataPromise = Promise.resolve(itemData);
+            } else if (!_lodash.default.isNil(collection)) {
+              itemDataPromise = collection.get(itemData, childOpt);
             }
+
+            return itemDataPromise.then(function (childrenItems) {
+              if (!_lodash.default.isNil(childrenItems) && isNotNullArray(childrenItems)) {
+                if (item.backendKeyDeletion === true) {
+                  _lodash.default.unset(pointer, key);
+                }
+
+                return _lodash.default.set(pointer, item.frontendKey, _lodash.default.pull(childrenItems, null, undefined));
+              }
+            });
           });
         })).then(function () {
           return model;
@@ -283,7 +308,7 @@ var Collection = function () {
   }, {
     key: "find",
     value: function find(predicate, fallbackUrl) {
-      var _this5 = this;
+      var _this6 = this;
 
       var res = _lodash.default.find(this.collection, predicate);
 
@@ -295,7 +320,7 @@ var Collection = function () {
         return this._httpClient.fetch(fallbackUrl).then(function (response) {
           return response.json();
         }).then(function (data) {
-          return _this5.get(data);
+          return _this6.get(data);
         });
       }
 
@@ -304,12 +329,12 @@ var Collection = function () {
   }, {
     key: "update",
     value: function update(model, attr, options) {
-      var _this6 = this;
+      var _this7 = this;
 
       var opts = options || {};
       var apiRoute = opts.route || this.defaultRoute + model[this.modelid];
       return this._frontToBackend(attr, opts).then(function (backAttr) {
-        return _this6._httpClient.fetch(apiRoute, {
+        return _this7._httpClient.fetch(apiRoute, {
           method: 'put',
           headers: {
             'Content-Type': 'application/json'
@@ -318,7 +343,7 @@ var Collection = function () {
         }).then(function (response) {
           return response.json();
         }).then(function (attributes) {
-          return _this6._backToFrontend(attributes, backAttr, model, opts);
+          return _this7._backToFrontend(attributes, backAttr, model, opts);
         });
       }).then(function () {
         return model;
@@ -327,7 +352,7 @@ var Collection = function () {
   }, {
     key: "_frontToBackend",
     value: function _frontToBackend(attributes, options) {
-      var _this7 = this;
+      var _this8 = this;
 
       var refKeys = this.refKeys();
 
@@ -337,7 +362,7 @@ var Collection = function () {
         } else if (_lodash.default.isArray(data)) {
           return _lodash.default.map(data, _getIdFromData);
         } else if (_lodash.default.isObject(data)) {
-          return data[_this7.modelid];
+          return data[_this8.modelid];
         }
 
         return null;
@@ -358,13 +383,15 @@ var Collection = function () {
           backendKeyDeletion: true
         });
 
-        if (item.backendKeyDeletion) {
-          _lodash.default.unset(attributes, item.frontendKey);
-        }
+        _this8._walk(attributes, item.backendKey.split('.'), function (pointer, key) {
+          if (item.backendKeyDeletion) {
+            _lodash.default.unset(pointer, item.frontendKey);
+          }
 
-        var id = _getIdFromData(value);
+          var id = _getIdFromData(value);
 
-        _lodash.default.set(attributes, item.backendKey, _lodash.default.isUndefined(id) ? null : id);
+          _lodash.default.set(pointer, key, _lodash.default.isUndefined(id) ? null : id);
+        });
       });
 
       return Promise.resolve(attributes);
@@ -372,35 +399,15 @@ var Collection = function () {
   }, {
     key: "_backToFrontend",
     value: function _backToFrontend(attributes, backAttr, model, options) {
-      var _this8 = this;
+      var _this9 = this;
 
       var opts = options || {};
       var refKeys = this.refKeys();
       return Promise.all(_lodash.default.map(backAttr, function (value, field) {
         var frontendKey = field;
         var backendKey = field;
-        var frontendValue = Promise.resolve(value);
 
-        var item = _lodash.default.find(refKeys, {
-          backendKey: field
-        });
-
-        if (!_lodash.default.isUndefined(item)) {
-          item = _lodash.default.defaults(item, {
-            backendKey: null,
-            frontendKey: null,
-            collection: null,
-            backendKeyDeletion: true
-          });
-          frontendKey = item.frontendKey;
-          backendKey = item.backendKey;
-
-          if (!_lodash.default.isNull(item.collection)) {
-            frontendValue = _this8.container.get(_config.Config).getCollection(item.collection).get(_lodash.default.get(attributes, backendKey));
-          }
-        }
-
-        return frontendValue.then(function (result) {
+        var updateModel = function updateModel(result) {
           if (!_lodash.default.has(opts, 'mergeStrategy') || opts.mergeStrategy === 'replace') {
             _lodash.default.set(model, frontendKey, result);
           } else if (opts.mergeStrategy === 'ignore') {
@@ -418,6 +425,31 @@ var Collection = function () {
           }
 
           return Promise.resolve(model);
+        };
+
+        var item = _lodash.default.find(refKeys, {
+          backendKey: field
+        });
+
+        if (_lodash.default.isUndefined(item)) {
+          return updateModel(value);
+        }
+
+        item = _lodash.default.defaults(item, {
+          backendKey: null,
+          frontendKey: null,
+          collection: null,
+          backendKeyDeletion: true
+        });
+        frontendKey = item.frontendKey;
+        backendKey = item.backendKey;
+
+        if (_lodash.default.isNull(item.collection)) {
+          return updateModel(value);
+        }
+
+        return _this9._walk(attributes, backendKey.split('.'), function (pointer, key) {
+          return _this9.container.get(_config.Config).getCollection(item.collection).get(_lodash.default.get(pointer, key)).then(updateModel);
         });
       }));
     }

@@ -65,7 +65,6 @@
   },
   "jspm": {
     "registry": "npm",
-    "jspmPackage": true,
     "main": "aurelia-collection",
     "format": "amd",
     "directories": {
