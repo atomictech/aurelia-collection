@@ -182,6 +182,3 @@ All notable changes to this project will be documented in this file. See [standa
 * **renaming:** renamed all files and api according to class name changes. ([84e9813](https://github.com/atomictech/aurelia-collection/commit/84e9813))
 * **resolver:** renamed resolver class file. ([b5d44e0](https://github.com/atomictech/aurelia-collection/commit/b5d44e0))
 * **service:** It is now possible to not have a dedicated model class, and use literal object instead (without collection). It is useful for backend to frontend key conversion. ([8c29650](https://github.com/atomictech/aurelia-collection/commit/8c29650))
-
-
-
