@@ -778,6 +778,10 @@ acorn@^5.2.1, acorn@^5.4.1, acorn@^5.5.0:
   version "5.5.3"
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-5.5.3.tgz#f473dd47e0277a08e28e9bec5aeeb04751f0b8c9"
 
+add-matchers@0.5.0:
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/add-matchers/-/add-matchers-0.5.0.tgz#502190e4750cd5721618393268b61a157366e765"
+
 addressparser@1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/addressparser/-/addressparser-1.0.1.tgz#47afbe1a2a9262191db6838e4fd1d39b40821746"
@@ -4687,6 +4691,12 @@ jasmine-core@^2.5.2:
   version "2.99.1"
   resolved "https://registry.yarnpkg.com/jasmine-core/-/jasmine-core-2.99.1.tgz#e6400df1e6b56e130b61c4bcd093daa7f6e8ca15"
 
+jasmine-expect@3.8.3:
+  version "3.8.3"
+  resolved "https://registry.yarnpkg.com/jasmine-expect/-/jasmine-expect-3.8.3.tgz#ab82323fd16353b26f0a9cbeacf744752e7eb601"
+  dependencies:
+    add-matchers "0.5.0"
+
 js-tokens@^3.0.0, js-tokens@^3.0.2:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/js-tokens/-/js-tokens-3.0.2.tgz#9866df395102130e38f7f996bceb65443209c25b"
@@ -4865,6 +4875,12 @@ karma-coverage@^1.1.1:
     lodash "^3.8.0"
     minimatch "^3.0.0"
     source-map "^0.5.1"
+
+karma-jasmine-matchers@^3.8.3:
+  version "3.8.3"
+  resolved "https://registry.yarnpkg.com/karma-jasmine-matchers/-/karma-jasmine-matchers-3.8.3.tgz#f69baf8a6e8ae707d0781ec0cd2f14d497aea242"
+  dependencies:
+    jasmine-expect "3.8.3"
 
 karma-jasmine@^1.1.0:
   version "1.1.1"

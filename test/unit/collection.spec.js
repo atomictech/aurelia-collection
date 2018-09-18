@@ -7,6 +7,41 @@ import { bootstrap } from 'aurelia-bootstrapper';
 import { Config } from '../../src/config';
 import { Collection } from '../../src/collection';
 
+function initializeCollections(car, carCollection, config, creator, driver, driverCollection, phone, phoneCollection, screen, app, screenCollection, appCollection) {
+  car = { _id: 'carId', wheels: 4, driver: '' };
+  driver = { _id: 'driverId', name: 'Fake Name', phones: [] };
+  phone = { _id: 'phone1', battery: '3h', screens: [{ screen: '', apps: [] }] };
+  screen = { _id: 'screen1', index: 1 };
+  app = { _id: 'app1', 'name': 'Makerz' };
+
+  car.driver = driver;
+  driver.phones = [phone];
+  phone.screens = [{ screen: screen, apps: [app] }];
+
+  carCollection = config.registerCollection('myKey', 'default/route/', Collection, creator);
+  carCollection.collection.push(car);
+  carCollection.refKeys = () => [{ backendKey: '_ref_driver', collection: 'Drivers', frontendKey: 'driver' }];
+
+  driverCollection = config.registerCollection('Drivers', 'api/drivers/', Collection, creator);
+  driverCollection.collection.push(driver);
+  driverCollection.refKeys = () => [{ backendKey: '_ref_phones', collection: 'Phones', frontendKey: 'phones' }];
+
+
+  phoneCollection = config.registerCollection('Phones', 'api/phones/', Collection, creator);
+  phoneCollection.collection.push(phone);
+  phoneCollection.refKeys = () => [
+    { backendKey: 'screens._ref_screen', collection: 'Screens', frontendKey: 'screen' },
+    { backendKey: 'screens._ref_apps', collection: 'Apps', frontendKey: 'apps' }];
+
+  screenCollection = config.registerCollection('Screens', 'api/screens/', Collection, creator);
+  screenCollection.collection.push(screen);
+
+  appCollection = config.registerCollection('Apps', 'api/apps/', Collection, creator);
+  appCollection.collection.push(app);
+
+  return { car, carCollection, driver, driverCollection, phone, phoneCollection, screen, app, screenCollection, appCollection };
+}
+
 describe('Collection', () => {
   let component;
   let container;
@@ -48,7 +83,6 @@ describe('Collection', () => {
 
     beforeEach(() => {
       let creator = (data) => data;
-      // collection = new Collection();
       collection = config.registerCollection('myKey', 'default/route/', Collection, creator);
     });
 
@@ -60,16 +94,16 @@ describe('Collection', () => {
     });
 
     it('Should return a new model when data has an id not found in the collection', done => {
-      collection.fromJSON({ _id: 'myId', foo: 21 }).then(res => {
-        expect(res).toEqual({ _id: 'myId', foo: 21 });
+      collection.fromJSON({ _id: 'carId', foo: 21 }).then(res => {
+        expect(res).toEqual({ _id: 'carId', foo: 21 });
         done();
       });
     });
 
     it('Should return a new model when data has an id not found in the collection', done => {
-      collection.fromJSON({ _id: 'myId', foo: 21 }, { ignoreCollection: true })
+      collection.fromJSON({ _id: 'carId', foo: 21 }, { ignoreCollection: true })
         .then(res => {
-          expect(res).toEqual({ _id: 'myId', foo: 21 });
+          expect(res).toEqual({ _id: 'carId', foo: 21 });
           expect(collection.collection).toEqual([]);
           done();
         });
@@ -77,12 +111,12 @@ describe('Collection', () => {
 
     it('Should return a existing model, _syncFrom depending on isComplete, if data id is found in the collection', done => {
       let model = {
-        _id: 'myId',
+        _id: 'carId',
         foo: 42
       };
       collection.collection.push(model);
 
-      collection.fromJSON({ _id: 'myId' }).then(res => {
+      collection.fromJSON({ _id: 'carId' }).then(res => {
         expect(res).toEqual(model);
         done();
       });
@@ -96,7 +130,6 @@ describe('Collection', () => {
     beforeEach(() => {
       let creator = (data) => data;
       model = { _id: 'fakeId', other: 'field' };
-      // collection = new Collection();
       collection = config.registerCollection('myKey', 'default/route/', Collection, creator);
     });
 
@@ -115,16 +148,15 @@ describe('Collection', () => {
 
   describe('.flush()', () => {
     it('Should clear the collection from the created models', done => {
-      fakeFetch.respondWith('{ "_id": "myId" }');
+      fakeFetch.respondWith('{ "_id": "carId" }');
 
-      // let collection = new Collection();
       let collection = config.registerCollection('myKey');
 
       expect(collection.collection).toEqual([]);
 
-      collection.get('myId')
+      collection.get('carId')
         .then(res => {
-          expect(res._id).toBe('myId');
+          expect(res._id).toBe('carId');
           collection.flush();
           expect(collection.collection).toEqual([]);
           done();
@@ -143,25 +175,24 @@ describe('Collection', () => {
     let model;
     let collection;
     beforeEach(() => {
-      fakeFetch.respondWith('{ "_id": "myId", "foo": "bar" }');
+      fakeFetch.respondWith('{ "_id": "carId", "foo": "bar" }');
       let creator = (data) => data;
-      model = { _id: 'myId' };
-      // collection = new Collection();
+      model = { _id: 'carId' };
       collection = config.registerCollection('myKey', 'default/route/', Collection, creator);
     });
 
     it('Should return the synced model when given an id', done => {
       collection.collection.push(model);
-      collection.sync('myId').then(res => {
-        expect(res).toEqual({ _id: 'myId', foo: 'bar' });
+      collection.sync('carId').then(res => {
+        expect(res).toEqual({ _id: 'carId', foo: 'bar' });
         done();
       });
     });
 
     it('Should return the synced model when given json data of the model', done => {
       collection.collection.push(model);
-      collection.sync({ _id: 'myId' }).then(res => {
-        expect(res).toEqual({ _id: 'myId', foo: 'bar' });
+      collection.sync({ _id: 'carId' }).then(res => {
+        expect(res).toEqual({ _id: 'carId', foo: 'bar' });
         done();
       });
     });
@@ -196,23 +227,21 @@ describe('Collection', () => {
   describe('._getFromCollection', () => {
     it('Should find a model with default _id property value', () => {
       let creator = (data) => data;
-      let model = { _id: 'myId' };
-      // let collection = new Collection();
+      let model = { _id: 'carId' };
       let collection = config.registerCollection('myKey', 'default/route/', Collection, creator);
 
       collection.collection.push(model);
-      expect(collection._getFromCollection('myId')).toEqual(model);
+      expect(collection._getFromCollection('carId')).toEqual(model);
       expect(collection._getFromCollection('noId')).toBeUndefined();
     });
 
     it('Should find a model with custom id property value', () => {
       let creator = (data) => data;
-      let model = { idField: 'myId' };
-      // let collection = new Collection();
+      let model = { idField: 'carId' };
       let collection = config.registerCollection('myKey', 'default/route/', Collection, creator, 'idField');
 
       collection.collection.push(model);
-      expect(collection._getFromCollection('myId')).toEqual(model);
+      expect(collection._getFromCollection('carId')).toEqual(model);
       expect(collection._getFromCollection('noId')).toBeUndefined();
     });
   });
@@ -223,38 +252,37 @@ describe('Collection', () => {
 
     beforeEach(() => {
       creator = (data) => data;
-      // collection = new Collection();
     });
 
     it('Should remove a model with default _id property value', () => {
-      let model = { _id: 'myId' };
+      let model = { _id: 'carId' };
       let anotherModel = { idField: 'myOtherId' };
       collection = config.registerCollection('myKey', 'default/route/', Collection, creator);
 
       collection.collection.push(model);
       collection.collection.push(anotherModel);
 
-      collection._removeFromCollection('myId');
+      collection._removeFromCollection('carId');
       expect(collection.collection).toEqual([anotherModel]);
 
       // We can try to remove it  again, and it still works.
-      collection._removeFromCollection('myId');
+      collection._removeFromCollection('carId');
       expect(collection.collection).toEqual([anotherModel]);
     });
 
     it('Should remove a model with default _id property value', () => {
-      let model = { idField: 'myId' };
+      let model = { idField: 'carId' };
       let anotherModel = { idField: 'myOtherId' };
       collection = config.registerCollection('myKey', 'default/route/', Collection, creator, 'idField');
 
       collection.collection.push(model);
       collection.collection.push(anotherModel);
 
-      collection._removeFromCollection('myId');
+      collection._removeFromCollection('carId');
       expect(collection.collection).toEqual([anotherModel]);
 
       // We can try to remove it  again, and it still works.
-      collection._removeFromCollection('myId');
+      collection._removeFromCollection('carId');
       expect(collection.collection).toEqual([anotherModel]);
     });
   });
@@ -266,15 +294,14 @@ describe('Collection', () => {
 
     beforeEach(() => {
       creator = (data) => data;
-      model = { _id: 'myId', wheels: 4 };
-      // collection = new Collection();
+      model = { _id: 'carId', wheels: 4 };
       collection = config.registerCollection('myKey', 'default/route/', Collection, creator);
     });
 
     it('Should return an already known model', done => {
       collection.collection.push(model);
 
-      collection._getById('myId')
+      collection._getById('carId')
         .then(foundModel => {
           expect(foundModel).toBe(model);
           done();
@@ -286,12 +313,12 @@ describe('Collection', () => {
 
       spyOn(collection._httpClient, 'fetch').and.callThrough();
 
-      collection._getById('myId', {
+      collection._getById('carId', {
         force: false,
-        route: collection.defaultRoute + 'myId/myOther/path'
+        route: collection.defaultRoute + 'carId/myOther/path'
       }).then(foundModel => {
         expect(foundModel).toEqual(model);
-        expect(collection._httpClient.fetch).toHaveBeenCalledWith('default/route/myId/myOther/path');
+        expect(collection._httpClient.fetch).toHaveBeenCalledWith('default/route/carId/myOther/path');
         done();
       });
     });
@@ -302,7 +329,7 @@ describe('Collection', () => {
 
       spyOn(collection._httpClient, 'fetch').and.callThrough();
 
-      collection._getById('myId', { force: true })
+      collection._getById('carId', { force: true })
         .then(foundModel => {
           expect(foundModel).toEqual(model);
           expect(collection._httpClient.fetch).toHaveBeenCalled();
@@ -317,7 +344,7 @@ describe('Collection', () => {
       fakeFetch.respondWith(JSON.stringify(model));
 
       spyOn(collection._httpClient, 'fetch').and.callThrough();
-      collection._getById('myId', { force: true })
+      collection._getById('carId', { force: true })
         .then(foundModel => {
           expect(foundModel).toEqual(model);
           expect(collection._httpClient.fetch).toHaveBeenCalled();
@@ -328,57 +355,55 @@ describe('Collection', () => {
 
   describe('.create', () => {
     let creator;
-    let model;
-    let collection;
+    let car;
+    let carCollection;
 
     beforeEach(() => {
       creator = (data) => data;
-      model = { _id: 'myId', wheels: 4 };
-      // collection = new Collection();
-      collection = config.registerCollection('myKey', 'default/route/', Collection, creator);
+      car = { _id: 'carId', wheels: 4 };
+      carCollection = config.registerCollection('myKey', 'default/route/', Collection, creator);
     });
 
     it('Should return the created model', done => {
-      model = { _id: 'myId', wheels: 4 };
-      fakeFetch.respondWith(JSON.stringify(model));
+      car = { _id: 'carId', wheels: 4 };
+      fakeFetch.respondWith(JSON.stringify(car));
 
-      spyOn(collection._httpClient, 'fetch').and.callThrough();
+      spyOn(carCollection._httpClient, 'fetch').and.callThrough();
 
-      collection.create(model)
+      carCollection.create(car)
         .then(createdModel => {
-          expect(createdModel).toEqual(model);
-          expect(collection._httpClient.fetch).toHaveBeenCalledWith('default/route', jasmine.objectContaining({ method: 'post' }));
+          expect(createdModel).toEqual(car);
+          expect(carCollection._httpClient.fetch).toHaveBeenCalledWith('default/route', jasmine.objectContaining({ method: 'post' }));
           done();
         });
     });
 
     it('Should return the created model on a dedicated route', done => {
-      model = { _id: 'myId', wheels: 4 };
-      fakeFetch.respondWith(JSON.stringify(model));
+      car = { _id: 'carId', wheels: 4 };
+      fakeFetch.respondWith(JSON.stringify(car));
 
-      spyOn(collection._httpClient, 'fetch').and.callThrough();
+      spyOn(carCollection._httpClient, 'fetch').and.callThrough();
 
-      collection.create(model, { route: 'default/route/creation' })
+      carCollection.create(car, { route: 'default/route/creation' })
         .then(createdModel => {
-          expect(createdModel).toEqual(model);
-          expect(collection._httpClient.fetch).toHaveBeenCalledWith(('default/route/creation'), jasmine.objectContaining({ method: 'post' }));
+          expect(createdModel).toEqual(car);
+          expect(carCollection._httpClient.fetch).toHaveBeenCalledWith(('default/route/creation'), jasmine.objectContaining({ method: 'post' }));
           done();
         });
     });
 
     it('Should return the model and leave the submodel id', done => {
-      // let collection2 = new Collection();
-      let driver = { _id: 'fakeId', name: 'Fake Name' };
-      model._ref_driver = 'fakeId';
-      let collection2 = config.registerCollection('Drivers', 'api/drivers/', Collection, creator);
-      collection2.collection.push(driver);
-      collection.refKeys = () => [{ backendKey: '_ref_driver', collection: 'Drivers', frontendKey: 'driver' }];
+      let driver = { _id: 'driverId', name: 'Fake Name' };
+      car._ref_driver = 'driverId';
+      let driverCollection = config.registerCollection('Drivers', 'api/drivers/', Collection, creator);
+      driverCollection.collection.push(driver);
+      carCollection.refKeys = () => [{ backendKey: '_ref_driver', collection: 'Drivers', frontendKey: 'driver' }];
 
-      fakeFetch.respondWith('{ "_id": "myId", "wheels": 4, "_ref_driver": "fakeId"}');
+      fakeFetch.respondWith('{ "_id": "carId", "wheels": 4, "_ref_driver": "driverId"}');
 
-      collection.create(model)
+      carCollection.create(car)
         .then(createdModel => {
-          expect(createdModel._id).toEqual('myId');
+          expect(createdModel._id).toEqual('carId');
           expect(createdModel.wheels).toEqual(4);
           expect(createdModel._ref_driver).toEqual(driver._id);
           done();
@@ -386,18 +411,17 @@ describe('Collection', () => {
     });
 
     it('Should return the model and replace the submodel id by its model when the backend populate its data', done => {
-      // let collection2 = new Collection();
-      let driver = { _id: 'fakeId', name: 'Fake Name' };
-      model._ref_driver = 'fakeId';
-      let collection2 = config.registerCollection('Drivers', 'api/drivers/', Collection, creator);
-      collection2.collection.push(driver);
-      collection.refKeys = () => [{ backendKey: '_ref_driver', collection: 'Drivers', frontendKey: 'driver' }];
+      let driver = { _id: 'driverId', name: 'Fake Name' };
+      car._ref_driver = 'driverId';
+      let driverCollection = config.registerCollection('Drivers', 'api/drivers/', Collection, creator);
+      driverCollection.collection.push(driver);
+      carCollection.refKeys = () => [{ backendKey: '_ref_driver', collection: 'Drivers', frontendKey: 'driver' }];
 
-      fakeFetch.respondWith('{ "_id": "myId", "wheels": 4, "_ref_driver": { "_id": "fakeId", "name": "Fake Name" } }');
+      fakeFetch.respondWith('{ "_id": "carId", "wheels": 4, "_ref_driver": { "_id": "driverId", "name": "Fake Name" } }');
 
-      collection.create(model)
+      carCollection.create(car)
         .then(createdModel => {
-          expect(createdModel._id).toEqual('myId');
+          expect(createdModel._id).toEqual('carId');
           expect(createdModel.wheels).toEqual(4);
           expect(createdModel.driver).toBe(driver);
           done();
@@ -407,33 +431,32 @@ describe('Collection', () => {
 
   describe('.destroy()', () => {
     let creator;
-    let model;
-    let collection;
+    let car;
+    let carCollection;
 
     beforeEach(() => {
       creator = (data) => data;
-      model = { _id: 'myId', wheels: 4 };
-      // collection = new Collection();
-      collection = config.registerCollection('myKey', 'default/route/', Collection, creator);
-      collection.collection.push(model);
+      car = { _id: 'carId', wheels: 4 };
+      carCollection = config.registerCollection('myKey', 'default/route/', Collection, creator);
+      carCollection.collection.push(car);
       fakeFetch.respondWith('{ "response": "ok" }');
-      spyOn(collection._httpClient, 'fetch').and.callThrough();
+      spyOn(carCollection._httpClient, 'fetch').and.callThrough();
     });
 
     it('Should remove the model from the collection and call the fetch method', done => {
-      collection.destroy(model._id)
+      carCollection.destroy(car._id)
         .then(answer => {
-          expect(collection.collection).toEqual([]);
-          expect(collection._httpClient.fetch).toHaveBeenCalledWith('default/route/' + model._id, { method: 'delete' });
+          expect(carCollection.collection).toEqual([]);
+          expect(carCollection._httpClient.fetch).toHaveBeenCalledWith('default/route/' + car._id, { method: 'delete' });
           done();
         });
     });
 
     it('Should remove the model and call the fetch method on a dedicated route', done => {
-      collection.destroy(model._id, { route: 'destroy/' + model._id })
+      carCollection.destroy(car._id, { route: 'destroy/' + car._id })
         .then(answer => {
-          expect(collection.collection).toEqual([]);
-          expect(collection._httpClient.fetch).toHaveBeenCalledWith('destroy/' + model._id, { method: 'delete' });
+          expect(carCollection.collection).toEqual([]);
+          expect(carCollection._httpClient.fetch).toHaveBeenCalledWith('destroy/' + car._id, { method: 'delete' });
           done();
         });
     });
@@ -441,24 +464,24 @@ describe('Collection', () => {
 
   describe('.all', () => {
     let creator;
-    let models;
-    let collection;
+    let cars;
+    let carCollection;
 
     beforeEach(() => {
       creator = (data) => data;
-      models = [{ _id: 'myId', wheels: 4 }, { _id: 'myId2', wheels: 2 }];
-      collection = config.registerCollection('myKey', '/default/route', Collection, creator);
-      collection.collection = collection.collection.concat(models);
+      cars = [{ _id: 'carId', wheels: 4 }, { _id: 'carId2', wheels: 2 }];
+      carCollection = config.registerCollection('myKey', '/default/route', Collection, creator);
+      carCollection.collection = carCollection.collection.concat(cars);
     });
 
     it('Should return a promise with all the collection models', done => {
-      fakeFetch.respondWith(JSON.stringify(models));
-      spyOn(collection._httpClient, 'fetch').and.callThrough();
+      fakeFetch.respondWith(JSON.stringify(cars));
+      spyOn(carCollection._httpClient, 'fetch').and.callThrough();
 
-      collection.all()
+      carCollection.all()
         .then(listModels => {
-          expect(listModels).toEqual(models);
-          expect(collection._httpClient.fetch).toHaveBeenCalledWith('/default/route');
+          expect(listModels).toEqual(cars);
+          expect(carCollection._httpClient.fetch).toHaveBeenCalledWith('/default/route');
           done();
         });
     });
@@ -466,37 +489,24 @@ describe('Collection', () => {
 
   describe('.get()', () => {
     let creator;
-    let model;
+    let car;
     let driver;
     let phone;
-    let collection;
-    let collection2;
-    let collection3;
+    let screen;
+    let app;
+    let carCollection;
+    let driverCollection;
+    let phoneCollection;
+    let screenCollection;
+    let appCollection;
 
     beforeEach(() => {
       creator = (data) => data;
-      model = { _id: 'myId', wheels: 4 };
-      // collection = new Collection;
-      collection = config.registerCollection('myKey', 'default/route/', Collection, creator);
-      collection.collection.push(model);
-
-      // collection2 = new Collection();
-      driver = { _id: 'fakeId', name: 'Fake Name' };
-      model._ref_driver = 'fakeId';
-      collection2 = config.registerCollection('Drivers', 'api/drivers/', Collection, creator);
-      collection2.collection.push(driver);
-      collection.refKeys = () => [{ backendKey: '_ref_driver', collection: 'Drivers', frontendKey: 'driver' }];
-
-      // collection3 = new Collection();
-      phone = { _id: 'phone1', battery: '3h' };
-      driver._ref_phones = ['phone1'];
-      collection3 = config.registerCollection('Phones', 'api/phones/', Collection, creator);
-      collection3.collection.push(phone);
-      collection2.refKeys = () => [{ backendKey: '_ref_phones', collection: 'Phones', frontendKey: 'phones' }];
+      ({ car, carCollection, driver, driverCollection, phone, phoneCollection, screen, app, screenCollection, appCollection } = initializeCollections(car, carCollection, config, creator, driver, driverCollection, phone, phoneCollection, screen, app, screenCollection, appCollection));
     });
 
     it('Should return the parameters when calling with undefined', done => {
-      collection.get()
+      carCollection.get()
         .then(data => {
           expect(data).toBeUndefined();
           done();
@@ -504,7 +514,7 @@ describe('Collection', () => {
     });
 
     it('Should return the parameters when calling with null', done => {
-      collection.get(null)
+      carCollection.get(null)
         .then(data => {
           expect(data).toBeNull();
           done();
@@ -512,74 +522,80 @@ describe('Collection', () => {
     });
 
     it('Should return a model according to its id.', done => {
-      collection.get('myId')
+      carCollection.get('carId')
         .then(foundModel => {
-          expect(foundModel).toBe(model);
+          expect(foundModel).toBe(car);
           done();
         });
     });
 
     it('Should return a model according to its attributes containg an id.', done => {
-      collection.get({ _id: 'myId' })
+      carCollection.get({ _id: 'carId' })
         .then(foundModel => {
-          expect(foundModel).toBe(model);
+          expect(foundModel).toBe(car);
           done();
         });
     });
 
     it('Should return the models according to the ids array.', done => {
       let model2 = { _id: 'id2', wheels: 2, _ref_driver: undefined };
-      collection.collection.push(model2);
+      carCollection.collection.push(model2);
 
-      collection.get(['myId', 'id2'])
+      carCollection.get(['carId', 'id2'])
         .then(modelArray => {
-          expect(modelArray).toContain(model);
+          expect(modelArray).toContain(car);
           expect(modelArray).toContain(model2);
           done();
         });
     });
 
     it('Should return a model by calling the fetch api when using force parameter', done => {
-      fakeFetch.respondWith(JSON.stringify(model));
-      spyOn(collection._httpClient, 'fetch').and.callThrough();
+      fakeFetch.respondWith(JSON.stringify(car));
+      spyOn(carCollection._httpClient, 'fetch').and.callThrough();
 
-      collection.get('myId', { force: true })
+      carCollection.get('carId', { force: true })
         .then(foundModel => {
-          expect(foundModel).toEqual(model);
-          expect(collection._httpClient.fetch).toHaveBeenCalledWith(jasmine.stringMatching('default/route/' + model._id));
+          expect(foundModel).toEqual(car);
+          expect(carCollection._httpClient.fetch).toHaveBeenCalledWith(jasmine.stringMatching('default/route/' + car._id));
           done();
         });
     });
 
     it('Should populate the child when forcing it', done => {
-      collection.get('myId', { populate: true })
+      _.unset(car, 'driver');
+      car._ref_driver = driver._id;
+
+      carCollection.get('carId', { populate: true })
         .then(foundModel => {
-          expect(foundModel._id).toBe('myId');
+          expect(foundModel._id).toBe('carId');
           expect(foundModel.wheels).toBe(4);
-          expect(foundModel.driver).toEqual({ _id: 'fakeId', name: 'Fake Name', _ref_phones: ['phone1'] });
+          expect(foundModel.driver).toEqual({ _id: 'driverId', name: 'Fake Name', phones: [phone] });
           done();
         });
     });
 
     it('Should leave the reference key unmodified when the collection has not been registered', done => {
-      collection.refKeys = () => [{ backendKey: '_ref_driver', collection: 'UnknownCollection', frontendKey: 'driver' }];
+      carCollection.refKeys = () => [{ backendKey: '_ref_driver', collection: 'UnknownCollection', frontendKey: 'driver' }];
 
-      collection.get('myId', { populate: true })
+      _.unset(car, 'driver');
+      car._ref_driver = driver._id;
+
+      carCollection.get('carId', { populate: true })
         .then(foundModel => {
-          expect(foundModel._id).toBe('myId');
+          expect(foundModel._id).toBe('carId');
           expect(foundModel.wheels).toBe(4);
-          expect(foundModel._ref_driver).toBe('fakeId');
+          expect(foundModel._ref_driver).toBe('driverId');
           expect(foundModel.driver).toBeUndefined();
           done();
         });
     });
 
     it('Should populate the child and its grand child when using recursive and populate options', done => {
-      collection.get('myId', { populate: true, recursive: true })
+      carCollection.get('carId', { populate: true, recursive: true })
         .then(foundModel => {
-          expect(foundModel._id).toBe('myId');
+          expect(foundModel._id).toBe('carId');
           expect(foundModel.wheels).toBe(4);
-          expect(foundModel.driver._id).toBe('fakeId');
+          expect(foundModel.driver._id).toBe('driverId');
           expect(foundModel.driver.name).toBe('Fake Name');
           expect(foundModel.driver.phones).toContain(phone);
           done();
@@ -587,70 +603,106 @@ describe('Collection', () => {
     });
 
     it('Should leave the reference key unmodified when no backendKey has been defined', done => {
-      collection.refKeys = () => [{ collection: 'Drivers', frontendKey: 'driver' }];
+      carCollection.refKeys = () => [{ collection: 'Drivers', frontendKey: 'driver' }];
 
-      collection.get('myId', { populate: true })
+      _.unset(car, 'driver');
+      car._ref_driver = driver._id;
+
+      carCollection.get('carId', { populate: true })
         .then(foundModel => {
-          expect(foundModel._id).toBe('myId');
+          expect(foundModel._id).toBe('carId');
           expect(foundModel.wheels).toBe(4);
-          expect(foundModel._ref_driver).toEqual('fakeId');
+          expect(foundModel._ref_driver).toEqual('driverId');
           done();
         });
     });
 
     it('Should not modyfing the key used for references when no frontendKey has been defined', done => {
-      collection.refKeys = () => [{ backendKey: '_ref_driver', collection: 'Drivers' }];
+      carCollection.refKeys = () => [{ backendKey: '_ref_driver', collection: 'Drivers' }];
 
-      collection.get('myId', { populate: true })
+      _.unset(car, 'driver');
+      car._ref_driver = driver._id;
+
+      carCollection.get('carId', { populate: true })
         .then(foundModel => {
-          expect(foundModel._id).toBe('myId');
+          expect(foundModel._id).toBe('carId');
           expect(foundModel.wheels).toBe(4);
-          expect(foundModel._ref_driver).toEqual({ _id: 'fakeId', name: 'Fake Name', _ref_phones: ['phone1'] });
+          expect(foundModel._ref_driver).toEqual({ _id: 'driverId', name: 'Fake Name', phones: [phone] });
           done();
         });
     });
 
     it('Should keep the JSON data when no collection has been set', done => {
-      collection.refKeys = () => [{ backendKey: '_ref_driver', frontendKey: 'driver' }];
+      carCollection.refKeys = () => [{ backendKey: '_ref_driver', frontendKey: 'driver' }];
 
-      collection.get('myId', { populate: true })
+      _.unset(car, 'driver');
+      car._ref_driver = driver._id;
+
+      carCollection.get('carId', { populate: true })
         .then(foundModel => {
-          expect(foundModel._id).toBe('myId');
+          expect(foundModel._id).toBe('carId');
           expect(foundModel.wheels).toBe(4);
-          expect(foundModel.driver).toEqual('fakeId');
+          expect(foundModel.driver).toEqual('driverId');
           done();
         });
     });
 
-    it('Should populate the child when forcing it', done => {
-      collection.refKeys = () => [{ backendKey: '_ref_driver', collection: 'Drivers', frontendKey: 'driver', backendKeyDeletion: false }];
+    it('Should populate the child when forcing it (backendKeyDeletion: false)', done => {
+      carCollection.refKeys = () => [{ backendKey: '_ref_driver', collection: 'Drivers', frontendKey: 'driver', backendKeyDeletion: false }];
 
-      collection.get('myId', { populate: true })
+      _.unset(car, 'driver');
+      car._ref_driver = driver._id;
+
+      carCollection.get('carId', { populate: true })
         .then(foundModel => {
-          expect(foundModel._id).toBe('myId');
+          expect(foundModel._id).toBe('carId');
           expect(foundModel.wheels).toBe(4);
-          expect(foundModel._ref_driver).toBe('fakeId');
-          expect(foundModel.driver).toEqual({ _id: 'fakeId', name: 'Fake Name', _ref_phones: ['phone1'] });
+          expect(foundModel._ref_driver).toBe('driverId');
+          expect(foundModel.driver).toEqual({ _id: 'driverId', name: 'Fake Name', phones: [phone] });
           done();
         });
     });
 
-    it('Should create all the models accoordingly', done => {
-      fakeFetch.respondWith('{ "_id": "myId", "wheels": 4, "_ref_driver" : { "_id" : "fakeId", "name" : "Updated Fake Name", "_ref_phones" : [{ "_id" : "phone1", "battery": "4h"}] } }');
-      collection.collection = [];
-      collection2.collection = [];
-      collection3.collection = [];
+    it('Should create all the models accordingly', done => {
+      fakeFetch.respondWith('{ "_id": "carId", "wheels": 4, "_ref_driver" : { "_id" : "driverId", "name" : "Updated Fake Name", "_ref_phones" : [{ "_id" : "phone1", "battery": "4h"}] } }');
+      carCollection.collection = [];
+      driverCollection.collection = [];
+      phoneCollection.collection = [];
 
-      collection.get('myId')
+      carCollection.get('carId')
         .then(foundModel => {
-          expect(foundModel._id).toBe('myId');
+          expect(foundModel._id).toBe('carId');
           expect(foundModel.wheels).toBe(4);
-          expect(foundModel.driver._id).toBe('fakeId');
+          expect(foundModel.driver._id).toBe('driverId');
           expect(foundModel.driver.name).toBe('Updated Fake Name');
           expect(foundModel.driver.phones).toContain({ _id: 'phone1', battery: '4h' });
-          expect(collection.collection).toContain(foundModel);
-          expect(collection2.collection).toContain(foundModel.driver);
-          expect(collection3.collection).toContain(foundModel.driver.phones[0]);
+          expect(carCollection.collection).toContain(foundModel);
+          expect(driverCollection.collection).toContain(foundModel.driver);
+          expect(phoneCollection.collection).toContain(foundModel.driver.phones[0]);
+          done();
+        });
+    });
+
+    it('Should create all the models accordingly with refKey path containing array', done => {
+      fakeFetch.respondWith('{ "_id": "carId", "wheels": 4, "_ref_driver" : { "_id" : "driverId", "name" : "Updated Fake Name", "_ref_phones" : [{ "_id" : "phone1", "battery": "4h", "screens": [{ "_ref_screen": {"_id": "screen1", "index": 1}, "_ref_apps": [{"_id": "app1", "name": "Makerz"}] }]}] } }');
+      carCollection.collection = [];
+      driverCollection.collection = [];
+      phoneCollection.collection = [];
+      screenCollection.collection = [];
+      appCollection.collection = [];
+
+      carCollection.get('carId')
+        .then(foundModel => {
+          expect(foundModel._id).toBe('carId');
+          expect(foundModel.wheels).toBe(4);
+          expect(foundModel.driver._id).toBe('driverId');
+          expect(foundModel.driver.name).toBe('Updated Fake Name');
+          expect(foundModel.driver.phones).toContain({ _id: 'phone1', battery: '4h', screens: [{ screen: { _id: 'screen1', index: 1 }, apps: [{ _id: 'app1', name: 'Makerz' }] }] });
+          expect(carCollection.collection).toContain(foundModel);
+          expect(driverCollection.collection).toContain(foundModel.driver);
+          expect(phoneCollection.collection).toContain(foundModel.driver.phones[0]);
+          expect(screenCollection.collection).toContain(foundModel.driver.phones[0].screens[0].screen);
+          expect(appCollection.collection).toContain(foundModel.driver.phones[0].screens[0].apps[0]);
           done();
         });
     });
@@ -664,8 +716,8 @@ describe('Collection', () => {
 
     beforeEach(() => {
       creator = (data) => data;
-      modelCached = { _id: 'myId', wheels: 42, predicate: 'foo' };
-      modelFetched = { _id: 'myId2', wheels: 2, predicate: 'bar' };
+      modelCached = { _id: 'carId', wheels: 42, predicate: 'foo' };
+      modelFetched = { _id: 'carId2', wheels: 2, predicate: 'bar' };
       collection = config.registerCollection('myKey', '/default/route', Collection, creator);
       collection.collection.push(modelCached);
     });
@@ -706,33 +758,33 @@ describe('Collection', () => {
 
     beforeEach(() => {
       creator = (data) => data;
-      model = { _id: 'myId', wheels: 4 };
+      model = { _id: 'carId', wheels: 4 };
       collection = config.registerCollection('myKey', '/default/route/', Collection, creator);
       collection.collection.push(model);
     });
 
     it('Should modify the model according to the attribute values', done => {
-      fakeFetch.respondWith('{ "_id": "myId", "wheels": 5 }');
+      fakeFetch.respondWith('{ "_id": "carId", "wheels": 5 }');
       spyOn(collection._httpClient, 'fetch').and.callThrough();
 
       collection.update(model, { wheels: 5 })
         .then(updatedModel => {
           expect(updatedModel).toBe(model);
           expect(updatedModel.wheels).toBe(5);
-          expect(collection._httpClient.fetch).toHaveBeenCalledWith('/default/route/myId', jasmine.objectContaining({ method: 'put' }));
+          expect(collection._httpClient.fetch).toHaveBeenCalledWith('/default/route/carId', jasmine.objectContaining({ method: 'put' }));
           done();
         });
     });
 
     it('Should call the overload route when route parameter is specified', done => {
-      fakeFetch.respondWith('{ "_id": "myId", "wheels": 5 }');
+      fakeFetch.respondWith('{ "_id": "carId", "wheels": 5 }');
       spyOn(collection._httpClient, 'fetch').and.callThrough();
 
       collection.update(model, { wheels: 5 }, { route: collection.defaultRoute + model._id + '/other/path' })
         .then(updatedModel => {
           expect(updatedModel).toBe(model);
           expect(updatedModel.wheels).toBe(5);
-          expect(collection._httpClient.fetch).toHaveBeenCalledWith('/default/route/myId/other/path', jasmine.objectContaining({ method: 'put' }));
+          expect(collection._httpClient.fetch).toHaveBeenCalledWith('/default/route/carId/other/path', jasmine.objectContaining({ method: 'put' }));
           done();
         });
     });
@@ -740,21 +792,26 @@ describe('Collection', () => {
 
   describe('._frontToBackend()', () => {
     let creator;
+    let car;
     let driver;
-    let collection;
+    let phone;
+    let screen;
+    let app;
+    let carCollection;
+    let driverCollection;
+    let phoneCollection;
+    let screenCollection;
+    let appCollection;
 
     beforeEach(() => {
       creator = (data) => data;
-      // collection = new Collection;
-      collection = config.registerCollection('myKey', 'default/route/', Collection, creator);
-      driver = { _id: 'fakeId', name: 'Fake Name' };
-      collection.refKeys = () => [{ backendKey: '_ref_driver', collection: 'Drivers', frontendKey: 'driver' }];
+      ({ car, carCollection, driver, driverCollection, phone, phoneCollection, screen, app, screenCollection, appCollection } = initializeCollections(car, carCollection, config, creator, driver, driverCollection, phone, phoneCollection, screen, app, screenCollection, appCollection));
     });
 
     it('Should not convert anything when no refkeys have been overloaded', done => {
-      collection.refKeys = () => [];
+      carCollection.refKeys = () => [];
 
-      collection._frontToBackend({ wheels: 5, driver: driver })
+      carCollection._frontToBackend({ wheels: 5, driver: driver })
         .then(attributes => {
           expect(attributes).toEqual({ wheels: 5, driver: driver });
           done();
@@ -762,7 +819,7 @@ describe('Collection', () => {
     });
 
     it('Should replace a refkey\'d attribute by its id', done => {
-      collection._frontToBackend({ wheels: 5, driver: driver })
+      carCollection._frontToBackend({ wheels: 5, driver: driver })
         .then(attributes => {
           expect(attributes.wheels).toBe(5);
           expect(attributes.driver).toBeUndefined();
@@ -771,10 +828,25 @@ describe('Collection', () => {
         });
     });
 
-    it('Should not delete the frontendKey if backendKeyDeletion is true', done => {
-      collection.refKeys = () => [{ backendKey: '_ref_driver', collection: 'Drivers', frontendKey: 'driver', backendKeyDeletion: false }];
+    it('Should replace a deep refkey\'d attribute by its id', done => {
+      phoneCollection._frontToBackend({ _id: 'phone1', battery: '5h', screens: [{ screen: screen, apps: [app] }] })
+        .then(attributes => {
+          expect(attributes.battery).toBe('5h');
+          expect(attributes.screens[0].screen).toBeUndefined();
+          expect(attributes.screens[0].apps).toBeUndefined();
+          expect(attributes.screens[0]._ref_screen).toBe(screen._id);
+          expect(attributes.screens[0]._ref_apps).toBeArray();
+          if (attributes.screens[0]._ref_apps instanceof Array) {
+            expect(attributes.screens[0]._ref_apps[0]).toBe(app._id);
+          }
+          done();
+        });
+    });
 
-      collection._frontToBackend({ wheels: 5, driver: driver })
+    it('Should not delete the frontendKey if backendKeyDeletion is true', done => {
+      carCollection.refKeys = () => [{ backendKey: '_ref_driver', collection: 'Drivers', frontendKey: 'driver', backendKeyDeletion: false }];
+
+      carCollection._frontToBackend({ wheels: 5, driver: driver })
         .then(attributes => {
           expect(attributes.wheels).toBe(5);
           expect(attributes.driver).toBe(driver);
@@ -786,7 +858,7 @@ describe('Collection', () => {
     it('Should support the use of an array of references', done => {
       let driver2 = { _id: 'fakeDriver2', name: 'Frank' };
 
-      collection._frontToBackend({ wheels: 5, driver: [driver, driver2] })
+      carCollection._frontToBackend({ wheels: 5, driver: [driver, driver2] })
         .then(attributes => {
           expect(attributes.wheels).toBe(5);
           expect(attributes.driver).toBeUndefined();
@@ -797,7 +869,7 @@ describe('Collection', () => {
     });
 
     it('Should support the use of an id for reference', done => {
-      collection._frontToBackend({ wheels: 5, driver: driver._id })
+      carCollection._frontToBackend({ wheels: 5, driver: driver._id })
         .then(attributes => {
           expect(attributes.wheels).toBe(5);
           expect(attributes.driver).toBeUndefined();
@@ -807,7 +879,7 @@ describe('Collection', () => {
     });
 
     it('Should convert the backend key to null if the frontend key is not of supported type', done => {
-      collection._frontToBackend({ wheels: 5, driver: 42 })
+      carCollection._frontToBackend({ wheels: 5, driver: 42 })
         .then(attributes => {
           expect(attributes.wheels).toBe(5);
           expect(attributes.driver).toBeUndefined();
@@ -817,7 +889,7 @@ describe('Collection', () => {
     });
 
     it('Should convert the backend key to null if the value is an object without its id value', done => {
-      collection._frontToBackend({ wheels: 5, driver: { name: 'Unknown name' } })
+      carCollection._frontToBackend({ wheels: 5, driver: { name: 'Unknown name' } })
         .then(attributes => {
           expect(attributes.wheels).toBe(5);
           expect(attributes.driver).toBeUndefined();
@@ -829,65 +901,91 @@ describe('Collection', () => {
 
   describe('._backToFrontend()', () => {
     let creator;
-    let model;
+    let car;
     let driver;
-    let collection;
-    let collection2;
+    let driver2;
+    let phone;
+    let screen;
+    let app;
+    let carCollection;
+    let driverCollection;
+    let phoneCollection;
+    let screenCollection;
+    let appCollection;
     let backEndAttrs;
 
     beforeEach(() => {
       creator = (data) => data;
-      model = { _id: 'myId', wheels: 4 };
-      // collection = new Collection;
-      collection = config.registerCollection('myKey', 'default/route/', Collection, creator);
-      collection.collection.push(model);
+      ({ car, carCollection, driver, driverCollection, phone, phoneCollection, screen, app, screenCollection, appCollection } = initializeCollections(car, carCollection, config, creator, driver, driverCollection, phone, phoneCollection, screen, app, screenCollection, appCollection));
 
-      // collection2 = new Collection();
-      driver = { _id: 'fakeId', name: 'Fake Name' };
-      model.driver = 'fakeId';
-      collection2 = config.registerCollection('Drivers', 'api/drivers/', Collection, creator);
-      collection2.collection.push(driver);
-      collection.refKeys = () => [{ backendKey: '_ref_driver', collection: 'Drivers', frontendKey: 'driver' }];
+      // The returned backend attributes
+      // (different from backend converted attributes previously sended to the backend)
+      backEndAttrs = { wheels: 5, _ref_driver: { _id: 'driver2', name: 'Fake Name', phones: ['phone2'] }, doors: 4, purchasedOn: new Date() };
 
-      backEndAttrs = { wheels: 5, _ref_driver: driver, doors: 4, purchasedOn: new Date() };
+      driver2 = { _id: 'driver2', name: 'Fake Name' };
+      driverCollection.collection.push(driver2);
     });
 
     it('Should not convert any key when no refkeys have been overloaded', done => {
-      collection.refKeys = () => [];
+      carCollection.refKeys = () => [];
 
-      collection._backToFrontend(backEndAttrs, { wheels: 5, _ref_driver: driver }, model)
+      _.unset(car, 'driver');
+
+      carCollection._backToFrontend(backEndAttrs, { wheels: 5, _ref_driver: driver2._id }, car)
         .then(attributes => {
-          expect(model.wheels).toBe(5);
-          expect(model._ref_driver).toBe(driver);
-          expect(model.purchasedOn).toBeUndefined();
-          expect(model.doors).toBeUndefined();
-          expect(model.driver).toBe(driver._id);
+          expect(car.wheels).toBe(5);
+          expect(car._ref_driver).toEqual(backEndAttrs._ref_driver);
+          expect(car.purchasedOn).toBeUndefined();
+          expect(car.doors).toBeUndefined();
+          expect(car.driver).toBeUndefined();
           done();
         });
     });
 
     it('Should not convert any key when no collection have been specified', done => {
-      collection.refKeys = () => [{ backendKey: '_ref_driver', frontendKey: 'driver' }];
+      carCollection.refKeys = () => [{ backendKey: '_ref_driver', frontendKey: 'driver' }];
 
-      collection._backToFrontend(backEndAttrs, { wheels: 5, _ref_driver: driver }, model)
+      _.unset(car, 'driver');
+
+      carCollection._backToFrontend(backEndAttrs, { wheels: 5, _ref_driver: driver2._id }, car)
         .then(attributes => {
-          expect(model.wheels).toBe(5);
-          expect(model._ref_driver).toBeUndefined();
-          expect(model.purchasedOn).toBeUndefined();
-          expect(model.doors).toBeUndefined();
-          expect(model.driver).toBe(driver);
+          expect(car.wheels).toBe(5);
+          expect(car._ref_driver).toEqual(backEndAttrs._ref_driver);
+          expect(car.purchasedOn).toBeUndefined();
+          expect(car.doors).toBeUndefined();
+          expect(car.driver).toBeUndefined();
           done();
         });
     });
 
     it('Should replace a refkey\'d attribute by its value', done => {
-      collection._backToFrontend(backEndAttrs, { wheels: 5, _ref_driver: driver }, model)
+      _.unset(car, 'driver');
+
+      carCollection._backToFrontend(backEndAttrs, { wheels: 5, _ref_driver: driver2._id }, car)
         .then(attributes => {
-          expect(model.wheels).toBe(5);
-          expect(model.driver).toBe(driver);
-          expect(model.purchasedOn).toBeUndefined();
-          expect(model.doors).toBeUndefined();
-          expect(model._ref_driver).toBeUndefined();
+          expect(car.wheels).toBe(5);
+          expect(car.driver).toBe(driver2);
+          expect(car.purchasedOn).toBeUndefined();
+          expect(car.doors).toBeUndefined();
+          expect(car._ref_driver).toBeUndefined();
+          done();
+        });
+    });
+
+    it('Should replace a deep refkey\'d attribute by its value', done => {
+      let screen2 = { _id: 'screen2', index: 2 };
+      screenCollection.collection.push(screen2);
+      let app2 = { _id: 'app2', name: 'Crocks' };
+      appCollection.collection.push(app2);
+
+      let backendResAttr = { _id: 'phone1', battery: '5h', screens: [{ _ref_screen: 'screen2', _ref_apps: ['app2'] }], color: 'pink' };
+
+      phoneCollection._backToFrontend(backendResAttr, { battery: '5h', screens: [{ _ref_screen: 'screen2', _ref_apps: ['app2'] }] }, phone)
+        .then(attributes => {
+          expect(phone.battery).toBe('5h');
+          expect(phone.color).toBeUndefined();
+          expect(phone.screens[0].screen).toBe(screen2);
+          expect(phone.screens[0].apps[0]).toBe(app2);
           done();
         });
     });

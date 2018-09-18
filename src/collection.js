@@ -430,10 +430,62 @@ export class Collection {
   }
 
   /**
-   * [_frontToBackend description]
-   * @param  {[type]} attributes [description]
-   * @param  {[type]} options    [description]
-   * @return {[type]}            [description]
+   * Replace `targetModel` field `fieldName` by `newFieldValue`.
+   *
+   * @param {*} targetModel
+   * @param {*} fieldName
+   * @param {*} newFieldValue
+   * @memberof Collection
+   */
+  _replaceStrategy(targetModel, fieldName, newFieldValue) {
+    _.set(targetModel, fieldName, newFieldValue);
+  }
+
+  /**
+   * If `targetModel` field `fieldName` is an array it makes union between current value and `newFieldValue`, else it uses {@link #_replaceStrategy(int, int) _replaceStrategy}.
+   *
+   * @param {*} targetModel
+   * @param {*} fieldName
+   * @param {*} newFieldValue
+   * @memberof Collection
+   */
+  _arrayStrategy(targetModel, fieldName, newFieldValue) {
+    let currentValue = _.get(targetModel, fieldName);
+    if (_.isArray(currentValue)) {
+      _.set(targetModel, fieldName, _.union(currentValue, newFieldValue));
+    } else {
+      this._replaceStrategy(targetModel, fieldName, newFieldValue);
+    }
+  }
+
+  /**
+   * Try to deep merge `targetModel` field `fieldName` and `newFieldValue`. It uses `lodash.merge()` under the hood.
+   *
+   * @param {*} targetModel
+   * @param {*} fieldName
+   * @param {*} newFieldValue
+   * @memberof Collection
+   */
+  _mergeStrategy(targetModel, fieldName, newFieldValue) {
+    _.set(targetModel, fieldName, _.merge(_.get(targetModel, fieldName), newFieldValue));
+  }
+
+  /**
+   * Model merge strategies referenced by name.
+   *
+   * @memberof Collection
+   */
+  _strategies = {
+    replace: this._replaceStrategy,
+    array: this._arrayStrategy,
+    merge: this._mergeStrategy
+  };
+
+  /**
+   * In the update process, convert refKeys in attributes from frontendKey to backendKey.
+   * @param  {Object} attributes Attributes to convert.
+   * @param  {Object} options    Option object (unused).
+   * @return {Promise}           Promise that resolve with converted attributes.
    */
   _frontToBackend(attributes, options) {
     const refKeys = this.refKeys();
@@ -449,27 +501,27 @@ export class Collection {
       return null;
     };
 
-    _.each(attributes, (value, field) => {
-      let item = _.find(refKeys, { frontendKey: field });
-      // If undefined, nothing to convert.
-      if (_.isUndefined(item)) {
-        return;
-      }
-
-      item = _.defaults(item, {
+    _.each(refKeys, entry => {
+      entry = _.defaults(entry, {
         backendKey: null,
         frontendKey: null,
         backendKeyDeletion: true
       });
 
-      this._walk(attributes, item.backendKey.split('.'), (pointer, key) => {
-        if (item.backendKeyDeletion) {
-          _.unset(pointer, item.frontendKey);
+      let backendPath = entry.backendKey.split('.');
+      let backendKey = backendPath.pop();
+      let frontendPath = _.clone(backendPath);
+      frontendPath.push(entry.frontendKey);
+
+      this._walk(attributes, frontendPath, (pointer, key) => {
+        let val = _.get(pointer, key);
+        if (entry.backendKeyDeletion) {
+          _.unset(pointer, key);
         }
 
         // browser request filter undefined fields, we need to explicitely set it to null to be sent to the backend. (in case of reseting the field)
-        let id = _getIdFromData(value);
-        _.set(pointer, key, _.isUndefined(id) ? null : id);
+        let id = _getIdFromData(val);
+        _.set(pointer, backendKey, _.isUndefined(id) ? null : id);
       });
     });
 
@@ -477,67 +529,85 @@ export class Collection {
   }
 
   /**
-   * [_backToFrontend description]
-   * @param  {[type]} attributes [description]
-   * @param  {[type]} backAttr   [description]
-   * @param  {[type]} model      [description]
-   * @param  {[type]} options    [description]
-   * @return {[type]}            [description]
+   * In the update process, convert refKeys in attributes from frontendKey to backendKey and mutate given `model` accordingly.
+   * @param  {Object} attributes Attributes to convert.
+   * @param  {Object} backAttr   Previously converted backend attributes sended to the backend for the update.
+   * @param  {Model}  model      Current model to store converted attributes. (mutated)
+   * @param  {Object} options    Option object which handle `mergeStrategy`.
+   * @return {Promise}           Promise that resolve with the updated model.
    */
   _backToFrontend(attributes, backAttr, model, options) {
-    const opts = options || {};
+    let attributesCopy = _.cloneDeep(attributes);
+    let backAttrCopy = _.cloneDeep(backAttr);
+
+    const opts = _.defaults({}, options, {
+      mergeStrategy: 'replace'
+    });
     const refKeys = this.refKeys();
+    let promises = [];
 
-    return Promise.all(_.map(backAttr, (value, field) => {
-      let frontendKey = field;
-      let backendKey = field;
+    if (opts.mergeStrategy === 'ignore') {
+      // Ignore modifications, so do nothing.
+      return;
+    }
 
-      // Update the right key in the model, with updateStrategy to replace, merge only arrays or merge all the attribute.
-      let updateModel = result => {
-        if (!_.has(opts, 'mergeStrategy') || opts.mergeStrategy === 'replace') {
-          _.set(model, frontendKey, result);
-        } else if (opts.mergeStrategy === 'ignore') {
-          return Promise.resolve(model);
-        } else if (opts.mergeStrategy === 'array') {
-          let currentFrontendValue = _.get(model, frontendKey);
-          if (_.isArray(currentFrontendValue)) {
-            _.set(model, frontendKey, _.union(currentFrontendValue, result));
-          } else {
-            _.set(model, frontendKey, result);
-          }
-        } else {
-          _.set(model, frontendKey, _.merge(_.get(model, frontendKey), result));
-        }
-        return Promise.resolve(model);
-      };
-
-      // The current field is a frontend type of key.
-      let item = _.find(refKeys, { backendKey: field });
-
-      if (_.isUndefined(item)) {
-        return updateModel(value);
-      }
-
-      item = _.defaults(item, {
+    // Convert attribute refKeys back to front
+    _.each(refKeys, entry => {
+      entry = _.defaults(entry, {
         backendKey: null,
         frontendKey: null,
         collection: null,
         backendKeyDeletion: true
       });
 
-      frontendKey = item.frontendKey;
-      backendKey = item.backendKey;
-
-      // item.collection can be null if we want to keep JSON data.
-      if (_.isNull(item.collection)) {
-        return updateModel(value);
+      // entry.collection can be null if we want to keep JSON data.
+      if (_.isNull(entry.collection)) {
+        return;
       }
 
-      return this._walk(attributes, backendKey.split('.'), (pointer, key) => {
-        return this.container.get(Config).getCollection(item.collection).get(_.get(pointer, key))
-          .then(updateModel);
+      let backendPath = entry.backendKey.split('.');
+
+      // Process `attributes`
+      promises.push(
+        this._walk(attributesCopy, backendPath, (pointer, key) => {
+          let val = _.get(pointer, key);
+
+          if (entry.backendKeyDeletion) {
+            _.unset(pointer, key);
+          }
+
+          return this.container.get(Config).getCollection(entry.collection).get(val)
+            .then(modelRef => {
+              _.set(pointer, entry.frontendKey, modelRef);
+            });
+        })
+      );
+
+      // Process `backAttr`
+      promises.push(
+        this._walk(backAttrCopy, backendPath, (pointer, key) => {
+          let val = _.get(pointer, key);
+
+          if (entry.backendKeyDeletion) {
+            _.unset(pointer, key);
+          }
+
+          _.set(pointer, entry.frontendKey, val);
+        })
+      );
+    });
+
+    // Apply update strategy on model
+    return Promise.all(promises)
+      .then(() => {
+        let updateModel = this._strategies[opts.mergeStrategy] || this._strategies.merge;
+        _.each(backAttrCopy, (value, field) => {
+          // Update the right key in the model, with updateStrategy to replace, merge only arrays or merge all the attribute.
+          updateModel(model, field, _.get(attributesCopy, field));
+        });
+
+        return Promise.resolve(model);
       });
-    }));
   }
 }
 
