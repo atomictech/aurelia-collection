@@ -29,6 +29,17 @@ System.register(["lodash", "aurelia-dependency-injection", "aurelia-fetch-client
       _export("Collection", Collection = function () {
         function Collection() {
           _classCallCheck(this, Collection);
+
+          Object.defineProperty(this, "_strategies", {
+            configurable: true,
+            enumerable: true,
+            writable: true,
+            value: {
+              replace: this._replaceStrategy,
+              array: this._arrayStrategy,
+              merge: this._mergeStrategy
+            }
+          });
         }
 
         _createClass(Collection, [{
@@ -355,6 +366,27 @@ System.register(["lodash", "aurelia-dependency-injection", "aurelia-fetch-client
             });
           }
         }, {
+          key: "_replaceStrategy",
+          value: function _replaceStrategy(targetModel, fieldName, newFieldValue) {
+            _.set(targetModel, fieldName, newFieldValue);
+          }
+        }, {
+          key: "_arrayStrategy",
+          value: function _arrayStrategy(targetModel, fieldName, newFieldValue) {
+            var currentValue = _.get(targetModel, fieldName);
+
+            if (_.isArray(currentValue)) {
+              _.set(targetModel, fieldName, _.union(currentValue, newFieldValue));
+            } else {
+              this._replaceStrategy(targetModel, fieldName, newFieldValue);
+            }
+          }
+        }, {
+          key: "_mergeStrategy",
+          value: function _mergeStrategy(targetModel, fieldName, newFieldValue) {
+            _.set(targetModel, fieldName, _.merge(_.get(targetModel, fieldName), newFieldValue));
+          }
+        }, {
           key: "_frontToBackend",
           value: function _frontToBackend(attributes, options) {
             var _this8 = this;
@@ -373,29 +405,29 @@ System.register(["lodash", "aurelia-dependency-injection", "aurelia-fetch-client
               return null;
             };
 
-            _.each(attributes, function (value, field) {
-              var item = _.find(refKeys, {
-                frontendKey: field
-              });
-
-              if (_.isUndefined(item)) {
-                return;
-              }
-
-              item = _.defaults(item, {
+            _.each(refKeys, function (entry) {
+              entry = _.defaults(entry, {
                 backendKey: null,
                 frontendKey: null,
                 backendKeyDeletion: true
               });
+              var backendPath = entry.backendKey.split('.');
+              var backendKey = backendPath.pop();
 
-              _this8._walk(attributes, item.backendKey.split('.'), function (pointer, key) {
-                if (item.backendKeyDeletion) {
-                  _.unset(pointer, item.frontendKey);
+              var frontendPath = _.clone(backendPath);
+
+              frontendPath.push(entry.frontendKey);
+
+              _this8._walk(attributes, frontendPath, function (pointer, key) {
+                var val = _.get(pointer, key);
+
+                if (entry.backendKeyDeletion) {
+                  _.unset(pointer, key);
                 }
 
-                var id = _getIdFromData(value);
+                var id = _getIdFromData(val);
 
-                _.set(pointer, key, _.isUndefined(id) ? null : id);
+                _.set(pointer, backendKey, _.isUndefined(id) ? null : id);
               });
             });
 
@@ -406,57 +438,65 @@ System.register(["lodash", "aurelia-dependency-injection", "aurelia-fetch-client
           value: function _backToFrontend(attributes, backAttr, model, options) {
             var _this9 = this;
 
-            var opts = options || {};
+            var attributesCopy = _.cloneDeep(attributes);
+
+            var backAttrCopy = _.cloneDeep(backAttr);
+
+            var opts = _.defaults({}, options, {
+              mergeStrategy: 'replace'
+            });
+
             var refKeys = this.refKeys();
-            return Promise.all(_.map(backAttr, function (value, field) {
-              var frontendKey = field;
-              var backendKey = field;
+            var promises = [];
 
-              var updateModel = function updateModel(result) {
-                if (!_.has(opts, 'mergeStrategy') || opts.mergeStrategy === 'replace') {
-                  _.set(model, frontendKey, result);
-                } else if (opts.mergeStrategy === 'ignore') {
-                  return Promise.resolve(model);
-                } else if (opts.mergeStrategy === 'array') {
-                  var currentFrontendValue = _.get(model, frontendKey);
+            if (opts.mergeStrategy === 'ignore') {
+              return;
+            }
 
-                  if (_.isArray(currentFrontendValue)) {
-                    _.set(model, frontendKey, _.union(currentFrontendValue, result));
-                  } else {
-                    _.set(model, frontendKey, result);
-                  }
-                } else {
-                  _.set(model, frontendKey, _.merge(_.get(model, frontendKey), result));
-                }
-
-                return Promise.resolve(model);
-              };
-
-              var item = _.find(refKeys, {
-                backendKey: field
-              });
-
-              if (_.isUndefined(item)) {
-                return updateModel(value);
-              }
-
-              item = _.defaults(item, {
+            _.each(refKeys, function (entry) {
+              entry = _.defaults(entry, {
                 backendKey: null,
                 frontendKey: null,
                 collection: null,
                 backendKeyDeletion: true
               });
-              frontendKey = item.frontendKey;
-              backendKey = item.backendKey;
 
-              if (_.isNull(item.collection)) {
-                return updateModel(value);
+              if (_.isNull(entry.collection)) {
+                return;
               }
 
-              return _this9._walk(attributes, backendKey.split('.'), function (pointer, key) {
-                return _this9.container.get(Config).getCollection(item.collection).get(_.get(pointer, key)).then(updateModel);
+              var backendPath = entry.backendKey.split('.');
+              promises.push(_this9._walk(attributesCopy, backendPath, function (pointer, key) {
+                var val = _.get(pointer, key);
+
+                if (entry.backendKeyDeletion) {
+                  _.unset(pointer, key);
+                }
+
+                return _this9.container.get(Config).getCollection(entry.collection).get(val).then(function (modelRef) {
+                  _.set(pointer, entry.frontendKey, modelRef);
+                });
+              }));
+              promises.push(_this9._walk(backAttrCopy, backendPath, function (pointer, key) {
+                var val = _.get(pointer, key);
+
+                if (entry.backendKeyDeletion) {
+                  _.unset(pointer, key);
+                }
+
+                _.set(pointer, entry.frontendKey, val);
+              }));
+            });
+
+            return Promise.all(promises).then(function () {
+              var updateModel = _this9._strategies[opts.mergeStrategy] || _this9._strategies.merge;
+
+              _.each(backAttrCopy, function (value, field) {
+                updateModel(model, field, _.get(attributesCopy, field));
               });
-            }));
+
+              return Promise.resolve(model);
+            });
           }
         }]);
 

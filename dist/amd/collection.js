@@ -18,6 +18,17 @@ define(["exports", "lodash", "aurelia-dependency-injection", "aurelia-fetch-clie
   var Collection = function () {
     function Collection() {
       _classCallCheck(this, Collection);
+
+      Object.defineProperty(this, "_strategies", {
+        configurable: true,
+        enumerable: true,
+        writable: true,
+        value: {
+          replace: this._replaceStrategy,
+          array: this._arrayStrategy,
+          merge: this._mergeStrategy
+        }
+      });
     }
 
     _createClass(Collection, [{
@@ -344,6 +355,27 @@ define(["exports", "lodash", "aurelia-dependency-injection", "aurelia-fetch-clie
         });
       }
     }, {
+      key: "_replaceStrategy",
+      value: function _replaceStrategy(targetModel, fieldName, newFieldValue) {
+        _lodash.default.set(targetModel, fieldName, newFieldValue);
+      }
+    }, {
+      key: "_arrayStrategy",
+      value: function _arrayStrategy(targetModel, fieldName, newFieldValue) {
+        var currentValue = _lodash.default.get(targetModel, fieldName);
+
+        if (_lodash.default.isArray(currentValue)) {
+          _lodash.default.set(targetModel, fieldName, _lodash.default.union(currentValue, newFieldValue));
+        } else {
+          this._replaceStrategy(targetModel, fieldName, newFieldValue);
+        }
+      }
+    }, {
+      key: "_mergeStrategy",
+      value: function _mergeStrategy(targetModel, fieldName, newFieldValue) {
+        _lodash.default.set(targetModel, fieldName, _lodash.default.merge(_lodash.default.get(targetModel, fieldName), newFieldValue));
+      }
+    }, {
       key: "_frontToBackend",
       value: function _frontToBackend(attributes, options) {
         var _this8 = this;
@@ -362,29 +394,29 @@ define(["exports", "lodash", "aurelia-dependency-injection", "aurelia-fetch-clie
           return null;
         };
 
-        _lodash.default.each(attributes, function (value, field) {
-          var item = _lodash.default.find(refKeys, {
-            frontendKey: field
-          });
-
-          if (_lodash.default.isUndefined(item)) {
-            return;
-          }
-
-          item = _lodash.default.defaults(item, {
+        _lodash.default.each(refKeys, function (entry) {
+          entry = _lodash.default.defaults(entry, {
             backendKey: null,
             frontendKey: null,
             backendKeyDeletion: true
           });
+          var backendPath = entry.backendKey.split('.');
+          var backendKey = backendPath.pop();
 
-          _this8._walk(attributes, item.backendKey.split('.'), function (pointer, key) {
-            if (item.backendKeyDeletion) {
-              _lodash.default.unset(pointer, item.frontendKey);
+          var frontendPath = _lodash.default.clone(backendPath);
+
+          frontendPath.push(entry.frontendKey);
+
+          _this8._walk(attributes, frontendPath, function (pointer, key) {
+            var val = _lodash.default.get(pointer, key);
+
+            if (entry.backendKeyDeletion) {
+              _lodash.default.unset(pointer, key);
             }
 
-            var id = _getIdFromData(value);
+            var id = _getIdFromData(val);
 
-            _lodash.default.set(pointer, key, _lodash.default.isUndefined(id) ? null : id);
+            _lodash.default.set(pointer, backendKey, _lodash.default.isUndefined(id) ? null : id);
           });
         });
 
@@ -395,57 +427,65 @@ define(["exports", "lodash", "aurelia-dependency-injection", "aurelia-fetch-clie
       value: function _backToFrontend(attributes, backAttr, model, options) {
         var _this9 = this;
 
-        var opts = options || {};
+        var attributesCopy = _lodash.default.cloneDeep(attributes);
+
+        var backAttrCopy = _lodash.default.cloneDeep(backAttr);
+
+        var opts = _lodash.default.defaults({}, options, {
+          mergeStrategy: 'replace'
+        });
+
         var refKeys = this.refKeys();
-        return Promise.all(_lodash.default.map(backAttr, function (value, field) {
-          var frontendKey = field;
-          var backendKey = field;
+        var promises = [];
 
-          var updateModel = function updateModel(result) {
-            if (!_lodash.default.has(opts, 'mergeStrategy') || opts.mergeStrategy === 'replace') {
-              _lodash.default.set(model, frontendKey, result);
-            } else if (opts.mergeStrategy === 'ignore') {
-              return Promise.resolve(model);
-            } else if (opts.mergeStrategy === 'array') {
-              var currentFrontendValue = _lodash.default.get(model, frontendKey);
+        if (opts.mergeStrategy === 'ignore') {
+          return;
+        }
 
-              if (_lodash.default.isArray(currentFrontendValue)) {
-                _lodash.default.set(model, frontendKey, _lodash.default.union(currentFrontendValue, result));
-              } else {
-                _lodash.default.set(model, frontendKey, result);
-              }
-            } else {
-              _lodash.default.set(model, frontendKey, _lodash.default.merge(_lodash.default.get(model, frontendKey), result));
-            }
-
-            return Promise.resolve(model);
-          };
-
-          var item = _lodash.default.find(refKeys, {
-            backendKey: field
-          });
-
-          if (_lodash.default.isUndefined(item)) {
-            return updateModel(value);
-          }
-
-          item = _lodash.default.defaults(item, {
+        _lodash.default.each(refKeys, function (entry) {
+          entry = _lodash.default.defaults(entry, {
             backendKey: null,
             frontendKey: null,
             collection: null,
             backendKeyDeletion: true
           });
-          frontendKey = item.frontendKey;
-          backendKey = item.backendKey;
 
-          if (_lodash.default.isNull(item.collection)) {
-            return updateModel(value);
+          if (_lodash.default.isNull(entry.collection)) {
+            return;
           }
 
-          return _this9._walk(attributes, backendKey.split('.'), function (pointer, key) {
-            return _this9.container.get(_config.Config).getCollection(item.collection).get(_lodash.default.get(pointer, key)).then(updateModel);
+          var backendPath = entry.backendKey.split('.');
+          promises.push(_this9._walk(attributesCopy, backendPath, function (pointer, key) {
+            var val = _lodash.default.get(pointer, key);
+
+            if (entry.backendKeyDeletion) {
+              _lodash.default.unset(pointer, key);
+            }
+
+            return _this9.container.get(_config.Config).getCollection(entry.collection).get(val).then(function (modelRef) {
+              _lodash.default.set(pointer, entry.frontendKey, modelRef);
+            });
+          }));
+          promises.push(_this9._walk(backAttrCopy, backendPath, function (pointer, key) {
+            var val = _lodash.default.get(pointer, key);
+
+            if (entry.backendKeyDeletion) {
+              _lodash.default.unset(pointer, key);
+            }
+
+            _lodash.default.set(pointer, entry.frontendKey, val);
+          }));
+        });
+
+        return Promise.all(promises).then(function () {
+          var updateModel = _this9._strategies[opts.mergeStrategy] || _this9._strategies.merge;
+
+          _lodash.default.each(backAttrCopy, function (value, field) {
+            updateModel(model, field, _lodash.default.get(attributesCopy, field));
           });
-        }));
+
+          return Promise.resolve(model);
+        });
       }
     }]);
 
