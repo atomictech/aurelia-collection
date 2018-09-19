@@ -7,7 +7,9 @@ import { bootstrap } from 'aurelia-bootstrapper';
 import { Config } from '../../src/config';
 import { Collection } from '../../src/collection';
 
-function initializeCollections(car, carCollection, config, creator, driver, driverCollection, phone, phoneCollection, screen, app, screenCollection, appCollection) {
+function initializeCollections(car, carCollection, config, driver, driverCollection, phone, phoneCollection, screen, app, screenCollection, appCollection) {
+  let creator = (data) => data;
+
   car = { _id: 'carId', wheels: 4, driver: '' };
   driver = { _id: 'driverId', name: 'Fake Name', phones: [] };
   phone = { _id: 'phone1', battery: '3h', screens: [{ screen: '', apps: [] }] };
@@ -488,7 +490,6 @@ describe('Collection', () => {
   });
 
   describe('.get()', () => {
-    let creator;
     let car;
     let driver;
     let phone;
@@ -501,8 +502,7 @@ describe('Collection', () => {
     let appCollection;
 
     beforeEach(() => {
-      creator = (data) => data;
-      ({ car, carCollection, driver, driverCollection, phone, phoneCollection, screen, app, screenCollection, appCollection } = initializeCollections(car, carCollection, config, creator, driver, driverCollection, phone, phoneCollection, screen, app, screenCollection, appCollection));
+      ({ car, carCollection, driver, driverCollection, phone, phoneCollection, screen, app, screenCollection, appCollection } = initializeCollections(car, carCollection, config, driver, driverCollection, phone, phoneCollection, screen, app, screenCollection, appCollection));
     });
 
     it('Should return the parameters when calling with undefined', done => {
@@ -791,7 +791,6 @@ describe('Collection', () => {
   });
 
   describe('._frontToBackend()', () => {
-    let creator;
     let car;
     let driver;
     let phone;
@@ -804,8 +803,7 @@ describe('Collection', () => {
     let appCollection;
 
     beforeEach(() => {
-      creator = (data) => data;
-      ({ car, carCollection, driver, driverCollection, phone, phoneCollection, screen, app, screenCollection, appCollection } = initializeCollections(car, carCollection, config, creator, driver, driverCollection, phone, phoneCollection, screen, app, screenCollection, appCollection));
+      ({ car, carCollection, driver, driverCollection, phone, phoneCollection, screen, app, screenCollection, appCollection } = initializeCollections(car, carCollection, config, driver, driverCollection, phone, phoneCollection, screen, app, screenCollection, appCollection));
     });
 
     it('Should not convert anything when no refkeys have been overloaded', done => {
@@ -900,7 +898,6 @@ describe('Collection', () => {
   });
 
   describe('._backToFrontend()', () => {
-    let creator;
     let car;
     let driver;
     let driver2;
@@ -915,8 +912,7 @@ describe('Collection', () => {
     let backEndAttrs;
 
     beforeEach(() => {
-      creator = (data) => data;
-      ({ car, carCollection, driver, driverCollection, phone, phoneCollection, screen, app, screenCollection, appCollection } = initializeCollections(car, carCollection, config, creator, driver, driverCollection, phone, phoneCollection, screen, app, screenCollection, appCollection));
+      ({ car, carCollection, driver, driverCollection, phone, phoneCollection, screen, app, screenCollection, appCollection } = initializeCollections(car, carCollection, config, driver, driverCollection, phone, phoneCollection, screen, app, screenCollection, appCollection));
 
       // The returned backend attributes
       // (different from backend converted attributes previously sended to the backend)
