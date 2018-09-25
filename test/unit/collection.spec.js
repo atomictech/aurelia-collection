@@ -216,13 +216,47 @@ describe('Collection', () => {
   });
 
   describe('._syncFrom', () => {
-    it('Should merge two literal objects', () => {
+    it('Should merge two literal objects', done => {
       let foo = { f1: 1 };
       let bar = { f2: 2 };
       let collection = new Collection();
 
-      collection._syncFrom(foo, bar);
-      expect(foo).toEqual({ f1: 1, f2: 2 });
+      collection
+        ._syncFrom(foo, bar)
+        .then(model => {
+          expect(model).toBe(foo);
+          expect(model).toEqual({ f1: 1, f2: 2 });
+          done();
+        });
+    });
+
+    it('Should not update model with backendKey attributes', done => {
+      let car;
+      let carCollection;
+      let driver;
+      let driverCollection;
+      let phone;
+      let phoneCollection;
+      let screen;
+      let screenCollection;
+      let app;
+      let appCollection;
+
+      ({ car, carCollection, driver, driverCollection, phone, phoneCollection, screen, app, screenCollection, appCollection } = initializeCollections(car, carCollection, config, driver, driverCollection, phone, phoneCollection, screen, app, screenCollection, appCollection));
+
+      // We want to change only battery in order to check synchronization too
+      let phoneCopy = _.cloneDeep(phone);
+      phoneCopy.battery = '5h';
+
+      phoneCollection._syncFrom(phone, { battery: '5h', screens: [{ _ref_screen: 'screen1', _ref_apps: ['app1'] }] })
+        .then(model => {
+          expect(model).toBe(phone);
+          expect(model).not.toBe(phoneCopy);
+          expect(model).toEqual(phoneCopy);
+          expect(model.screens[0].screen).toBe(screen);
+          expect(model.screens[0].apps[0]).toBe(app);
+          done();
+        });
     });
   });
 
@@ -550,13 +584,17 @@ describe('Collection', () => {
     });
 
     it('Should return a model by calling the fetch api when using force parameter', done => {
-      fakeFetch.respondWith(JSON.stringify(car));
+      let carCopy = _.clone(car);
+      carCopy._ref_driver = carCopy.driver._id;
+      delete carCopy.driver;
+
+      fakeFetch.respondWith(JSON.stringify(carCopy));
       spyOn(carCollection._httpClient, 'fetch').and.callThrough();
 
-      carCollection.get('carId', { force: true })
+      carCollection.get(carCopy._id, { force: true })
         .then(foundModel => {
           expect(foundModel).toEqual(car);
-          expect(carCollection._httpClient.fetch).toHaveBeenCalledWith(jasmine.stringMatching('default/route/' + car._id));
+          expect(carCollection._httpClient.fetch).toHaveBeenCalledWith(jasmine.stringMatching('default/route/' + carCopy._id));
           done();
         });
     });
@@ -927,7 +965,7 @@ describe('Collection', () => {
 
       _.unset(car, 'driver');
 
-      carCollection._backToFrontend(backEndAttrs, { wheels: 5, _ref_driver: driver2._id }, car)
+      carCollection._backToFrontend(backEndAttrs, car, { attributeFilter: ['wheels', '_ref_driver'] })
         .then(attributes => {
           expect(car.wheels).toBe(5);
           expect(car._ref_driver).toEqual(backEndAttrs._ref_driver);
@@ -943,7 +981,7 @@ describe('Collection', () => {
 
       _.unset(car, 'driver');
 
-      carCollection._backToFrontend(backEndAttrs, { wheels: 5, _ref_driver: driver2._id }, car)
+      carCollection._backToFrontend(backEndAttrs, car, { attributeFilter: ['wheels', '_ref_driver'] })
         .then(attributes => {
           expect(car.wheels).toBe(5);
           expect(car._ref_driver).toEqual(backEndAttrs._ref_driver);
@@ -957,7 +995,7 @@ describe('Collection', () => {
     it('Should replace a refkey\'d attribute by its value', done => {
       _.unset(car, 'driver');
 
-      carCollection._backToFrontend(backEndAttrs, { wheels: 5, _ref_driver: driver2._id }, car)
+      carCollection._backToFrontend(backEndAttrs, car, { attributeFilter: ['wheels', '_ref_driver'] })
         .then(attributes => {
           expect(car.wheels).toBe(5);
           expect(car.driver).toBe(driver2);
@@ -976,7 +1014,7 @@ describe('Collection', () => {
 
       let backendResAttr = { _id: 'phone1', battery: '5h', screens: [{ _ref_screen: 'screen2', _ref_apps: ['app2'] }], color: 'pink' };
 
-      phoneCollection._backToFrontend(backendResAttr, { battery: '5h', screens: [{ _ref_screen: 'screen2', _ref_apps: ['app2'] }] }, phone)
+      phoneCollection._backToFrontend(backendResAttr, phone, { attributeFilter: ['battery', 'screens'] })
         .then(attributes => {
           expect(phone.battery).toBe('5h');
           expect(phone.color).toBeUndefined();

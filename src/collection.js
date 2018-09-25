@@ -50,6 +50,8 @@ export class Collection {
    * undefined, it resolves to null.
    */
   fromJSON(data, options) {
+    let promise;
+
     if (_.isNil(data)) {
       return Promise.resolve(null);
     }
@@ -73,10 +75,12 @@ export class Collection {
       if (!options.ignoreCollection) {
         this.collection.push(model);
       }
+
+      promise = Promise.resolve(model);
     } else if (!this.isComplete(model) || options.force) {
-      this._syncFrom(model, data);
+      promise = this._syncFrom(model, data);
     }
-    return Promise.resolve(model);
+    return (promise || Promise.resolve(model));
   }
 
   /**
@@ -152,11 +156,7 @@ export class Collection {
    * @param  {Object} data : the data to set to model.
    */
   _syncFrom(model, data) {
-    _.mergeWith(model, data, (objValue, srcValue) => {
-      if (_.isArray(objValue)) {
-        return objValue = srcValue;
-      }
-    });
+    return this._backToFrontend(data, model);
   }
 
   /**
@@ -217,13 +217,14 @@ export class Collection {
       return Promise.resolve(null);
     }
 
-    let key = remainingPath.shift();
+    let remainingPathCopy = _.clone(remainingPath);
+    let key = remainingPathCopy.shift();
 
-    if (remainingPath.length > 0) {
+    if (remainingPathCopy.length > 0) {
       if (_.isArray(pointer[key])) {
-        return Promise.all(_.map(pointer[key], element => this._walk(element, remainingPath, leafProcessor)));
+        return Promise.all(_.map(pointer[key], element => this._walk(element, remainingPathCopy, leafProcessor)));
       }
-      return this._walk(pointer[key], remainingPath, leafProcessor);
+      return this._walk(pointer[key], remainingPathCopy, leafProcessor);
     }
 
     // We have reach the leaf
@@ -424,9 +425,13 @@ export class Collection {
             method: 'put',
             headers: { 'Content-Type': 'application/json' },
             body: opts.notJson ? backAttr : json(backAttr)
-          }).then(response => response.json())
-          .then(attributes => this._backToFrontend(attributes, backAttr, model, opts));
-      }).then(() => model);
+          })
+          .then(response => response.json())
+          .then(attributes => {
+            opts.attributeFilter = _.keys(backAttr);
+            return this._backToFrontend(attributes, model, opts);
+          });
+      });
   }
 
   /**
@@ -530,15 +535,14 @@ export class Collection {
 
   /**
    * In the update process, convert refKeys in attributes from frontendKey to backendKey and mutate given `model` accordingly.
-   * @param  {Object} attributes Attributes to convert.
-   * @param  {Object} backAttr   Previously converted backend attributes sended to the backend for the update.
-   * @param  {Model}  model      Current model to store converted attributes. (mutated)
-   * @param  {Object} options    Option object which handle `mergeStrategy`.
-   * @return {Promise}           Promise that resolve with the updated model.
+   * @param  {Object} attributes                   Attributes to convert.
+   * @param  {Model}  model                        Current model to store converted attributes. (mutated)
+   * @param  {Object} [options]                    Option object which handle `mergeStrategy`.
+   * @param  {string[]} [options.attributeFilter]  String array of keys to convert and keep.
+   * @return {Promise}                             Promise that resolve with the updated model.
    */
-  _backToFrontend(attributes, backAttr, model, options) {
+  _backToFrontend(attributes, model, options) {
     let attributesCopy = _.cloneDeep(attributes);
-    let backAttrCopy = _.cloneDeep(backAttr);
 
     const opts = _.defaults({}, options, {
       mergeStrategy: 'replace'
@@ -549,6 +553,11 @@ export class Collection {
     if (opts.mergeStrategy === 'ignore') {
       // Ignore modifications, so do nothing.
       return;
+    }
+
+    if (!_.isUndefined(opts.attributeFilter)) {
+      let filter = _.isArray(opts.attributeFilter) ? opts.attributeFilter : _.keys(opts.attributeFilter);
+      attributesCopy = _.pick(attributesCopy, filter);
     }
 
     // Convert attribute refKeys back to front
@@ -582,28 +591,15 @@ export class Collection {
             });
         })
       );
-
-      // Process `backAttr`
-      promises.push(
-        this._walk(backAttrCopy, backendPath, (pointer, key) => {
-          let val = _.get(pointer, key);
-
-          if (entry.backendKeyDeletion) {
-            _.unset(pointer, key);
-          }
-
-          _.set(pointer, entry.frontendKey, val);
-        })
-      );
     });
 
     // Apply update strategy on model
     return Promise.all(promises)
       .then(() => {
         let updateModel = this._strategies[opts.mergeStrategy] || this._strategies.merge;
-        _.each(backAttrCopy, (value, field) => {
+        _.each(attributesCopy, (value, field) => {
           // Update the right key in the model, with updateStrategy to replace, merge only arrays or merge all the attribute.
-          updateModel(model, field, _.get(attributesCopy, field));
+          updateModel(model, field, value);
         });
 
         return Promise.resolve(model);
