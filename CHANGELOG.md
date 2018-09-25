@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.5.3"></a>
+## [0.5.3](https://github.com/atomictech/aurelia-collection/compare/v0.5.2...v0.5.3) (2018-09-25)
+
+
+### Bug Fixes
+
+* **collection:** Change _syncFrom behavior in order to not pollute model with temporary backendKeys. Allow users to observe models correctly. ([ae80a4b](https://github.com/atomictech/aurelia-collection/commit/ae80a4b))
+* **test:** Creator declaration. ([c2d4761](https://github.com/atomictech/aurelia-collection/commit/c2d4761))
+
+
+
 <a name="0.5.2"></a>
 ## [0.5.2](https://github.com/atomictech/aurelia-collection/compare/v0.5.1...v0.5.2) (2018-09-18)
 
