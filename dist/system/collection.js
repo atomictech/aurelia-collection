@@ -61,6 +61,8 @@ System.register(["lodash", "aurelia-dependency-injection", "aurelia-fetch-client
         }, {
           key: "fromJSON",
           value: function fromJSON(data, options) {
+            var promise;
+
             if (_.isNil(data)) {
               return Promise.resolve(null);
             }
@@ -82,11 +84,13 @@ System.register(["lodash", "aurelia-dependency-injection", "aurelia-fetch-client
               if (!options.ignoreCollection) {
                 this.collection.push(model);
               }
+
+              promise = Promise.resolve(model);
             } else if (!this.isComplete(model) || options.force) {
-              this._syncFrom(model, data);
+              promise = this._syncFrom(model, data);
             }
 
-            return Promise.resolve(model);
+            return promise || Promise.resolve(model);
           }
         }, {
           key: "toJSON",
@@ -123,11 +127,7 @@ System.register(["lodash", "aurelia-dependency-injection", "aurelia-fetch-client
         }, {
           key: "_syncFrom",
           value: function _syncFrom(model, data) {
-            _.mergeWith(model, data, function (objValue, srcValue) {
-              if (_.isArray(objValue)) {
-                return objValue = srcValue;
-              }
-            });
+            return this._backToFrontend(data, model);
           }
         }, {
           key: "_getFromCollection",
@@ -175,16 +175,18 @@ System.register(["lodash", "aurelia-dependency-injection", "aurelia-fetch-client
               return Promise.resolve(null);
             }
 
-            var key = remainingPath.shift();
+            var remainingPathCopy = _.clone(remainingPath);
 
-            if (remainingPath.length > 0) {
+            var key = remainingPathCopy.shift();
+
+            if (remainingPathCopy.length > 0) {
               if (_.isArray(pointer[key])) {
                 return Promise.all(_.map(pointer[key], function (element) {
-                  return _this2._walk(element, remainingPath, leafProcessor);
+                  return _this2._walk(element, remainingPathCopy, leafProcessor);
                 }));
               }
 
-              return this._walk(pointer[key], remainingPath, leafProcessor);
+              return this._walk(pointer[key], remainingPathCopy, leafProcessor);
             }
 
             return leafProcessor(pointer, key);
@@ -359,10 +361,9 @@ System.register(["lodash", "aurelia-dependency-injection", "aurelia-fetch-client
               }).then(function (response) {
                 return response.json();
               }).then(function (attributes) {
-                return _this7._backToFrontend(attributes, backAttr, model, opts);
+                opts.attributeFilter = _.keys(backAttr);
+                return _this7._backToFrontend(attributes, model, opts);
               });
-            }).then(function () {
-              return model;
             });
           }
         }, {
@@ -435,12 +436,10 @@ System.register(["lodash", "aurelia-dependency-injection", "aurelia-fetch-client
           }
         }, {
           key: "_backToFrontend",
-          value: function _backToFrontend(attributes, backAttr, model, options) {
+          value: function _backToFrontend(attributes, model, options) {
             var _this9 = this;
 
             var attributesCopy = _.cloneDeep(attributes);
-
-            var backAttrCopy = _.cloneDeep(backAttr);
 
             var opts = _.defaults({}, options, {
               mergeStrategy: 'replace'
@@ -451,6 +450,11 @@ System.register(["lodash", "aurelia-dependency-injection", "aurelia-fetch-client
 
             if (opts.mergeStrategy === 'ignore') {
               return;
+            }
+
+            if (!_.isUndefined(opts.attributeFilter)) {
+              var filter = _.isArray(opts.attributeFilter) ? opts.attributeFilter : _.keys(opts.attributeFilter);
+              attributesCopy = _.pick(attributesCopy, filter);
             }
 
             _.each(refKeys, function (entry) {
@@ -477,22 +481,13 @@ System.register(["lodash", "aurelia-dependency-injection", "aurelia-fetch-client
                   _.set(pointer, entry.frontendKey, modelRef);
                 });
               }));
-              promises.push(_this9._walk(backAttrCopy, backendPath, function (pointer, key) {
-                var val = _.get(pointer, key);
-
-                if (entry.backendKeyDeletion) {
-                  _.unset(pointer, key);
-                }
-
-                _.set(pointer, entry.frontendKey, val);
-              }));
             });
 
             return Promise.all(promises).then(function () {
               var updateModel = _this9._strategies[opts.mergeStrategy] || _this9._strategies.merge;
 
-              _.each(backAttrCopy, function (value, field) {
-                updateModel(model, field, _.get(attributesCopy, field));
+              _.each(attributesCopy, function (value, field) {
+                updateModel(model, field, value);
               });
 
               return Promise.resolve(model);

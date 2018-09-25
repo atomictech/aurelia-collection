@@ -56,6 +56,8 @@ var Collection = function () {
   }, {
     key: "fromJSON",
     value: function fromJSON(data, options) {
+      var promise;
+
       if (_lodash.default.isNil(data)) {
         return Promise.resolve(null);
       }
@@ -77,11 +79,13 @@ var Collection = function () {
         if (!options.ignoreCollection) {
           this.collection.push(model);
         }
+
+        promise = Promise.resolve(model);
       } else if (!this.isComplete(model) || options.force) {
-        this._syncFrom(model, data);
+        promise = this._syncFrom(model, data);
       }
 
-      return Promise.resolve(model);
+      return promise || Promise.resolve(model);
     }
   }, {
     key: "toJSON",
@@ -118,11 +122,7 @@ var Collection = function () {
   }, {
     key: "_syncFrom",
     value: function _syncFrom(model, data) {
-      _lodash.default.mergeWith(model, data, function (objValue, srcValue) {
-        if (_lodash.default.isArray(objValue)) {
-          return objValue = srcValue;
-        }
-      });
+      return this._backToFrontend(data, model);
     }
   }, {
     key: "_getFromCollection",
@@ -170,16 +170,18 @@ var Collection = function () {
         return Promise.resolve(null);
       }
 
-      var key = remainingPath.shift();
+      var remainingPathCopy = _lodash.default.clone(remainingPath);
 
-      if (remainingPath.length > 0) {
+      var key = remainingPathCopy.shift();
+
+      if (remainingPathCopy.length > 0) {
         if (_lodash.default.isArray(pointer[key])) {
           return Promise.all(_lodash.default.map(pointer[key], function (element) {
-            return _this2._walk(element, remainingPath, leafProcessor);
+            return _this2._walk(element, remainingPathCopy, leafProcessor);
           }));
         }
 
-        return this._walk(pointer[key], remainingPath, leafProcessor);
+        return this._walk(pointer[key], remainingPathCopy, leafProcessor);
       }
 
       return leafProcessor(pointer, key);
@@ -354,10 +356,9 @@ var Collection = function () {
         }).then(function (response) {
           return response.json();
         }).then(function (attributes) {
-          return _this7._backToFrontend(attributes, backAttr, model, opts);
+          opts.attributeFilter = _lodash.default.keys(backAttr);
+          return _this7._backToFrontend(attributes, model, opts);
         });
-      }).then(function () {
-        return model;
       });
     }
   }, {
@@ -430,12 +431,10 @@ var Collection = function () {
     }
   }, {
     key: "_backToFrontend",
-    value: function _backToFrontend(attributes, backAttr, model, options) {
+    value: function _backToFrontend(attributes, model, options) {
       var _this9 = this;
 
       var attributesCopy = _lodash.default.cloneDeep(attributes);
-
-      var backAttrCopy = _lodash.default.cloneDeep(backAttr);
 
       var opts = _lodash.default.defaults({}, options, {
         mergeStrategy: 'replace'
@@ -446,6 +445,11 @@ var Collection = function () {
 
       if (opts.mergeStrategy === 'ignore') {
         return;
+      }
+
+      if (!_lodash.default.isUndefined(opts.attributeFilter)) {
+        var filter = _lodash.default.isArray(opts.attributeFilter) ? opts.attributeFilter : _lodash.default.keys(opts.attributeFilter);
+        attributesCopy = _lodash.default.pick(attributesCopy, filter);
       }
 
       _lodash.default.each(refKeys, function (entry) {
@@ -472,22 +476,13 @@ var Collection = function () {
             _lodash.default.set(pointer, entry.frontendKey, modelRef);
           });
         }));
-        promises.push(_this9._walk(backAttrCopy, backendPath, function (pointer, key) {
-          var val = _lodash.default.get(pointer, key);
-
-          if (entry.backendKeyDeletion) {
-            _lodash.default.unset(pointer, key);
-          }
-
-          _lodash.default.set(pointer, entry.frontendKey, val);
-        }));
       });
 
       return Promise.all(promises).then(function () {
         var updateModel = _this9._strategies[opts.mergeStrategy] || _this9._strategies.merge;
 
-        _lodash.default.each(backAttrCopy, function (value, field) {
-          updateModel(model, field, _lodash.default.get(attributesCopy, field));
+        _lodash.default.each(attributesCopy, function (value, field) {
+          updateModel(model, field, value);
         });
 
         return Promise.resolve(model);
