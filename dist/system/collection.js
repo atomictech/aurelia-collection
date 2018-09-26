@@ -475,6 +475,10 @@ System.register(["lodash", "aurelia-dependency-injection", "aurelia-fetch-client
 
               var backendPath = entry.backendKey.split('.');
               promises.push(_this9._walk(attributesCopy, backendPath, function (pointer, key) {
+                if (!_.has(pointer, key)) {
+                  return;
+                }
+
                 var val = _.get(pointer, key);
 
                 if (entry.backendKeyDeletion) {

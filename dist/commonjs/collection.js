@@ -470,6 +470,10 @@ var Collection = function () {
 
         var backendPath = entry.backendKey.split('.');
         promises.push(_this9._walk(attributesCopy, backendPath, function (pointer, key) {
+          if (!_lodash.default.has(pointer, key)) {
+            return;
+          }
+
           var val = _lodash.default.get(pointer, key);
 
           if (entry.backendKeyDeletion) {
