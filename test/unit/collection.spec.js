@@ -933,6 +933,16 @@ describe('Collection', () => {
           done();
         });
     });
+
+    it('Should not add frontendKeys if they are not present in the attributes', done => {
+      carCollection._frontToBackend({ wheels: 5 })
+        .then(attributes => {
+          expect(attributes.wheels).toBe(5);
+          expect(attributes.driver).toBeUndefined();
+          expect(attributes._ref_driver).toBeUndefined();
+          done();
+        });
+    });
   });
 
   describe('._backToFrontend()', () => {

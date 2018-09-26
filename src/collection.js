@@ -519,7 +519,12 @@ export class Collection {
       frontendPath.push(entry.frontendKey);
 
       this._walk(attributes, frontendPath, (pointer, key) => {
+        if (!_.has(pointer, key)) {
+          return;
+        }
+
         let val = _.get(pointer, key);
+
         if (entry.backendKeyDeletion) {
           _.unset(pointer, key);
         }
