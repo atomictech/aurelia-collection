@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.5.4"></a>
+## [0.5.4](https://github.com/atomictech/aurelia-collection/compare/v0.5.3...v0.5.4) (2018-09-26)
+
+
+### Bug Fixes
+
+* **collection:** Fix null conversion _frontToBack when a frontKey is missing in the attribute. ([7a096ce](https://github.com/atomictech/aurelia-collection/commit/7a096ce))
+
+
+
 <a name="0.5.3"></a>
 ## [0.5.3](https://github.com/atomictech/aurelia-collection/compare/v0.5.2...v0.5.3) (2018-09-25)
 
