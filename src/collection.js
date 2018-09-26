@@ -584,6 +584,10 @@ export class Collection {
       // Process `attributes`
       promises.push(
         this._walk(attributesCopy, backendPath, (pointer, key) => {
+          if (!_.has(pointer, key)) {
+            return;
+          }
+
           let val = _.get(pointer, key);
 
           if (entry.backendKeyDeletion) {

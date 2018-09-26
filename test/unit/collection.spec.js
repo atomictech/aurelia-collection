@@ -586,7 +586,7 @@ describe('Collection', () => {
     it('Should return a model by calling the fetch api when using force parameter', done => {
       let carCopy = _.clone(car);
       carCopy._ref_driver = carCopy.driver._id;
-      delete carCopy.driver;
+      _.unset(carCopy, 'driver');
 
       fakeFetch.respondWith(JSON.stringify(carCopy));
       spyOn(carCollection._httpClient, 'fetch').and.callThrough();
@@ -934,7 +934,7 @@ describe('Collection', () => {
         });
     });
 
-    it('Should not add frontendKeys if they are not present in the attributes', done => {
+    it('Should not add backendKeys if they are not present in the attributes', done => {
       carCollection._frontToBackend({ wheels: 5 })
         .then(attributes => {
           expect(attributes.wheels).toBe(5);
@@ -1026,10 +1026,29 @@ describe('Collection', () => {
 
       phoneCollection._backToFrontend(backendResAttr, phone, { attributeFilter: ['battery', 'screens'] })
         .then(attributes => {
-          expect(phone.battery).toBe('5h');
-          expect(phone.color).toBeUndefined();
-          expect(phone.screens[0].screen).toBe(screen2);
-          expect(phone.screens[0].apps[0]).toBe(app2);
+          expect(attributes).toBe(phone);
+          expect(attributes.battery).toBe('5h');
+          expect(attributes.color).toBeUndefined();
+          expect(attributes.screens[0].screen).toBe(screen2);
+          expect(attributes.screens[0].apps[0]).toBe(app2);
+          done();
+        });
+    });
+
+    it('Should not add frontendKeys if they are not present in the attributes', done => {
+      carCollection.refKeys = () => [{ backendKey: '_ref_drivers', collection: 'Drivers', frontendKey: 'drivers' }];
+      _.unset(car, 'driver');
+      car.drivers = [{ _id: 'driver1' }, { _id: 'driver2' }];
+      let carCopy = _.cloneDeep(car);
+
+      let backendResAttr = { wheels: 5, _ref_drivers: [], color: 'pink' };
+
+      carCollection._backToFrontend(backendResAttr, car, { attributeFilter: ['wheels'] })
+        .then(attributes => {
+          expect(attributes).toBe(car);
+          expect(attributes.wheels).toBe(5);
+          expect(attributes.drivers).toEqual(carCopy.drivers);
+          expect(attributes.color).toBeUndefined();
           done();
         });
     });
