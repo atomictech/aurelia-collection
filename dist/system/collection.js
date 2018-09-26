@@ -420,6 +420,10 @@ System.register(["lodash", "aurelia-dependency-injection", "aurelia-fetch-client
               frontendPath.push(entry.frontendKey);
 
               _this8._walk(attributes, frontendPath, function (pointer, key) {
+                if (!_.has(pointer, key)) {
+                  return;
+                }
+
                 var val = _.get(pointer, key);
 
                 if (entry.backendKeyDeletion) {

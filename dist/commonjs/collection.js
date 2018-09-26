@@ -415,6 +415,10 @@ var Collection = function () {
         frontendPath.push(entry.frontendKey);
 
         _this8._walk(attributes, frontendPath, function (pointer, key) {
+          if (!_lodash.default.has(pointer, key)) {
+            return;
+          }
+
           var val = _lodash.default.get(pointer, key);
 
           if (entry.backendKeyDeletion) {
