@@ -19,7 +19,7 @@
   },
   "license": "MIT",
   "author": "Yannis Torres <yann.torres@gmail.com>",
-  "main": "dist/commonjs/index.js",
+  "main": "dist/commonjs/aurelia-collection.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/atomictech/aurelia-collection"
