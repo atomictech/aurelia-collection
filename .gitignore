@@ -1,9 +1,12 @@
 node_modules
+test/coverage-jest/
+.DS_STORE
+.DS_Store
+.vscode/
+.rollupcache
+dist/doc-temp
 jspm_packages
 bower_components
-coverage
 .idea
-.DS_STORE
-build/reports
-example
-aurelia-collection.sublime-*
+*.swp
+npm-debug.log
