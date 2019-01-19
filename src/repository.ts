@@ -1,8 +1,10 @@
-// import { autoinject } from 'aurelia-framework';
-import { Collection } from './collection';
+import { IConstructor } from './helpers';
+import { ISchema } from './entities/schema';
+import { ICollection, Collection } from './collection';
 
-// @autoinject()
 export class Repository {
+  collections: ICollection<ISchema>[];
+
   constructor() {}
 
   generateState(): any {
@@ -17,14 +19,14 @@ export class Repository {
 
   observeState(): void {}
 
-  declareCollection<S, C>(
-    name: string,
-    endpoint: string,
-    SchemaClass: typeof S,
-    CollectionClass?: typeof C
-  ) {
-    let collection = CollectionClass
-      ? new CollectionClass<SchemaClass>(endpoint)
-      : new Collection<SchemaClass>(endpoint);
+  createCollection<S extends ISchema, C extends ICollection<S> = Collection<S>>(
+    key: string,
+    baseUrl: string,
+    SchemaClass: IConstructor<S>,
+    CollectionClass?: IConstructor<C>,
+    modelid: string = '_id'
+  ): void {
+    let col = CollectionClass ? new CollectionClass() : new Collection<S>();
+    col.configure(key, SchemaClass, baseUrl, modelid);
   }
 }
