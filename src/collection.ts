@@ -69,7 +69,7 @@ export class Collection<S extends ISchema> implements ICollection<S> {
   //----------------------------------------------------------------------------
   //#region public-api
   /**
-   *
+   * This is sparta
    *
    * @param {string} key
    * @param {IConstructor<S>} SchemaClass
