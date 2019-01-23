@@ -77,7 +77,7 @@ export class Collection<S extends ISchema> implements ICollection<S> {
    * @param {string} [modelid]
    * @memberof Collection
    */
-  configure(key: string, SchemaClass: IConstructor<S>, baseUrl?: string, modelid?: string) {
+  configure(key: string, SchemaClass?: IConstructor<S>, baseUrl?: string, modelid?: string) {
     if (!this.transporter) {
       this.setTransporter(Container.instance.get(FetchTransporter));
     }
