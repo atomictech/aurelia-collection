@@ -8,7 +8,6 @@ describe('aurelia setup', () => {
     const cont = new Container();
     const aurelia: FrameworkConfiguration = cont.get(Aurelia);
 
-    expect(aurelia.container.hasResolver(Repository)).toBe(true);
     expect(() => configure(aurelia, {})).toThrowError();
   });
 
@@ -16,14 +15,12 @@ describe('aurelia setup', () => {
     const cont = new Container();
     const aurelia: FrameworkConfiguration = cont.get(Aurelia);
 
-    expect(aurelia.container.hasResolver(Repository)).toBe(true);
-
     configure(aurelia, repo => {
-      repo.createCollection<TestSchema>('test');
+      repo.createCollection<TestSchema>('foo', TestSchema);
     });
 
     let repo = aurelia.container.get(Repository);
     expect(repo).toBeDefined();
-    expect(repo.collections.test).toBeDefined();
+    expect(repo.collections['foo']).toBeDefined();
   });
 });
