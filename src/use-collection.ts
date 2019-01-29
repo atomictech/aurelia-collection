@@ -1,1 +1,3 @@
-export class UseCollection
+export class UseCollection {
+
+}

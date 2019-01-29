@@ -74,3 +74,20 @@ export abstract class SchemaBase implements ISchema {
     return new schema.Entity(this.identifier(), this.declare());
   }
 }
+
+/**
+ *
+ *
+ * @export
+ * @class Schema
+ * @extends {SchemaBase}
+ */
+export class Schema extends SchemaBase {
+  declare(): any {
+    return {};
+  }
+
+  identifier(): string {
+    return 'Model';
+  }
+}

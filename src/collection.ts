@@ -5,10 +5,11 @@ import { IConstructor } from './helpers';
 import { ITransporter } from './transporters/transporter';
 import { FetchTransporter } from './transporters/fetch-transporter';
 import { Model } from './entities/model';
-import { ISchema } from './entities/schema';
+import { ISchema, SchemaBase } from './entities/schema';
 
-export interface ICollection<S> {
-  configure(key: string, SchemaClass: IConstructor<S>, baseUrl?: string, modelid?: string): void;
+// export interface ICollection<S extends ISchema> {
+export interface ICollection {
+  // configure(key: string, SchemaClass: IConstructor<S>, baseUrl?: string, modelid?: string): void;
   fromJSON(data: any): any;
   toJSON(model: Model): any;
   flush(): void;
@@ -16,7 +17,7 @@ export interface ICollection<S> {
   setTransporter(transporter: ITransporter): void;
 }
 
-export class Collection<S extends ISchema> implements ICollection<S> {
+export class Collection<S extends SchemaBase> implements ICollection {
   //----------------------------------------------------------------------------
   //#region members
   /**
@@ -68,6 +69,9 @@ export class Collection<S extends ISchema> implements ICollection<S> {
 
   //----------------------------------------------------------------------------
   //#region public-api
+  constructor() {
+  }
+
   /**
    * This is sparta
    *
@@ -77,7 +81,7 @@ export class Collection<S extends ISchema> implements ICollection<S> {
    * @param {string} [modelid]
    * @memberof Collection
    */
-  configure(key: string, SchemaClass?: IConstructor<S>, baseUrl?: string, modelid?: string) {
+  configure(key: string, SchemaClass: IConstructor<S>, baseUrl?: string, modelid?: string) {
     if (!this.transporter) {
       this.setTransporter(Container.instance.get(FetchTransporter));
     }
@@ -105,20 +109,29 @@ export class Collection<S extends ISchema> implements ICollection<S> {
   /**
    *
    *
+   * @memberof Collection
+   */
+  flush(): void {
+    this.models = [];
+  }
+
+  /**
+   *
+   *
    * @param {*} data
    * @returns {Model}
    * @memberof Collection
    */
-  fromJSON(data: any): Promise<Model> {
-    let model = Container.instance.invoke(Model, data);
-    return model;
-  }
+  // fromJSON(data: any): Promise<Model> {
+  //   let model = Container.instance.invoke(Model, data);
+  //   return model;
+  // }
 
-  toJSON(model: Model) {}
-  flush(): void {}
-  isComplete(): boolean {
-    return true;
-  }
+  // toJSON(model: Model) {}
+
+  // isComplete(): boolean {
+  //   return true;
+  // }
   //#endregion
   //----------------------------------------------------------------------------
 }

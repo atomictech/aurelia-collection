@@ -17,5 +17,6 @@ export * from './use-collection';
 export * from './collection';
 export * from './repository';
 export * from './entities/model';
-export * from './entities/model-schema';
 export * from './entities/schema';
+export * from './transporters/transporter';
+export * from './transporters/fetch-transporter';
