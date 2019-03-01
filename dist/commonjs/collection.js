@@ -61,7 +61,8 @@ var Collection = function () {
 
       options = _lodash.default.defaults(options, {
         ignoreCollection: false,
-        force: false
+        force: false,
+        autoSet: true
       });
 
       var model = this._getFromCollection(data[this.modelid]);
@@ -69,9 +70,11 @@ var Collection = function () {
       if (_lodash.default.isUndefined(model)) {
         model = this.container.invoke(this.modelClass, data);
 
-        _lodash.default.each(data, function (value, key) {
-          model[key] = value;
-        });
+        if (options.autoSet) {
+          _lodash.default.each(data, function (value, key) {
+            model[key] = value;
+          });
+        }
 
         if (!options.ignoreCollection) {
           this.collection.push(model);
@@ -151,7 +154,8 @@ var Collection = function () {
           return response.json();
         }).then(function (data) {
           return _this.fromJSON(data, {
-            force: opts.force
+            force: opts.force,
+            autoSet: opts.autoSet
           });
         });
       }

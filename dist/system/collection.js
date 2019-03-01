@@ -66,7 +66,8 @@ System.register(["lodash", "aurelia-dependency-injection", "aurelia-fetch-client
 
             options = _.defaults(options, {
               ignoreCollection: false,
-              force: false
+              force: false,
+              autoSet: true
             });
 
             var model = this._getFromCollection(data[this.modelid]);
@@ -74,9 +75,11 @@ System.register(["lodash", "aurelia-dependency-injection", "aurelia-fetch-client
             if (_.isUndefined(model)) {
               model = this.container.invoke(this.modelClass, data);
 
-              _.each(data, function (value, key) {
-                model[key] = value;
-              });
+              if (options.autoSet) {
+                _.each(data, function (value, key) {
+                  model[key] = value;
+                });
+              }
 
               if (!options.ignoreCollection) {
                 this.collection.push(model);
@@ -156,7 +159,8 @@ System.register(["lodash", "aurelia-dependency-injection", "aurelia-fetch-client
                 return response.json();
               }).then(function (data) {
                 return _this.fromJSON(data, {
-                  force: opts.force
+                  force: opts.force,
+                  autoSet: opts.autoSet
                 });
               });
             }

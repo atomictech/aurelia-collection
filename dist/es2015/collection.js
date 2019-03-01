@@ -50,7 +50,8 @@ class Collection {
 
     options = _lodash.default.defaults(options, {
       ignoreCollection: false,
-      force: false
+      force: false,
+      autoSet: true
     });
 
     let model = this._getFromCollection(data[this.modelid]);
@@ -58,9 +59,11 @@ class Collection {
     if (_lodash.default.isUndefined(model)) {
       model = this.container.invoke(this.modelClass, data);
 
-      _lodash.default.each(data, (value, key) => {
-        model[key] = value;
-      });
+      if (options.autoSet) {
+        _lodash.default.each(data, (value, key) => {
+          model[key] = value;
+        });
+      }
 
       if (!options.ignoreCollection) {
         this.collection.push(model);
@@ -126,7 +129,8 @@ class Collection {
     if (_lodash.default.isUndefined(model) || !this.isComplete(model) || opts.force) {
       return this._httpClient.fetch(apiRoute).then(response => response.json()).then(data => {
         return this.fromJSON(data, {
-          force: opts.force
+          force: opts.force,
+          autoSet: opts.autoSet
         });
       });
     }

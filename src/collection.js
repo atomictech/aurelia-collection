@@ -58,7 +58,8 @@ export class Collection {
 
     options = _.defaults(options, {
       ignoreCollection: false,
-      force: false
+      force: false,
+      autoSet: true
     });
 
     let model = this._getFromCollection(data[this.modelid]);
@@ -67,9 +68,11 @@ export class Collection {
       model = this.container.invoke(this.modelClass, data);
 
       // affect model attribute based on what the backend is sending, this avoid the need of constructor in models
-      _.each(data, (value, key) => {
-        model[key] = value;
-      });
+      if (options.autoSet) {
+        _.each(data, (value, key) => {
+          model[key] = value;
+        });
+      }
 
       // do not store the model in the collection flag
       if (!options.ignoreCollection) {
@@ -197,7 +200,10 @@ export class Collection {
         .fetch(apiRoute)
         .then(response => response.json())
         .then(data => {
-          return this.fromJSON(data, { force: opts.force });
+          return this.fromJSON(data, {
+            force: opts.force,
+            autoSet: opts.autoSet
+          });
         });
     }
 
