@@ -3,7 +3,7 @@
 System.register(["lodash", "aurelia-framework", "aurelia-dependency-injection", "aurelia-fetch-client", "./collection"], function (_export, _context) {
   "use strict";
 
-  var _, Aurelia, inject, Container, HttpClient, Collection, _dec, _class, Config;
+  var _, Aurelia, inject, Container, HttpClient, Collection, _dec, _class, _temp, Config;
 
   function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -11,9 +11,17 @@ System.register(["lodash", "aurelia-framework", "aurelia-dependency-injection", 
 
   function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
+  function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
   function ObjectCreator(data) {
     return _.cloneDeep(data);
   }
+
+  _export({
+    _dec: void 0,
+    _class: void 0,
+    _temp: void 0
+  });
 
   return {
     setters: [function (_lodash) {
@@ -29,22 +37,14 @@ System.register(["lodash", "aurelia-framework", "aurelia-dependency-injection", 
       Collection = _collection.Collection;
     }],
     execute: function () {
-      _export("Config", Config = (_dec = inject(Aurelia, HttpClient), _dec(_class = function () {
+      _export("Config", Config = (_dec = inject(Aurelia, HttpClient), _dec(_class = (_temp = function () {
         function Config(aurelia, httpClient) {
           _classCallCheck(this, Config);
 
-          Object.defineProperty(this, "collections", {
-            configurable: true,
-            enumerable: true,
-            writable: true,
-            value: {}
-          });
-          Object.defineProperty(this, "defaultCollection", {
-            configurable: true,
-            enumerable: true,
-            writable: true,
-            value: null
-          });
+          _defineProperty(this, "collections", {});
+
+          _defineProperty(this, "defaultCollection", null);
+
           this.aurelia = aurelia;
           this.container = Container.instance;
           this.httpClient = httpClient;
@@ -87,9 +87,7 @@ System.register(["lodash", "aurelia-framework", "aurelia-dependency-injection", 
         }]);
 
         return Config;
-      }()) || _class));
-
-      _export("Config", Config);
+      }(), _temp)) || _class));
     }
   };
 });

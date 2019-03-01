@@ -21,19 +21,16 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 var Collection = function () {
   function Collection() {
     _classCallCheck(this, Collection);
 
-    Object.defineProperty(this, "_strategies", {
-      configurable: true,
-      enumerable: true,
-      writable: true,
-      value: {
-        replace: this._replaceStrategy,
-        array: this._arrayStrategy,
-        merge: this._mergeStrategy
-      }
+    _defineProperty(this, "_strategies", {
+      replace: this._replaceStrategy,
+      array: this._arrayStrategy,
+      merge: this._mergeStrategy
     });
   }
 

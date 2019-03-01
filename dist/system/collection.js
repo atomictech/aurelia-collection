@@ -11,6 +11,8 @@ System.register(["lodash", "aurelia-dependency-injection", "aurelia-fetch-client
 
   function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
+  function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
   function isNotNullArray(arr) {
     return !_.isArray(arr) || _.isEmpty(arr) || _.some(arr, _.negate(_.isNil));
   }
@@ -30,15 +32,10 @@ System.register(["lodash", "aurelia-dependency-injection", "aurelia-fetch-client
         function Collection() {
           _classCallCheck(this, Collection);
 
-          Object.defineProperty(this, "_strategies", {
-            configurable: true,
-            enumerable: true,
-            writable: true,
-            value: {
-              replace: this._replaceStrategy,
-              array: this._arrayStrategy,
-              merge: this._mergeStrategy
-            }
+          _defineProperty(this, "_strategies", {
+            replace: this._replaceStrategy,
+            array: this._arrayStrategy,
+            merge: this._mergeStrategy
           });
         }
 
@@ -505,8 +502,6 @@ System.register(["lodash", "aurelia-dependency-injection", "aurelia-fetch-client
 
         return Collection;
       }());
-
-      _export("Collection", Collection);
     }
   };
 });

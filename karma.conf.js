@@ -1,6 +1,5 @@
 // Karma configuration
 // Generated on Fri Dec 05 2014 16:49:29 GMT-0500 (EST)
-
 module.exports = function(config) {
   config.set({
 
@@ -34,17 +33,6 @@ module.exports = function(config) {
     preprocessors: {
       'test/**/*.js': ['babel'],
       'src/**/*.js': ['babel']
-    },
-    'babelPreprocessor': {
-      options: {
-        sourceMap: 'inline',
-        presets: [['@babel/env', { targets: { browsers: ['last 2 versions'] } }], '@babel/stage-1'],
-        plugins: [
-          '@babel/syntax-flow',
-          '@babel/proposal-decorators',
-          '@babel/transform-flow-strip-types'
-        ]
-      }
     },
 
     // test results reporter to use

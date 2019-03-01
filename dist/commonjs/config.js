@@ -15,7 +15,7 @@ var _aureliaFetchClient = require("aurelia-fetch-client");
 
 var _collection = require("./collection");
 
-var _dec, _class;
+var _dec, _class, _temp;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -25,26 +25,20 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 function ObjectCreator(data) {
   return _lodash.default.cloneDeep(data);
 }
 
-var Config = (_dec = (0, _aureliaFramework.inject)(_aureliaFramework.Aurelia, _aureliaFetchClient.HttpClient), _dec(_class = function () {
+var Config = (_dec = (0, _aureliaFramework.inject)(_aureliaFramework.Aurelia, _aureliaFetchClient.HttpClient), _dec(_class = (_temp = function () {
   function Config(aurelia, httpClient) {
     _classCallCheck(this, Config);
 
-    Object.defineProperty(this, "collections", {
-      configurable: true,
-      enumerable: true,
-      writable: true,
-      value: {}
-    });
-    Object.defineProperty(this, "defaultCollection", {
-      configurable: true,
-      enumerable: true,
-      writable: true,
-      value: null
-    });
+    _defineProperty(this, "collections", {});
+
+    _defineProperty(this, "defaultCollection", null);
+
     this.aurelia = aurelia;
     this.container = _aureliaDependencyInjection.Container.instance;
     this.httpClient = httpClient;
@@ -87,5 +81,5 @@ var Config = (_dec = (0, _aureliaFramework.inject)(_aureliaFramework.Aurelia, _a
   }]);
 
   return Config;
-}()) || _class);
+}(), _temp)) || _class);
 exports.Config = Config;
