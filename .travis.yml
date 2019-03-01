@@ -1,8 +1,6 @@
 sudo: required
 dist: trusty
 language: node_js
-node_js:
-  - "6"
 cache:
   directories:
     - $HOME/.npm
@@ -20,6 +18,7 @@ addons:
       - google-chrome-stable
       - google-chrome-beta
 before_script:
+  - nvm install 8
   - if [[ `npm -v` != 3* ]]; then npm i -g npm@3; fi
   - npm install
   - npm install jspm
