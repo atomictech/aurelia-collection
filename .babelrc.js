@@ -16,8 +16,8 @@ const plugins = [
   "@babel/plugin-proposal-class-properties"
 ];
 
-if (process.env['ENV'] === 'test') {
-  plugins.push('instanbul');
+if (process.env['NODE_ENV'] === 'test') {
+  plugins.push('istanbul');
 }
 
 module.exports = { presets, plugins };
