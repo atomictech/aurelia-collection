@@ -18,7 +18,7 @@ addons:
       - google-chrome-stable
       - google-chrome-beta
 before_script:
-  - nvm install 8
+  - nvm install lts/carbon
   - if [[ `npm -v` != 3* ]]; then npm i -g npm@3; fi
   - npm install
   - npm install jspm
