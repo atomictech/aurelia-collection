@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+# [0.6.0](https://github.com/atomictech/aurelia-collection/compare/v0.5.6...v0.6.0) (2019-03-22)
+
+
+### Bug Fixes
+
+* **CI:** A little spelling mistake in the istanbul usage of the plugin. ([ec2d67d](https://github.com/atomictech/aurelia-collection/commit/ec2d67d))
+* **CI:** set the minimal version of node to 8 (due to karma 4) ([5dbf321](https://github.com/atomictech/aurelia-collection/commit/5dbf321))
+* **CI:** set the minimal version of node to lts/carbon because NVM doesn’t know ‘8’ ([d32feb0](https://github.com/atomictech/aurelia-collection/commit/d32feb0))
+
+
+### Features
+
+* **collection:** opt-out option for attributes being set after a model has been instancied. ([c050856](https://github.com/atomictech/aurelia-collection/commit/c050856))
+
+
+
 <a name="0.5.6"></a>
 ## [0.5.6](https://github.com/atomictech/aurelia-collection/compare/v0.5.5...v0.5.6) (2018-11-19)
 
