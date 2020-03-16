@@ -25,7 +25,7 @@ function ObjectCreator(data) {
   return _lodash.default.cloneDeep(data);
 }
 
-let Config = (_dec = (0, _aureliaFramework.inject)(_aureliaFramework.Aurelia, _aureliaFetchClient.HttpClient), _dec(_class = (_temp = class Config {
+var Config = (_dec = (0, _aureliaFramework.inject)(_aureliaFramework.Aurelia, _aureliaFetchClient.HttpClient), _dec(_class = (_temp = class Config {
   constructor(aurelia, httpClient) {
     _defineProperty(this, "collections", {});
 
@@ -37,10 +37,10 @@ let Config = (_dec = (0, _aureliaFramework.inject)(_aureliaFramework.Aurelia, _a
   }
 
   registerCollection(key, defaultRoute) {
-    let collection = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : _collection.Collection;
-    let modelClass = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : ObjectCreator;
-    let modelid = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : '_id';
-    let c = this.container.invoke(collection);
+    var collection = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : _collection.Collection;
+    var modelClass = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : ObjectCreator;
+    var modelid = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : '_id';
+    var c = this.container.invoke(collection);
     this.collections[key] = c;
     c.configure(key, modelClass, defaultRoute, modelid);
 

@@ -27,7 +27,7 @@ class Collection {
   }
 
   configure(key, modelClass, defaultRoute) {
-    let modelid = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : '_id';
+    var modelid = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : '_id';
     this.container = _aureliaDependencyInjection.Container.instance;
 
     if (_lodash.default.isUndefined(defaultRoute)) {
@@ -42,7 +42,7 @@ class Collection {
   }
 
   fromJSON(data, options) {
-    let promise;
+    var promise;
 
     if (_lodash.default.isNil(data)) {
       return Promise.resolve(null);
@@ -54,7 +54,7 @@ class Collection {
       autoSet: true
     });
 
-    let model = this._getFromCollection(data[this.modelid]);
+    var model = this._getFromCollection(data[this.modelid]);
 
     if (_lodash.default.isUndefined(model)) {
       model = this.container.invoke(this.modelClass, data);
@@ -108,23 +108,23 @@ class Collection {
   }
 
   _getFromCollection(id) {
-    let obj = {};
+    var obj = {};
     obj[this.modelid] = id;
     return _lodash.default.find(this.collection, obj);
   }
 
   _removeFromCollection(id) {
-    let obj = {};
+    var obj = {};
     obj[this.modelid] = id;
 
     _lodash.default.remove(this.collection, obj);
   }
 
   _getById(id, options) {
-    const opts = options || {};
-    const apiRoute = opts.route || this.defaultRoute + id;
+    var opts = options || {};
+    var apiRoute = opts.route || this.defaultRoute + id;
 
-    let model = this._getFromCollection(id);
+    var model = this._getFromCollection(id);
 
     if (_lodash.default.isUndefined(model) || !this.isComplete(model) || opts.force) {
       return this._httpClient.fetch(apiRoute).then(response => response.json()).then(data => {
@@ -143,9 +143,9 @@ class Collection {
       return Promise.resolve(null);
     }
 
-    let remainingPathCopy = _lodash.default.clone(remainingPath);
+    var remainingPathCopy = _lodash.default.clone(remainingPath);
 
-    let key = remainingPathCopy.shift();
+    var key = remainingPathCopy.shift();
 
     if (remainingPathCopy.length > 0) {
       if (_lodash.default.isArray(pointer[key])) {
@@ -159,8 +159,8 @@ class Collection {
   }
 
   create(jsonModel, options) {
-    const opts = options || {};
-    const apiRoute = opts.route || this.defaultRoute.slice(0, -1);
+    var opts = options || {};
+    var apiRoute = opts.route || this.defaultRoute.slice(0, -1);
     return this._httpClient.fetch(apiRoute, {
       method: 'post',
       body: opts.notJson ? jsonModel : (0, _aureliaFetchClient.json)(jsonModel)
@@ -168,8 +168,8 @@ class Collection {
   }
 
   destroy(id, options) {
-    const opts = options || {};
-    const apiRoute = opts.route || this.defaultRoute + id;
+    var opts = options || {};
+    var apiRoute = opts.route || this.defaultRoute + id;
 
     this._removeFromCollection(id);
 
@@ -191,7 +191,7 @@ class Collection {
       recursive: false,
       populate: false
     });
-    let modelPromise = null;
+    var modelPromise = null;
 
     if (_lodash.default.isEmpty(data) || _lodash.default.isUndefined(data)) {
       return Promise.resolve(data);
@@ -216,7 +216,7 @@ class Collection {
         return model;
       }
 
-      let childOpt = _lodash.default.cloneDeep(options);
+      var childOpt = _lodash.default.cloneDeep(options);
 
       delete childOpt.route;
 
@@ -232,7 +232,7 @@ class Collection {
           frontendKey: null,
           backendKeyDeletion: true
         });
-        let collection = this.container.get(_config.Config).getCollection(item.collection);
+        var collection = this.container.get(_config.Config).getCollection(item.collection);
 
         if (_lodash.default.isNil(item.backendKey)) {
           return;
@@ -243,9 +243,9 @@ class Collection {
         }
 
         return this._walk(model, item.backendKey.split('.'), (pointer, key) => {
-          let itemData = _lodash.default.get(pointer, key);
+          var itemData = _lodash.default.get(pointer, key);
 
-          let itemDataPromise = Promise.resolve(null);
+          var itemDataPromise = Promise.resolve(null);
 
           if (_lodash.default.isNull(item.collection)) {
             itemDataPromise = Promise.resolve(itemData);
@@ -268,7 +268,7 @@ class Collection {
   }
 
   find(predicate, fallbackUrl) {
-    let res = _lodash.default.find(this.collection, predicate);
+    var res = _lodash.default.find(this.collection, predicate);
 
     if (_lodash.default.isUndefined(res)) {
       if (_lodash.default.isUndefined(fallbackUrl)) {
@@ -284,8 +284,8 @@ class Collection {
   }
 
   update(model, attr, options) {
-    const opts = options || {};
-    const apiRoute = opts.route || this.defaultRoute + model[this.modelid];
+    var opts = options || {};
+    var apiRoute = opts.route || this.defaultRoute + model[this.modelid];
     return this._frontToBackend(attr, opts).then(backAttr => {
       return this._httpClient.fetch(apiRoute, {
         method: 'put',
@@ -305,7 +305,7 @@ class Collection {
   }
 
   _arrayStrategy(targetModel, fieldName, newFieldValue) {
-    let currentValue = _lodash.default.get(targetModel, fieldName);
+    var currentValue = _lodash.default.get(targetModel, fieldName);
 
     if (_lodash.default.isArray(currentValue)) {
       _lodash.default.set(targetModel, fieldName, _lodash.default.union(currentValue, newFieldValue));
@@ -319,15 +319,15 @@ class Collection {
   }
 
   _frontToBackend(attributes, options) {
-    const refKeys = this.refKeys();
+    var refKeys = this.refKeys();
 
-    let _getIdFromData = (collection, data) => {
+    var _getIdFromData = (collection, data) => {
       if (_lodash.default.isString(data)) {
         return data;
       } else if (_lodash.default.isArray(data)) {
         return _lodash.default.map(data, _getIdFromData.bind(this, collection));
       } else if (_lodash.default.isObject(data)) {
-        const modelid = collection ? this.container.get(_config.Config).getCollection(collection).modelid : this.modelid;
+        var modelid = collection ? this.container.get(_config.Config).getCollection(collection).modelid : this.modelid;
         return data[modelid];
       }
 
@@ -340,10 +340,10 @@ class Collection {
         frontendKey: null,
         backendKeyDeletion: true
       });
-      let backendPath = entry.backendKey.split('.');
-      let backendKey = backendPath.pop();
+      var backendPath = entry.backendKey.split('.');
+      var backendKey = backendPath.pop();
 
-      let frontendPath = _lodash.default.clone(backendPath);
+      var frontendPath = _lodash.default.clone(backendPath);
 
       frontendPath.push(entry.frontendKey);
 
@@ -352,13 +352,13 @@ class Collection {
           return;
         }
 
-        let val = _lodash.default.get(pointer, key);
+        var val = _lodash.default.get(pointer, key);
 
         if (entry.backendKeyDeletion) {
           _lodash.default.unset(pointer, key);
         }
 
-        let id = _getIdFromData(entry.collection, val);
+        var id = _getIdFromData(entry.collection, val);
 
         _lodash.default.set(pointer, backendKey, _lodash.default.isUndefined(id) ? null : id);
       });
@@ -368,21 +368,21 @@ class Collection {
   }
 
   _backToFrontend(attributes, model, options) {
-    let attributesCopy = _lodash.default.cloneDeep(attributes);
+    var attributesCopy = _lodash.default.cloneDeep(attributes);
 
-    const opts = _lodash.default.defaults({}, options, {
+    var opts = _lodash.default.defaults({}, options, {
       mergeStrategy: 'replace'
     });
 
-    const refKeys = this.refKeys();
-    let promises = [];
+    var refKeys = this.refKeys();
+    var promises = [];
 
     if (opts.mergeStrategy === 'ignore') {
       return;
     }
 
     if (!_lodash.default.isUndefined(opts.attributeFilter)) {
-      let filter = _lodash.default.isArray(opts.attributeFilter) ? opts.attributeFilter : _lodash.default.keys(opts.attributeFilter);
+      var filter = _lodash.default.isArray(opts.attributeFilter) ? opts.attributeFilter : _lodash.default.keys(opts.attributeFilter);
       attributesCopy = _lodash.default.pick(attributesCopy, filter);
     }
 
@@ -398,13 +398,13 @@ class Collection {
         return;
       }
 
-      let backendPath = entry.backendKey.split('.');
+      var backendPath = entry.backendKey.split('.');
       promises.push(this._walk(attributesCopy, backendPath, (pointer, key) => {
         if (!_lodash.default.has(pointer, key)) {
           return;
         }
 
-        let val = _lodash.default.get(pointer, key);
+        var val = _lodash.default.get(pointer, key);
 
         if (entry.backendKeyDeletion) {
           _lodash.default.unset(pointer, key);
@@ -417,7 +417,7 @@ class Collection {
     });
 
     return Promise.all(promises).then(() => {
-      let updateModel = this._strategies[opts.mergeStrategy] || this._strategies.merge;
+      var updateModel = this._strategies[opts.mergeStrategy] || this._strategies.merge;
 
       _lodash.default.each(attributesCopy, (value, field) => {
         updateModel(model, field, value);

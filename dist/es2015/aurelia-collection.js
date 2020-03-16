@@ -32,10 +32,10 @@ var _collection = require("./collection");
 var _config = require("./config");
 
 function configure(aurelia, configCallback) {
-  let config = aurelia.container.get(_config.Config);
+  var config = aurelia.container.get(_config.Config);
 
   if (configCallback === undefined || typeof configCallback !== 'function') {
-    let error = 'You need to provide a callback method to properly configure the library';
+    var error = 'You need to provide a callback method to properly configure the library';
     throw error;
   }
 

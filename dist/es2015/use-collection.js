@@ -11,7 +11,7 @@ var _config = require("./config");
 
 var _dec, _class;
 
-let UseCollection = (_dec = (0, _aureliaDependencyInjection.resolver)(), _dec(_class = class UseCollection {
+var UseCollection = (_dec = (0, _aureliaDependencyInjection.resolver)(), _dec(_class = class UseCollection {
   constructor(key) {
     this._key = key;
   }
