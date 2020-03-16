@@ -16,11 +16,10 @@ addons:
 services:
 - xvfb
 before_script:
-- npm install
-- npm install jspm
+- yarn install
 - jspm config registries.github.auth $JSPM_GITHUB_AUTH_TOKEN
 - jspm install
-- gulp build
+- npm run build
 before_install:
 - google-chrome-stable --headless --disable-gpu --remote-debugging-port=9222 http://localhost &
 script: npm run coveralls
