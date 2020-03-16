@@ -60,6 +60,10 @@ function coveralls(done) {
 
   new Karma({
     configFile: __dirname + '/../../karma.conf.js',
+    preprocessors: {
+      'test/**/*.js': ['babel'],
+      'src/**/*.js': ['babel', 'coverage']
+    },
     singleRun: true,
     reporters: ['coverage'],
     coverageReporter: {
@@ -85,6 +89,10 @@ function cover(done) {
 
   new Karma({
     configFile: __dirname + '/../../karma.conf.js',
+    preprocessors: {
+      'test/**/*.js': ['babel'],
+      'src/**/*.js': ['babel', 'coverage']
+    },
     singleRun: true,
     reporters: ['coverage'],
     coverageReporter: {
