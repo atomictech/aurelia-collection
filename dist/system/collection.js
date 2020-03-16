@@ -395,13 +395,14 @@ System.register(["lodash", "aurelia-dependency-injection", "aurelia-fetch-client
 
             var refKeys = this.refKeys();
 
-            var _getIdFromData = function _getIdFromData(data) {
+            var _getIdFromData = function _getIdFromData(collection, data) {
               if (_.isString(data)) {
                 return data;
               } else if (_.isArray(data)) {
-                return _.map(data, _getIdFromData);
+                return _.map(data, _getIdFromData.bind(_this8, collection));
               } else if (_.isObject(data)) {
-                return data[_this8.modelid];
+                var modelid = collection ? _this8.container.get(Config).getCollection(collection).modelid : _this8.modelid;
+                return data[modelid];
               }
 
               return null;
@@ -431,7 +432,7 @@ System.register(["lodash", "aurelia-dependency-injection", "aurelia-fetch-client
                   _.unset(pointer, key);
                 }
 
-                var id = _getIdFromData(val);
+                var id = _getIdFromData(entry.collection, val);
 
                 _.set(pointer, backendKey, _.isUndefined(id) ? null : id);
               });

@@ -390,13 +390,14 @@ var Collection = function () {
 
       var refKeys = this.refKeys();
 
-      var _getIdFromData = function _getIdFromData(data) {
+      var _getIdFromData = function _getIdFromData(collection, data) {
         if (_lodash.default.isString(data)) {
           return data;
         } else if (_lodash.default.isArray(data)) {
-          return _lodash.default.map(data, _getIdFromData);
+          return _lodash.default.map(data, _getIdFromData.bind(_this8, collection));
         } else if (_lodash.default.isObject(data)) {
-          return data[_this8.modelid];
+          var modelid = collection ? _this8.container.get(_config.Config).getCollection(collection).modelid : _this8.modelid;
+          return data[modelid];
         }
 
         return null;
@@ -426,7 +427,7 @@ var Collection = function () {
             _lodash.default.unset(pointer, key);
           }
 
-          var id = _getIdFromData(val);
+          var id = _getIdFromData(entry.collection, val);
 
           _lodash.default.set(pointer, backendKey, _lodash.default.isUndefined(id) ? null : id);
         });

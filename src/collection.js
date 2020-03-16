@@ -501,13 +501,14 @@ export class Collection {
   _frontToBackend(attributes, options) {
     const refKeys = this.refKeys();
 
-    let _getIdFromData = (data) => {
+    let _getIdFromData = (collection, data) => {
       if (_.isString(data)) {
         return data;
       } else if (_.isArray(data)) {
-        return _.map(data, _getIdFromData);
+        return _.map(data, _getIdFromData.bind(this, collection));
       } else if (_.isObject(data)) {
-        return data[this.modelid];
+        const modelid = (collection) ? this.container.get(Config).getCollection(collection).modelid : this.modelid;
+        return data[modelid];
       }
       return null;
     };
@@ -536,7 +537,7 @@ export class Collection {
         }
 
         // browser request filter undefined fields, we need to explicitely set it to null to be sent to the backend. (in case of reseting the field)
-        let id = _getIdFromData(val);
+        let id = _getIdFromData(entry.collection, val);
         _.set(pointer, backendKey, _.isUndefined(id) ? null : id);
       });
     });

@@ -321,13 +321,14 @@ class Collection {
   _frontToBackend(attributes, options) {
     const refKeys = this.refKeys();
 
-    let _getIdFromData = data => {
+    let _getIdFromData = (collection, data) => {
       if (_lodash.default.isString(data)) {
         return data;
       } else if (_lodash.default.isArray(data)) {
-        return _lodash.default.map(data, _getIdFromData);
+        return _lodash.default.map(data, _getIdFromData.bind(this, collection));
       } else if (_lodash.default.isObject(data)) {
-        return data[this.modelid];
+        const modelid = collection ? this.container.get(_config.Config).getCollection(collection).modelid : this.modelid;
+        return data[modelid];
       }
 
       return null;
@@ -357,7 +358,7 @@ class Collection {
           _lodash.default.unset(pointer, key);
         }
 
-        let id = _getIdFromData(val);
+        let id = _getIdFromData(entry.collection, val);
 
         _lodash.default.set(pointer, backendKey, _lodash.default.isUndefined(id) ? null : id);
       });

@@ -7,27 +7,32 @@ import { bootstrap } from 'aurelia-bootstrapper';
 import { Config } from '../../src/config';
 import { Collection } from '../../src/collection';
 
-function initializeCollections(car, carCollection, config, driver, driverCollection, phone, phoneCollection, screen, app, screenCollection, appCollection) {
+function initializeCollections(car, carCollection, config, driver, driverCollection, phone, phoneCollection, screen, app, screenCollection, appCollection, passenger, passengerCollection) {
   let creator = (data) => data;
 
-  car = { _id: 'carId', wheels: 4, driver: '' };
+  car = { _id: 'carId', wheels: 4, driver: '', passengers: [] };
   driver = { _id: 'driverId', name: 'Fake Name', phones: [] };
+  passenger = { name: 'FakeP1', _id: 'p1' };
   phone = { _id: 'phone1', battery: '3h', screens: [{ screen: '', apps: [] }] };
   screen = { _id: 'screen1', index: 1 };
   app = { _id: 'app1', 'name': 'Makerz' };
 
   car.driver = driver;
+  car.passengers = [passenger];
   driver.phones = [phone];
   phone.screens = [{ screen: screen, apps: [app] }];
 
   carCollection = config.registerCollection('myKey', 'default/route/', Collection, creator);
   carCollection.collection.push(car);
-  carCollection.refKeys = () => [{ backendKey: '_ref_driver', collection: 'Drivers', frontendKey: 'driver' }];
+  carCollection.refKeys = () => [{ backendKey: '_ref_driver', collection: 'Drivers', frontendKey: 'driver' },
+  { backendKey: '_ref_passengers', collection: 'Passengers', frontendKey: 'passengers' }];
 
   driverCollection = config.registerCollection('Drivers', 'api/drivers/', Collection, creator);
   driverCollection.collection.push(driver);
   driverCollection.refKeys = () => [{ backendKey: '_ref_phones', collection: 'Phones', frontendKey: 'phones' }];
 
+  passengerCollection = config.registerCollection('Passengers', 'api/passengers/', Collection, creator, 'name');
+  passengerCollection.collection.push(passenger);
 
   phoneCollection = config.registerCollection('Phones', 'api/phones/', Collection, creator);
   phoneCollection.collection.push(phone);
@@ -41,7 +46,7 @@ function initializeCollections(car, carCollection, config, driver, driverCollect
   appCollection = config.registerCollection('Apps', 'api/apps/', Collection, creator);
   appCollection.collection.push(app);
 
-  return { car, carCollection, driver, driverCollection, phone, phoneCollection, screen, app, screenCollection, appCollection };
+  return { car, carCollection, driver, driverCollection, phone, phoneCollection, screen, app, screenCollection, appCollection, passenger, passengerCollection };
 }
 
 describe('Collection', () => {
@@ -241,8 +246,10 @@ describe('Collection', () => {
       let screenCollection;
       let app;
       let appCollection;
+      let passenger;
+      let passengerCollection;
 
-      ({ car, carCollection, driver, driverCollection, phone, phoneCollection, screen, app, screenCollection, appCollection } = initializeCollections(car, carCollection, config, driver, driverCollection, phone, phoneCollection, screen, app, screenCollection, appCollection));
+      ({ car, carCollection, driver, driverCollection, phone, phoneCollection, screen, app, screenCollection, appCollection, passenger, passengerCollection } = initializeCollections(car, carCollection, config, driver, driverCollection, phone, phoneCollection, screen, app, screenCollection, appCollection, passenger, passengerCollection));
 
       // We want to change only battery in order to check synchronization too
       let phoneCopy = _.cloneDeep(phone);
@@ -529,14 +536,16 @@ describe('Collection', () => {
     let phone;
     let screen;
     let app;
+    let passenger;
     let carCollection;
     let driverCollection;
     let phoneCollection;
     let screenCollection;
     let appCollection;
+    let passengerCollection;
 
     beforeEach(() => {
-      ({ car, carCollection, driver, driverCollection, phone, phoneCollection, screen, app, screenCollection, appCollection } = initializeCollections(car, carCollection, config, driver, driverCollection, phone, phoneCollection, screen, app, screenCollection, appCollection));
+      ({ car, carCollection, driver, driverCollection, phone, phoneCollection, screen, app, screenCollection, appCollection, passenger, passengerCollection } = initializeCollections(car, carCollection, config, driver, driverCollection, phone, phoneCollection, screen, app, screenCollection, appCollection, passenger, passengerCollection));
     });
 
     it('Should return the parameters when calling with undefined', done => {
@@ -834,14 +843,16 @@ describe('Collection', () => {
     let phone;
     let screen;
     let app;
+    let passenger;
     let carCollection;
     let driverCollection;
     let phoneCollection;
     let screenCollection;
     let appCollection;
+    let passengerCollection;
 
     beforeEach(() => {
-      ({ car, carCollection, driver, driverCollection, phone, phoneCollection, screen, app, screenCollection, appCollection } = initializeCollections(car, carCollection, config, driver, driverCollection, phone, phoneCollection, screen, app, screenCollection, appCollection));
+      ({ car, carCollection, driver, driverCollection, phone, phoneCollection, screen, app, screenCollection, appCollection, passenger, passengerCollection } = initializeCollections(car, carCollection, config, driver, driverCollection, phone, phoneCollection, screen, app, screenCollection, appCollection, passenger, passengerCollection));
     });
 
     it('Should not convert anything when no refkeys have been overloaded', done => {
@@ -943,6 +954,16 @@ describe('Collection', () => {
           done();
         });
     });
+
+    it('Should use the modelid of the backend key', done => {
+      carCollection._frontToBackend({ wheels: 5, passengers: [passenger] })
+        .then(attributes => {
+          expect(attributes.wheels).toBe(5);
+          expect(attributes._ref_passengers).toBeArrayOfSize(1);
+          expect(attributes._ref_passengers[0]).toBe(passenger.name);
+          done();
+        });
+    });
   });
 
   describe('._backToFrontend()', () => {
@@ -952,15 +973,17 @@ describe('Collection', () => {
     let phone;
     let screen;
     let app;
+    let passenger;
     let carCollection;
     let driverCollection;
     let phoneCollection;
     let screenCollection;
     let appCollection;
+    let passengerCollection;
     let backEndAttrs;
 
     beforeEach(() => {
-      ({ car, carCollection, driver, driverCollection, phone, phoneCollection, screen, app, screenCollection, appCollection } = initializeCollections(car, carCollection, config, driver, driverCollection, phone, phoneCollection, screen, app, screenCollection, appCollection));
+      ({ car, carCollection, driver, driverCollection, phone, phoneCollection, screen, app, screenCollection, appCollection, passenger, passengerCollection } = initializeCollections(car, carCollection, config, driver, driverCollection, phone, phoneCollection, screen, app, screenCollection, appCollection, passenger, passengerCollection));
 
       // The returned backend attributes
       // (different from backend converted attributes previously sended to the backend)
