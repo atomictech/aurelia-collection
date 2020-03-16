@@ -1,6 +1,9 @@
 sudo: required
 dist: xenial
 language: node_js
+env:
+  global:
+    - secure: "RnDs9DM2yW1vntwxHkTMwN26M41CDtjXRlus8nRCuoj6RbRK+PlRGAttMZN7uPfM5RtZ0UDlL0roDwVNacXijUWdzVqZXZekU3WmwpnrFFbFLaZzD5P6h5WFexTyS2mbBQqmvHFrVdkBZqK9Tdb9Yjzzo3l0mDDOP/6X+/SURVhj4eb3DPBbHeIlLNquSpvD2YQVFibHdUKRDftNVnHsF4ugbLZe1zpphfmD/1gtKmlRBQ7ngyV0WKHt1SzfaYf0QiEEaWi5gLIBWlDZvERk5FEhudhuG2l0FjyJpQ/museugrKJ4cbQjB8x7qAnxNLOT3cgU0UvBZOzEMVbN1aPAQT1bZshjLZifH+PR3lqS6SEUfymBAvPvPFmx3K7q0FIsHjXSMVo5SultaDM6k7Nc7bFux5JgNt0BmKAtKIhlpVhuaV6tx85AoRCxhJsB1ludZA9VplhRBNZu/PBjMP9QF29GfE6BsVjASO/WIjHvK0vdkDWx6ZnYHKEZWCIjjA63R7pfi3y5a7HFi30U9wlxUYMWKdGv44YfU+eC+AULQQR72vksfGv3wjAm8yXgX69T1/hvl70W5IVyQhR4CFNBmDUUHTwSTxJ1SFJj5YGBtDI2Lv7aiA99BHlRUmwVyxXhBTVlgHzeCjrPiXyKib2qWcR8kcr9khHBXEzKZw+TI4="
 cache:
   directories:
     - $HOME/.npm
@@ -15,9 +18,9 @@ addons:
 services:
   - xvfb
 before_script:
-  - if [[ `npm -v` != 3* ]]; then npm i -g npm@3; fi
   - npm install
   - npm install jspm
+  - jspm config registries.github.auth $JSPM_GITHUB_AUTH_TOKEN
   - jspm install
   - gulp build
 before_install:
