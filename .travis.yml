@@ -3,26 +3,24 @@ dist: xenial
 language: node_js
 env:
   global:
-    - secure: "RnDs9DM2yW1vntwxHkTMwN26M41CDtjXRlus8nRCuoj6RbRK+PlRGAttMZN7uPfM5RtZ0UDlL0roDwVNacXijUWdzVqZXZekU3WmwpnrFFbFLaZzD5P6h5WFexTyS2mbBQqmvHFrVdkBZqK9Tdb9Yjzzo3l0mDDOP/6X+/SURVhj4eb3DPBbHeIlLNquSpvD2YQVFibHdUKRDftNVnHsF4ugbLZe1zpphfmD/1gtKmlRBQ7ngyV0WKHt1SzfaYf0QiEEaWi5gLIBWlDZvERk5FEhudhuG2l0FjyJpQ/museugrKJ4cbQjB8x7qAnxNLOT3cgU0UvBZOzEMVbN1aPAQT1bZshjLZifH+PR3lqS6SEUfymBAvPvPFmx3K7q0FIsHjXSMVo5SultaDM6k7Nc7bFux5JgNt0BmKAtKIhlpVhuaV6tx85AoRCxhJsB1ludZA9VplhRBNZu/PBjMP9QF29GfE6BsVjASO/WIjHvK0vdkDWx6ZnYHKEZWCIjjA63R7pfi3y5a7HFi30U9wlxUYMWKdGv44YfU+eC+AULQQR72vksfGv3wjAm8yXgX69T1/hvl70W5IVyQhR4CFNBmDUUHTwSTxJ1SFJj5YGBtDI2Lv7aiA99BHlRUmwVyxXhBTVlgHzeCjrPiXyKib2qWcR8kcr9khHBXEzKZw+TI4="
+  - secure: HdBIXG979j1OYLtntwZtgZ8j06QfxwGPkrqyvVv9HKEqWAtOzv0YWfW07B4QQzq+qmtO7uQK+Ffg6ODtDrfafAisUxwTDUN4K2wvvJs/Ff+CK+76+xP0VduGJzKBMkgkzA9O5/+H1sm4WpFSrZNzLvDdnuFsTe/ABb1h1z35oA65Ch5j2hwlDMoKrhMlx37R0bexrFFl7G736eFPq4/IG9BlfMsCbkqNmFaKAntoiGtt0Uxs1tKzXjqucSOxJzVb/erbt1ngEfcMq62PZS5gyETUnVwaC1XAwQIjqWlD8fvAzFhRndfyPe5FZ9cjYTwNpLCP8rUnwJPr46yGI+D5AJZgNYxYaivW57IYQZaqvs1RsneOOOs6urAbdoqR+8FXCHjl/s4iatq5Q+gIv5p8ZdT0iogvbiGpewsJfW7D52C1CtBYqK3kIlh9aiba5wZZM7ZcfR9cnssKWL9DORmSxZW68HHQQSOQS48LUgDUUPxpWpVbbcF85ex+Nx+WpOHB7/g+d1Oc7+eca1xTCosc5lGPmEP+RiBR8YNEDbPUBauzCxDjXDxhhGpyBI7koVud1iMrNgVIi72iuSdo6+f+sQLoa5KwJ2MRiXj/2p6JaY9W4UMunWnGMTRsl0XyJ7n/pZ0E5/izbyLj8QVBRy9JJV1Rxx1nzHYiL4te023A+sk=
 cache:
   directories:
-    - $HOME/.npm
-    - $HOME/.jspm
+  - "$HOME/.npm"
+  - "$HOME/.jspm"
 notifications:
   slack: atomictech:Y2CvOY8NZ6K1OOvw4vwZ4EXW
 addons:
-  # From some tests it seems you can only have one firefox addon.
-  # Adding two results in the last one defined being the one installed.
   firefox: latest
   chrome: stable
 services:
-  - xvfb
+- xvfb
 before_script:
-  - npm install
-  - npm install jspm
-  - jspm config registries.github.auth $JSPM_GITHUB_AUTH_TOKEN
-  - jspm install
-  - gulp build
+- npm install
+- npm install jspm
+- jspm config registries.github.auth $JSPM_GITHUB_AUTH_TOKEN
+- jspm install
+- gulp build
 before_install:
-  - google-chrome-stable --headless --disable-gpu --remote-debugging-port=9222 http://localhost &
+- google-chrome-stable --headless --disable-gpu --remote-debugging-port=9222 http://localhost
 script: npm run coveralls
