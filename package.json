@@ -58,9 +58,7 @@
     "karma-jasmine": "^3.1.1",
     "karma-jasmine-matchers": "^4.0.1",
     "karma-jspm": "^2.2.1",
-    "object.assign": "^4.0.4",
     "require-dir": "^1.0.0",
-    "run-sequence": "^2.1.0",
     "standard-version": "^7.1.0",
     "vinyl-paths": "^3.0.1",
     "yargs": "^15.3.1"
