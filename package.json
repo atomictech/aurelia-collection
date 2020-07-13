@@ -59,7 +59,7 @@
     "karma-jasmine-matchers": "^4.0.1",
     "karma-jspm": "^2.2.1",
     "require-dir": "^1.0.0",
-    "standard-version": "^7.1.0",
+    "standard-version": "^8.0.1",
     "vinyl-paths": "^3.0.1",
     "yargs": "^15.3.1"
   },
