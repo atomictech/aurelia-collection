@@ -11,11 +11,6 @@ System.register(["aurelia-dependency-injection", "./config"], function (_export,
 
   function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-  _export({
-    _dec: void 0,
-    _class: void 0
-  });
-
   return {
     setters: [function (_aureliaDependencyInjection) {
       resolver = _aureliaDependencyInjection.resolver;

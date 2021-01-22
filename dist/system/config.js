@@ -17,12 +17,6 @@ System.register(["lodash", "aurelia-framework", "aurelia-dependency-injection", 
     return _.cloneDeep(data);
   }
 
-  _export({
-    _dec: void 0,
-    _class: void 0,
-    _temp: void 0
-  });
-
   return {
     setters: [function (_lodash) {
       _ = _lodash.default;
