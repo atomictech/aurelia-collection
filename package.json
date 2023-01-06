@@ -50,7 +50,7 @@
     "gulp-yuidoc": "^0.1.2",
     "istanbul": "^1.0.0-alpha.2",
     "jasmine-core": "^3.6.0",
-    "jspm": "^0.16.53",
+    "jspm": "^2.0.0-beta.7",
     "karma": "^6.0.1",
     "karma-babel-preprocessor": "^8.0.0",
     "karma-chrome-launcher": "^3.1.0",
